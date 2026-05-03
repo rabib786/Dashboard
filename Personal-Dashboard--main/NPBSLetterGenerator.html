@@ -249,8 +249,8 @@
         ];
 
         function escapeHtml(text) {
-            if (typeof text !== 'string') return text;
-            return text
+            if (text === null || text === undefined) return "";
+            return String(text)
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")

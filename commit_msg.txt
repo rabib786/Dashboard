@@ -1,0 +1,11 @@
+🪲 Jule: Sanitization Utilities - Fix TypeError and XSS bypass in escapeHtml
+
+🚨 The Threat: The `escapeHtml` function in `app.js` and standalone HTML files threw a `TypeError` (`(u || "").replace is not a function`) when encountering Numbers, Booleans, or Arrays, potentially crashing the application context or breaking the execution flow. Additionally, in the standalone HTML files, passing an Array (which evaluates to `typeof text !== 'string'`) allowed it to return unmodified, opening up an XSS vector if arrays were used as payloads (e.g. `['<script>']`).
+
+🔬 The Autopsy:
+1. In `app.js`, `escapeHtml` lacked explicit type coercion and handled falsy values insecurely. `(123 || "")` remains `123`, which lacks a `.replace` method.
+2. In the HTML files, `if (typeof text !== 'string') return text;` immediately returned Arrays and Objects unharmed, circumventing escaping mechanisms.
+
+💉 The Cure: Rewrote `escapeHtml` across the codebase to strictly test for `null` and `undefined` and explicitly cast variables via `String(u)` or `String(text)` before applying regex `.replace()`. This prevents runtime type crashes and ensures arrays / objects are forcibly converted to their string representations (which are then securely escaped).
+
+🛡️ Blast Radius: The change affects `app.js`, `DEBIT ACRD ACTIVATION LATTER.html`, and `NPBSLetterGenerator.html`. I've added comprehensive test cases covering integers, booleans, zeroes, and array payloads to the `test_escape_html.js` suite. All test suites pass successfully without regressions.
