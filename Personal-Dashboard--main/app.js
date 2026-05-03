@@ -2147,7 +2147,12 @@ window.calcAction = function (type, val) {
       calcCurrent = calcCurrent.toString() + val.toString();
     }
   } else if (type === "op") {
-    if (calcCurrent === "") return;
+    if (calcCurrent === "") {
+      if (calcPrevious !== "") {
+        calcOperation = val;
+      }
+      return;
+    }
     if (calcPrevious !== "") {
       calcCompute(false);
     }
