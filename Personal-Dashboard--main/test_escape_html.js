@@ -46,7 +46,12 @@ const testCases = [
     { name: 'Undefined input', input: undefined, expected: '' },
     { name: 'Multiple occurrences', input: '<<<<', expected: '&lt;&lt;&lt;&lt;' },
     { name: 'All special characters', input: '&<>"\'', expected: '&amp;&lt;&gt;&quot;&#039;' },
-    { name: 'Multi-line string', input: 'Line 1\n<br>\nLine 2', expected: 'Line 1\n&lt;br&gt;\nLine 2' }
+    { name: 'Multi-line string', input: 'Line 1\n<br>\nLine 2', expected: 'Line 1\n&lt;br&gt;\nLine 2' },
+    { name: 'Number input', input: 123, expected: '123' },
+    { name: 'Number zero', input: 0, expected: '0' },
+    { name: 'Boolean false', input: false, expected: 'false' },
+    { name: 'Array input', input: ['<script>'], expected: '&lt;script&gt;' },
+
 ];
 
 console.log('Running escapeHtml utility tests...');

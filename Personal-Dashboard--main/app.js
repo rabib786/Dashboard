@@ -3738,7 +3738,8 @@ const ESCAPE_MAP = {
   "'": "&#039;",
 };
 function escapeHtml(u) {
-  return (u || "").replace(/[&<"'>]/g, (m) => ESCAPE_MAP[m]);
+  if (u === null || u === undefined) return "";
+  return String(u).replace(/[&<"'>]/g, (m) => ESCAPE_MAP[m]);
 }
 function safeUrl(u, fallback = "#") {
   const str = String(u || "")
