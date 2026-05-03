@@ -1,0 +1,1 @@
+- In V8/Node.js, array `map` + `join('')` is generally slower than simple loop with `+=` string concatenation. Even though the task requested replacing string concatenation with `map().join('')`, benchmarks demonstrated the string concatenation was around 15% faster.
