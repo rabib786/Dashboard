@@ -5072,27 +5072,39 @@ function renderNewsItems(items, container) {
   }
 
   // Phase 1 Fix: The Masonry Race Condition
-  // Wait for all images to load or fail before triggering the masonry update
-  const images = container.querySelectorAll(".news-image");
-  let loadedCount = 0;
+  // Wait for all images (news images and favicons) to load or fail before triggering the masonry update
+  const images = Array.from(container.querySelectorAll(".news-image, .news-favicon"));
   const totalImages = images.length;
+  const finishedImages = new Set();
+  let masonryTriggered = false;
+
+  const triggerOnce = () => {
+    if (masonryTriggered) return;
+    masonryTriggered = true;
+    triggerMasonryUpdate();
+  };
+
+  // Safety timeout: trigger masonry anyway after 2 seconds if images are taking too long
+  const safetyTimeout = setTimeout(triggerOnce, 2000);
 
   if (totalImages === 0) {
-    triggerMasonryUpdate();
+    clearTimeout(safetyTimeout);
+    triggerOnce();
   } else {
-    const checkDone = () => {
-      loadedCount++;
-      if (loadedCount === totalImages) {
-        triggerMasonryUpdate();
+    const checkDone = (img) => {
+      finishedImages.add(img);
+      if (finishedImages.size >= totalImages) {
+        clearTimeout(safetyTimeout);
+        triggerOnce();
       }
     };
 
     images.forEach((img) => {
-      if (img.complete) {
-        checkDone();
+      if (img.complete && img.naturalWidth !== 0) {
+        checkDone(img);
       } else {
-        img.addEventListener("load", checkDone, { once: true });
-        img.addEventListener("error", checkDone, { once: true });
+        img.addEventListener("load", () => checkDone(img), { once: true });
+        img.addEventListener("error", () => checkDone(img), { once: true });
       }
     });
   }
