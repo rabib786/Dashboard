@@ -2277,9 +2277,7 @@ function renderBankApps() {
     return;
   }
 
-  let html = "";
-  bankAppsArr.forEach((app, i) => {
-    html += `
+  let html = bankAppsArr.map((app, i) => `
             <div class="bank-app-wrapper" draggable="true" ondragstart="handleSubDragStart(event, 'bank')" ondragover="handleSubDragOver(event)" ondrop="handleSubDrop(event, 'bank', bankAppsArr, saveBankApps, renderBankApps)" ondragend="handleSubDragEnd(event)">
                 <a href="${safeUrl(app.path)}" target="_blank" rel="noopener noreferrer" class="app-tile">
                     <i class="ph-fill ${escapeHtml(app.icon)}" aria-hidden="true"></i>
@@ -2287,8 +2285,8 @@ function renderBankApps() {
                 </a>
                 <button type="button" class="edit-btn bank-edit-btn" aria-label="Edit Tool Name: ${escapeHtml(app.name)}" onclick="editBankApp(${i}, event)" title="Edit Tool Name"><i class="ph ph-pencil-simple" aria-hidden="true"></i></button>
                 <button type="button" class="delete-btn bank-del-btn" aria-label="Remove Tool: ${escapeHtml(app.name)}" onclick="deleteBankApp(${i}, event)" title="Remove Tool">&times;</button>
-            </div>`;
-  });
+            </div>`
+  ).join("");
   grid.innerHTML = html;
   triggerMasonryUpdate();
 }
