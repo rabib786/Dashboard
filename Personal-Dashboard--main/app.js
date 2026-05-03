@@ -5327,10 +5327,7 @@ window.addEventListener("load", initDashboard);
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     if (window.location.protocol !== "file:") {
-      navigator.serviceWorker
-        .register("./service-worker.js")
-        .then((reg) => console.log("App ready for offline use."))
-        .catch((err) => console.log("Service Worker failed:", err));
+      navigator.serviceWorker.register("./service-worker.js");
     }
   });
 }
