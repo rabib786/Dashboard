@@ -695,15 +695,15 @@ a:focus-visible {
 .bank-app-wrapper { position: relative; display: flex; flex-direction: column; }
 .app-tile {
     background: var(--inner-bg); border: 1px solid var(--glass-border); border-radius: 16px;
-    padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+    padding: 25px 10px 15px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px;
     text-decoration: none; color: var(--text-main); transition: all 0.2s; cursor: pointer; flex-grow: 1;
 }
 .app-tile:hover { border-color: var(--accent); transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: var(--glass-bg); }
 .app-tile i { font-size: 2.2rem; color: var(--accent); transition: transform 0.2s; }
 .app-tile:hover i { transform: scale(1.1); }
-.app-tile span { font-weight: 700; font-size: 0.85rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; padding: 0 5px;}
-.bank-del-btn { position: absolute; top: -5px; right: -5px; background: var(--danger-light); color: var(--danger); border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; opacity: 0; border: none; cursor: pointer; transition: 0.2s; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 5;}
-.bank-edit-btn { position: absolute; top: -5px; left: -5px; background: var(--glass-bg); color: var(--accent); border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; opacity: 0; border: none; cursor: pointer; transition: 0.2s; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 5;}
+.app-tile span { font-weight: 700; font-size: 0.85rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; padding: 0 12px;}
+.bank-del-btn { position: absolute; top: -8px; right: -8px; background: var(--danger-light); color: var(--danger); border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; opacity: 0; border: none; cursor: pointer; transition: 0.2s; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10;}
+.bank-edit-btn { position: absolute; top: -8px; left: -8px; background: var(--glass-bg); color: var(--accent); border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; opacity: 0; border: none; cursor: pointer; transition: 0.2s; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10;}
 .bank-app-wrapper:hover .bank-del-btn,
 .bank-app-wrapper:focus-within .bank-del-btn,
 .bank-app-wrapper:hover .bank-edit-btn,
@@ -862,14 +862,14 @@ a:focus-visible {
 .shortcut-input:focus { border-color: var(--accent); }
 .shortcuts-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; flex-grow: 1; width: 100%; padding-top: 5px; }
 .shortcut-wrapper { position: relative; display: flex; flex-direction: column; }
-.shortcut-item { background: var(--inner-bg); border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s; position: relative; text-decoration: none; color: var(--text-main); padding: 20px 10px; flex-grow: 1; }
+.shortcut-item { background: var(--inner-bg); border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s; position: relative; text-decoration: none; color: var(--text-main); padding: 25px 10px 15px 10px; flex-grow: 1; }
 .shortcut-item:hover { border-color: var(--accent); transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: var(--glass-bg); }
 .shortcut-icon-wrapper { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: transparent; flex-shrink: 0; }
 .shortcut-item img { width: 32px; height: 32px; border-radius: inherit; }
 .shortcut-fallback-icon { font-size: 2.2rem; color: var(--accent); transition: transform 0.2s; }
 .shortcut-item:hover .shortcut-fallback-icon { transform: scale(1.1); }
 .shortcut-info { display: flex; flex-direction: column; overflow: hidden; width: 100%; }
-.shortcut-name { font-weight: 700; font-size: 0.85rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; padding: 0 5px; }
+.shortcut-name { font-weight: 700; font-size: 0.85rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; padding: 0 12px; }
 .shortcut-wrapper:hover .bank-del-btn,
 .shortcut-wrapper:focus-within .bank-del-btn,
 .shortcut-wrapper:hover .bank-edit-btn,
