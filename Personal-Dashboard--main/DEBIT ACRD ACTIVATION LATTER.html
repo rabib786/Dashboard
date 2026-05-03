@@ -202,6 +202,16 @@
 </div>
 
 <script>
+    function escapeHtml(text) {
+        if (typeof text !== 'string') return text;
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     let cardList = [];
 
     // Format Name to Uppercase automatically on input
@@ -241,10 +251,10 @@
         cardList.forEach((card, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="border: 1px solid black; padding: 8px;">${card.accNum}</td>
-                <td style="border: 1px solid black; padding: 8px;">${card.cardName}</td>
-                <td style="border: 1px solid black; padding: 8px;">${card.fullCardNum}</td>
-                <td style="border: 1px solid black; padding: 8px;">${card.mobileNum}</td>
+                <td style="border: 1px solid black; padding: 8px;">${escapeHtml(card.accNum)}</td>
+                <td style="border: 1px solid black; padding: 8px;">${escapeHtml(card.cardName)}</td>
+                <td style="border: 1px solid black; padding: 8px;">${escapeHtml(card.fullCardNum)}</td>
+                <td style="border: 1px solid black; padding: 8px;">${escapeHtml(card.mobileNum)}</td>
                 <td style="border: 1px solid black; padding: 8px; text-align:center;" class="no-copy">
                     <button class="btn-danger" onclick="removeCard(${index})">X</button>
                 </td>
@@ -332,7 +342,7 @@
             
             let tableHTML = `
                 <div class="history-item-header">
-                    <span>Sent Date: ${record.timestamp}</span>
+                    <span>Sent Date: ${escapeHtml(record.timestamp)}</span>
                     <button class="btn-danger" onclick="deleteHistory(${index})">Delete Record</button>
                 </div>
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
@@ -350,10 +360,10 @@
             record.cards.forEach(card => {
                 tableHTML += `
                     <tr>
-                        <td style="border: 1px solid #ccc; padding: 5px;">${card.accNum}</td>
-                        <td style="border: 1px solid #ccc; padding: 5px;">${card.cardName}</td>
-                        <td style="border: 1px solid #ccc; padding: 5px;">${card.fullCardNum}</td>
-                        <td style="border: 1px solid #ccc; padding: 5px;">${card.mobileNum}</td>
+                        <td style="border: 1px solid #ccc; padding: 5px;">${escapeHtml(card.accNum)}</td>
+                        <td style="border: 1px solid #ccc; padding: 5px;">${escapeHtml(card.cardName)}</td>
+                        <td style="border: 1px solid #ccc; padding: 5px;">${escapeHtml(card.fullCardNum)}</td>
+                        <td style="border: 1px solid #ccc; padding: 5px;">${escapeHtml(card.mobileNum)}</td>
                     </tr>
                 `;
             });
