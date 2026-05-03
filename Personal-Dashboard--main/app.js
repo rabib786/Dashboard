@@ -1379,6 +1379,11 @@ function triggerMasonryUpdate() {
       cachedMasonryCards = document.getElementsByClassName("card");
     }
 
+    const gridMasonryContainer = document.getElementById("dashboard-grid");
+    if (gridMasonryContainer) {
+      gridMasonryContainer.style.minHeight = gridMasonryContainer.offsetHeight + "px";
+    }
+
     // ⚡ Bolt Performance: Reset gridRowEnd first in a separate write loop to allow shrinking without causing N+1 layout thrashing
     for (let i = 0; i < cachedMasonryCards.length; i++) {
       cachedMasonryCards[i].style.gridRowEnd = "auto";
@@ -1402,8 +1407,8 @@ function triggerMasonryUpdate() {
       updates[i].card.style.gridRowEnd = updates[i].span;
     }
 
-    const dashboard = document.getElementById("dashboard-grid");
-    if (dashboard) dashboard.style.minHeight = "";
+    const gridMasonryContainerRef = document.getElementById("dashboard-grid");
+    if (gridMasonryContainerRef) gridMasonryContainerRef.style.minHeight = "";
   }, 50);
 }
 
