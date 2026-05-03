@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STANDARD ISLAMI BANK PLC RTGS Generator Workspace</title>
+    <style>
+        /* Workspace Layout Styling */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #1e1e1e;
+        }
+
+        /* Sidebar (Left Panel) */
+        .sidebar {
+            width: 380px;
+            background-color: #252526;
+            color: #cccccc;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #3e3e42;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: #333333;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        .sidebar-header h2 { margin: 0; font-size: 18px; color: #ffffff; }
+        
+        .sidebar-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: bold; color: #e0e0e0; }
+        
+        .date-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .date-header label { margin: 0; }
+        .date-header .auto-date-toggle { font-size: 11px; font-weight: normal; cursor: pointer; color: #aaa; display: flex; align-items: center; gap: 4px; }
+        .date-header .auto-date-toggle input { margin: 0; cursor: pointer; }
+        
+        .input-group input[type="text"], 
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 8px;
+            background-color: #3c3c3c;
+            border: 1px solid #555555;
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+            outline: none;
+            font-family: inherit;
+        }
+        .input-group textarea { resize: vertical; min-height: 60px; }
+        .input-group input[type="text"]:focus,
+        .input-group textarea:focus { border-color: #007acc; }
+        
+        .section-title {
+            margin: 25px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #555;
+            color: #007acc;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .mini-action-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .mini-action-bar button {
+            flex: 1;
+            padding: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+        .mini-action-bar button:hover { opacity: 0.8; }
+        .btn-save { background-color: #007acc; }
+        .btn-load { background-color: #28a745; }
+        .btn-delete { background-color: #dc3545; }
+
+        .backup-action-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            padding-top: 10px;
+            border-top: 1px dashed #555;
+        }
+        .backup-action-bar button {
+            flex: 1;
+            padding: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+        .backup-action-bar button:hover { opacity: 0.8; }
+        .btn-export { background-color: #6c757d; }
+        .btn-import { background-color: #17a2b8; }
+
+        .action-bar {
+            padding: 20px;
+            background-color: #333333;
+            border-top: 1px solid #3e3e42;
+            display: flex;
+            gap: 10px;
+        }
+        .action-bar button {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .action-bar button:hover { background-color: #005999; }
+        .action-bar .btn-secondary { background-color: #555; }
+        .action-bar .btn-secondary:hover { background-color: #666; }
+
+        /* Preview Area (Right Panel) */
+        .preview-area {
+            flex-grow: 1;
+            background-color: #525252;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* --- EXACT REPLICA STYLING BELOW --- */
+        .form-container {
+            background-color: white;
+            color: black;
+            width: 210mm; 
+            min-height: 297mm;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12px;
+            pointer-events: none; 
+        }
+
+        .header-section { text-align: center; margin-bottom: 5px; position: relative; }
+        .header-title { font-size: 20px; font-weight: bold; margin: 0; }
+        .header-sub { font-size: 14px; margin: 0; }
+        .branch-date-row { display: flex; justify-content: center; position: relative; margin-top: 15px; padding: 0 50px; font-size: 14px; }
+        .date-container { position: absolute; right: 50px; bottom: 0; }
+        
+        .dotted-line {
+            border: none;
+            border-bottom: 1px dotted black;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 5px; table-layout: fixed; }
+        th, td { border: 1px solid black; padding: 2px 4px; vertical-align: middle; overflow: hidden; }
+        
+        .nested-table { margin-bottom: 0; }
+        .nested-table td { border: none; border-right: 1px solid black; padding: 0; }
+        .nested-table td:last-child { border-right: none; }
+
+        .dark-header { background-color: #444 !important; color: white; text-align: center; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .light-gray { background-color: #e0e0e0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+        .form-container input[type="text"] { width: 100%; height: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 12px; color: black; margin: 0; padding: 0; }
+        .form-container input::placeholder { color: #888; text-align: center; }
+
+        .multiline-out {
+            width: 100%;
+            min-height: 22px;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 12px;
+            color: black;
+            resize: none;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 2px 4px;
+            line-height: 1.3;
+            vertical-align: top;
+        }
+
+        div.multiline-out {
+            display: flex;
+            align-items: center; 
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .center-text { justify-content: center; text-align: center; }
+        .bold-upper { font-weight: bold !important; text-transform: uppercase !important; }
+
+        /* CHANGED: Fixed the "Open Box" issue to render enclosed actual boxes */
+        .box-container { 
+            display: flex; 
+            height: 100%; 
+            width: 100%; 
+            align-items: stretch; 
+            /* Added padding so the boxes don't fuse with the table cell walls */
+            padding: 1px;
+            box-sizing: border-box;
+        }
+        .box-container input { 
+            flex: 1 1 0; 
+            min-width: 0; 
+            /* Applied full borders around every input to make real squares */
+            border: 1px solid black !important; 
+            /* Remove internal double borders */
+            border-right: none !important; 
+            border-radius: 0 !important;
+            text-align: center; 
+            margin: 0; 
+            padding: 0;
+            background-color: transparent;
+            height: 100%; 
+            font-weight: 900 !important; 
+            font-size: 14px !important; 
+            font-family: "Courier New", Courier, monospace !important; 
+            box-sizing: border-box;
+        }
+        .box-container input:last-child { 
+            /* Close the right side of the final box */
+            border-right: 1px solid black !important; 
+        }
+
+        .cb-container { display: inline-flex; align-items: center; margin-right: 10px; }
+        .cb-container input { margin-right: 3px; }
+
+        .terms-text { font-size: 10.5px; text-align: justify; line-height: 1.2; margin: 15px 0; }
+        .signature-row { display: flex; justify-content: space-between; margin-top: 90px; margin-bottom: 10px; padding: 0 20px; }
+        .signature-line { border-top: 1px dotted black; width: 300px; text-align: center; padding-top: 2px; }
+        .nb-text { font-size: 10px; font-style: italic; margin-top: 2px; }
+
+        @media print {
+            body { display: block; background-color: white; height: auto; overflow: visible; }
+            .sidebar { display: none; }
+            .preview-area { display: block; padding: 0; background-color: white; overflow: visible; }
+            .form-container { width: 100%; min-height: auto; padding: 0; box-shadow: none; border: none; margin: 0; pointer-events: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar no-print">
+        <div class="sidebar-header">
+            <h2>Form Data Entry</h2>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="section-title" style="margin-top: 0;">Saved Templates</div>
+            <div class="input-group">
+                <select id="profile-select">
+                    <option value="">-- Select a saved profile --</option>
+                </select>
+            </div>
+            <div class="mini-action-bar">
+                <button class="btn-save" onclick="saveProfile()">Save Form</button>
+                <button class="btn-load" onclick="loadProfile()">Load Form</button>
+                <button class="btn-delete" onclick="deleteProfile()">Delete</button>
+            </div>
+            
+            <div class="backup-action-bar">
+                <button class="btn-export" onclick="exportProfiles()">⬇ Export Backup</button>
+                <button class="btn-import" onclick="document.getElementById('import-file').click()">⬆ Import Backup</button>
+                <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importProfiles(event)">
+            </div>
+
+            <div class="input-group">
+                <label>Branch Name</label>
+                <input type="text" id="in-branch" placeholder="e.g. Gulshan Branch" value="Madhabdi" oninput="syncText('in-branch', 'out-branch')">
+            </div>
+            
+            <div class="input-group">
+                <div class="date-header">
+                    <label>Date (DD/MM/YYYY)</label>
+                    <label class="auto-date-toggle">
+                        <input type="checkbox" id="cb-auto-date" checked onchange="toggleAutoDate()"> Use Today
+                    </label>
+                </div>
+                <input type="text" id="in-date" placeholder="DD/MM/YYYY" oninput="syncText('in-date', 'out-date')">
+            </div>
+
+            <div class="input-group">
+                <label>Transfer Type</label>
+                <select id="in-type" onchange="syncType()">
+                    <option value="">Select...</option>
+                    <option value="rtgs" selected>BD-RTGS</option>
+                    <option value="beftn">BEFTN</option>
+                </select>
+            </div>
+
+            <div class="section-title">Debit Account Info</div>
+            
+            <div class="input-group">
+                <div class="date-header">
+                    <label>Fund Transfer Date (DDMMYYYY)</label>
+                    <label class="auto-date-toggle">
+                        <input type="checkbox" id="cb-auto-transfer-date" checked onchange="toggleAutoTransferDate()"> Use Today
+                    </label>
+                </div>
+                <input type="text" id="in-transfer-date" maxlength="8" placeholder="e.g. 24102025" oninput="syncTransferDate()">
+            </div>
+
+            <div class="input-group">
+                <label>Account Number (13 Digits)</label>
+                <input type="text" id="in-debit-acc" maxlength="13" oninput="syncBoxes('in-debit-acc', 'out-debit-acc')">
+            </div>
+            <div class="input-group">
+                <label>Account Title</label>
+                <textarea id="in-debit-title" placeholder="Enter full account name" oninput="syncText('in-debit-title', 'out-debit-title')"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Mobile Number (11 Digits)</label>
+                <input type="text" id="in-debit-mobile" maxlength="11" oninput="syncBoxes('in-debit-mobile', 'out-debit-mobile')">
+            </div>
+
+            <div class="section-title">Beneficiary Info</div>
+            <div class="input-group">
+                <label>Beneficiary Account No. (17 Digits)</label>
+                <input type="text" id="in-ben-acc" maxlength="17" oninput="syncDoubleBoxes('in-ben-acc', 'out-ben-acc', 'out-ben-acc-confirm')">
+            </div>
+            <div class="input-group">
+                <label>Beneficiary Title</label>
+                <textarea id="in-ben-title" placeholder="Enter full beneficiary name" oninput="syncText('in-ben-title', 'out-ben-title')"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Bank Name</label>
+                <textarea id="in-ben-bank" placeholder="Enter bank name" oninput="syncText('in-ben-bank', 'out-ben-bank')"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Branch Name</label>
+                <textarea id="in-ben-branch" placeholder="Enter branch name" oninput="syncText('in-ben-branch', 'out-ben-branch')"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Routing Number (9 Digits)</label>
+                <input type="text" id="in-routing" maxlength="9" oninput="syncBoxes('in-routing', 'out-routing')">
+            </div>
+
+            <div class="section-title">Transaction Details</div>
+            
+            <div class="input-group">
+                <label>Amount (In Figures)</label>
+                <input type="text" id="in-amount-fig" placeholder="e.g. 100000" 
+                    oninput="handleAmountInput(event)" 
+                    onfocus="unformatAmountOnFocus(event)" 
+                    onblur="formatAmountOnBlur(event)">
+            </div>
+            <div class="input-group">
+                <label>Amount (In Words)</label>
+                <textarea id="in-amount-words" placeholder="Auto-generates as you type numbers" oninput="syncText('in-amount-words', 'out-amount-words')"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label>Currency</label>
+                <select id="in-currency" onchange="syncCurrency()">
+                    <option value="">Select...</option>
+                    <option value="bdt" selected>BDT</option>
+                    <option value="usd">USD</option>
+                    <option value="eur">EUR</option>
+                    <option value="gbp">GBP</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn-secondary" onclick="clearForm()">Clear</button>
+            <button onclick="window.print()">Print Form</button>
+        </div>
+    </div>
+
+    <div class="preview-area">
+        <div class="form-container">
+            
+            <div class="header-section">
+                <h1 class="header-title">STANDARD ISLAMI BANK PLC</h1>
+                <p class="header-sub">Shari'ah Based Islami Bank</p>
+                <div class="branch-date-row">
+                    <div><span id="out-branch" style="display:inline-block; width:150px; text-align:center; border-bottom: 1px dotted black;"></span> Branch</div>
+                    <div class="date-container">Date: <input type="text" id="out-date" class="dotted-line" style="width: 100px; font-weight: bold;"></div>
+                </div>
+            </div>
+
+            <table>
+                <colgroup>
+                    <col style="width: 70%;">
+                    <col style="width: 30%;">
+                </colgroup>
+                <tr>
+                    <td class="dark-header" style="height: 22px;">BD-RTGS/ BEFTN Application Form (Credit Transfer)</td>
+                    <td class="dark-header" style="height: 22px;">Bank's Copy</td>
+                </tr>
+            </table>
+
+            <table>
+                <colgroup>
+                    <col style="width: 18%;">
+                    <col style="width: 32%;">
+                    <col style="width: 25%;">
+                    <col style="width: 8%;">
+                    <col style="width: 8%;">
+                    <col style="width: 9%;">
+                </colgroup>
+                <tr>
+                    <td class="light-gray" style="height: 22px; font-weight: bold;">Fund Transfer Type</td>
+                    <td style="height: 22px;">
+                        <label class="cb-container"><input type="checkbox" id="out-cb-rtgs"> BD-RTGS</label>
+                        <label class="cb-container"><input type="checkbox" id="out-cb-beftn"> BEFTN</label>
+                    </td>
+                    <td class="light-gray" style="height: 22px; text-align: center; font-weight: bold;">Transfer Request Time</td>
+                    <td style="height: 22px; text-align: center; color: #aaa;">HH</td>
+                    <td style="height: 22px; text-align: center; color: #aaa;">MM</td>
+                    <td style="height: 22px;">
+                        <label class="cb-container"><input type="checkbox"> AM</label>
+                        <label class="cb-container"><input type="checkbox"> PM</label>
+                    </td>
+                </tr>
+            </table>
+
+            <table>
+                <colgroup>
+                    <col style="width: 18%;">
+                    <col style="width: 50%;">
+                    <col style="width: 12%;">
+                    <col style="width: 20%;">
+                </colgroup>
+                <tr><td colspan="4" class="dark-header" style="height: 22px;">Debit Account's Information</td></tr>
+                <tr>
+                    <td class="light-gray" style="height: 22px; font-weight: bold;">Account Number</td>
+                    <td style="padding: 0;">
+                        <div class="box-container" id="out-debit-acc">
+                            <script>for(let i=0; i<13; i++) document.write('<input type="text" maxlength="1">');</script>
+                        </div>
+                    </td>
+                    <td class="light-gray" style="height: 22px; text-align: center; font-weight: bold;">A/C Type</td>
+                    <td class="light-gray" style="height: 22px; text-align: center; color: #888;">For FC Txn</td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-weight: bold; text-align: center;">Account title</td>
+                    <td colspan="3" style="padding: 0;">
+                        <div id="out-debit-title" class="multiline-out bold-upper"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-weight: bold;">Fund transfer date</td>
+                    <td colspan="3" style="padding: 0;">
+                        <table class="nested-table" style="width: 100%; height: 100%;">
+                            <colgroup>
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 15%;">
+                                <col style="width: 20%;">
+                                <col style="width: 45%;">
+                            </colgroup>
+                            <tr>
+                                <td style="padding: 0;">
+                                    <div class="box-container transfer-date-out"><input type="text" placeholder="D"><input type="text" placeholder="D"></div>
+                                </td>
+                                <td style="padding: 0;">
+                                    <div class="box-container transfer-date-out"><input type="text" placeholder="M"><input type="text" placeholder="M"></div>
+                                </td>
+                                <td style="padding: 0;">
+                                    <div class="box-container transfer-date-out"><input type="text" placeholder="Y"><input type="text" placeholder="Y"><input type="text" placeholder="Y"><input type="text" placeholder="Y"></div>
+                                </td>
+                                <td class="light-gray" style="font-weight: bold; text-align: center;">Mobile No.</td>
+                                <td style="padding: 0;">
+                                    <div class="box-container" id="out-debit-mobile">
+                                        <script>for(let i=0; i<11; i++) document.write('<input type="text" maxlength="1">');</script>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+            <table>
+                <colgroup>
+                    <col style="width: 17%;">
+                    <col style="width: 55%;">
+                    <col style="width: 8%;">
+                    <col style="width: 20%;">
+                </colgroup>
+                <tr><td colspan="4" class="dark-header" style="height: 22px;">Beneficiary's Account Information</td></tr>
+                <tr>
+                    <td class="light-gray" style="height: 22px; font-weight: bold;">Account Number</td>
+                    <td style="padding: 0;">
+                        <div class="box-container" id="out-ben-acc">
+                            <script>for(let i=0; i<17; i++) document.write('<input type="text" maxlength="1">');</script>
+                        </div>
+                    </td>
+                    <td class="light-gray" style="height: 22px; text-align: center; font-weight: bold;">Account</td>
+                    <td rowspan="2" style="padding: 0; vertical-align: top;">
+                        <div id="out-ben-title" class="multiline-out bold-upper center-text" style="height: 100%; min-height: 44px;"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-weight: bold; height: 22px;">Confirm Account No.</td>
+                    <td style="padding: 0;">
+                        <div class="box-container" id="out-ben-acc-confirm">
+                            <script>for(let i=0; i<17; i++) document.write('<input type="text" maxlength="1">');</script>
+                        </div>
+                    </td>
+                    <td class="light-gray" style="text-align: center; font-weight: bold; height: 22px;">Title</td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-weight: bold; height: 22px;">A/C Type</td>
+                    <td class="light-gray" style="color: #aaa; text-align: center; height: 22px;">Mandatory for FC transaction(s)</td>
+                    <td class="light-gray" style="text-align: center; font-weight: bold; height: 22px;">Transfer Purpose</td>
+                    <td style="height: 22px;"><input type="text"></td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-weight: bold;">Bank Name</td>
+                    <td style="padding: 0;">
+                        <div id="out-ben-bank" class="multiline-out bold-upper"></div>
+                    </td>
+                    <td class="light-gray" style="text-align: center; font-weight: bold;">Branch Name</td>
+                    <td style="padding: 0;">
+                        <div id="out-ben-branch" class="multiline-out"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-weight: bold; height: 22px;">District Name</td>
+                    <td style="height: 22px;"><input type="text"></td>
+                    <td class="light-gray" style="font-weight: bold; text-align: center; height: 22px;">Routing Number</td>
+                    <td style="padding: 0;">
+                        <div class="box-container" id="out-routing">
+                            <script>for(let i=0; i<9; i++) document.write('<input type="text" maxlength="1">');</script>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-style: italic; height: 22px;">*Customs Office Code</td>
+                    <td colspan="3" style="padding: 0;">
+                        <table class="nested-table" style="width: 100%; height: 100%;">
+                            <colgroup>
+                                <col style="width: 25%;">
+                                <col style="width: 20%;">
+                                <col style="width: 20%;">
+                                <col style="width: 20%;">
+                                <col style="width: 15%;">
+                            </colgroup>
+                            <tr>
+                                <td style="padding: 0;"><input type="text"></td>
+                                <td class="light-gray" style="font-style: italic; white-space: nowrap; text-align: center;">*Registration Year</td>
+                                <td style="padding: 0;"><input type="text"></td>
+                                <td class="light-gray" style="font-style: italic; white-space: nowrap; text-align: center;">*Registration Number</td>
+                                <td style="padding: 0;"><input type="text"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-style: italic; height: 22px;">*Declarant Code</td>
+                    <td style="height: 22px;"><input type="text"></td>
+                    <td class="light-gray" style="font-weight: bold; text-align: center; height: 22px;">Mobile No.</td>
+                    <td style="padding: 0;">
+                        <div class="box-container">
+                            <script>for(let i=0; i<11; i++) document.write('<input type="text" maxlength="1">');</script>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right; font-size: 9px; font-style: italic; border: none; padding-top: 0;">
+                        *only for custom's duty payment in RTGS & use only numeric value for the * marked fields
+                    </td>
+                </tr>
+            </table>
+
+            <table>
+                <colgroup>
+                    <col style="width: 20%;">
+                    <col style="width: 30%;">
+                    <col style="width: 10%;">
+                    <col style="width: 40%;">
+                </colgroup>
+                <tr>
+                    <td class="light-gray" style="font-weight: bold; height: 22px;">Amount (in Figure)</td>
+                    <td style="height: 22px;"><input type="text" id="out-amount-fig" style="font-weight: bold; font-size: 14px;"></td>
+                    <td class="light-gray" style="font-weight: bold; text-align: center; height: 22px;">Currency</td>
+                    <td style="height: 22px;">
+                        <label class="cb-container"><input type="checkbox" id="out-cb-bdt"> BDT</label>
+                        <label class="cb-container"><input type="checkbox" id="out-cb-usd"> USD</label>
+                        <label class="cb-container"><input type="checkbox" id="out-cb-eur"> EUR</label>
+                        <label class="cb-container"><input type="checkbox" id="out-cb-gbp"> GBP</label>
+                        <label class="cb-container"><input type="checkbox"> JPY</label>
+                        <label class="cb-container"><input type="checkbox"> CAD</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="light-gray" style="font-weight: bold;">Amount (in Words)</td>
+                    <td colspan="3" style="padding: 0;">
+                        <div id="out-amount-words" class="multiline-out" style="font-weight: bold; font-size: 13px;"></div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="terms-text">
+                <label><input type="checkbox"> I/We confirm that the information provided above is complete & accurate and authorize STANDARD ISLAMI BANK PLC (hereinafter initiating/remitting bank) to initiate BD-RTGS/BEFTN to the above mentioned details and to deduct applicable charges plus vat & taxes from my/our account. I/We shall be solely liable for any consequences arising out of erroneous details provided by me/us. I/We also acknowledge that initiating bank shall have no legitimate control/liability over the fund once transmitted. I/We also understand that the remitting Bank shall not be liable for any loss of damage arising or resulting from delay in transmission delivery or non-delivery of Electronic message or any mistake, omission, or error in transmission or delivery thereof or in deciphering the message from any cause whatsoever or from its misinterpretation received or the action of the destination Bank or any act or even beyond control. I/We also agree & confirm that the transaction will be subject to presentment cut-off time and also be subject to BD-RTGS /BEFTN operating rules as issued by Bangladesh Bank from time to time.</label>
+            </div>
+
+            <div class="signature-row">
+                <div class="signature-line">A/C Holder's Signature with Date (seal if applicable)</div>
+                <div class="signature-line">2nd A/C Holder's Signature with date (seal if applicable)</div>
+            </div>
+
+            <table>
+                <tr><td colspan="2" class="dark-header" style="height: 22px;">For Bank Use only</td></tr>
+                <tr>
+                    <td style="height: 100px; vertical-align: top; padding: 5px; width: 50%;">
+                        Received & Executed by:<br>
+                        <div style="text-align: center; border-top: 1px dotted black; width: 80%; margin: 60px auto 5px auto; padding-top: 2px;">Name & Sign with seal</div>
+                    </td>
+                    <td style="height: 100px; vertical-align: top; padding: 5px; width: 50%;">
+                        Approved by:<br>
+                        <div style="text-align: center; border-top: 1px dotted black; width: 80%; margin: 60px auto 5px auto; padding-top: 2px;">Name & Sign with seal</div>
+                    </td>
+                </tr>
+            </table>
+            <div class="nb-text">N.B. Applicant(s) is (are) requested to tick in all applicable cases.</div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Profile Management & JSON Backup Logic ---
+
+        function updateProfileDropdown() {
+            const select = document.getElementById('profile-select');
+            select.innerHTML = '<option value="">-- Select a saved profile --</option>';
+            let profiles = JSON.parse(localStorage.getItem('rtgs_profiles')) || {};
+            for (let name in profiles) {
+                let opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                select.appendChild(opt);
+            }
+        }
+
+        function saveProfile() {
+            const dTitle = document.getElementById('in-debit-title').value.trim();
+            const bTitle = document.getElementById('in-ben-title').value.trim();
+            
+            if (!dTitle || !bTitle) {
+                alert("Please fill in at least the Debit Account Title and Beneficiary Title to save a profile.");
+                return;
+            }
+
+            let defaultName = `${dTitle} ➔ ${bTitle}`;
+            let profileName = prompt("Enter a name for this profile:", defaultName);
+            if (!profileName) return;
+
+            const profileData = {
+                branch: document.getElementById('in-branch').value,
+                type: document.getElementById('in-type').value,
+                debitAcc: document.getElementById('in-debit-acc').value,
+                debitTitle: document.getElementById('in-debit-title').value,
+                debitMobile: document.getElementById('in-debit-mobile').value,
+                benAcc: document.getElementById('in-ben-acc').value,
+                benTitle: document.getElementById('in-ben-title').value,
+                benBank: document.getElementById('in-ben-bank').value,
+                benBranch: document.getElementById('in-ben-branch').value,
+                routing: document.getElementById('in-routing').value,
+                currency: document.getElementById('in-currency').value
+            };
+
+            let profiles = JSON.parse(localStorage.getItem('rtgs_profiles')) || {};
+            profiles[profileName] = profileData;
+            localStorage.setItem('rtgs_profiles', JSON.stringify(profiles));
+            
+            updateProfileDropdown();
+            document.getElementById('profile-select').value = profileName;
+            alert("Profile saved successfully!");
+        }
+
+        function loadProfile() {
+            const select = document.getElementById('profile-select');
+            const profileName = select.value;
+            if (!profileName) {
+                alert("Please select a profile to load.");
+                return;
+            }
+
+            let profiles = JSON.parse(localStorage.getItem('rtgs_profiles')) || {};
+            let data = profiles[profileName];
+            
+            if (data) {
+                document.getElementById('in-branch').value = data.branch || 'Madhabdi';
+                document.getElementById('in-type').value = data.type || 'rtgs';
+                document.getElementById('in-debit-acc').value = data.debitAcc || '';
+                document.getElementById('in-debit-title').value = data.debitTitle || '';
+                document.getElementById('in-debit-mobile').value = data.debitMobile || '';
+                document.getElementById('in-ben-acc').value = data.benAcc || '';
+                document.getElementById('in-ben-title').value = data.benTitle || '';
+                document.getElementById('in-ben-bank').value = data.benBank || '';
+                document.getElementById('in-ben-branch').value = data.benBranch || '';
+                document.getElementById('in-routing').value = data.routing || '';
+                document.getElementById('in-currency').value = data.currency || 'bdt';
+
+                syncText('in-branch', 'out-branch');
+                syncType();
+                syncBoxes('in-debit-acc', 'out-debit-acc');
+                syncText('in-debit-title', 'out-debit-title');
+                syncBoxes('in-debit-mobile', 'out-debit-mobile');
+                syncDoubleBoxes('in-ben-acc', 'out-ben-acc', 'out-ben-acc-confirm');
+                syncText('in-ben-title', 'out-ben-title');
+                syncText('in-ben-bank', 'out-ben-bank');
+                syncText('in-ben-branch', 'out-ben-branch');
+                syncBoxes('in-routing', 'out-routing');
+                syncCurrency();
+                
+                document.getElementById('in-amount-fig').value = '';
+                document.getElementById('in-amount-words').value = '';
+                document.getElementById('out-amount-fig').value = '';
+                document.getElementById('out-amount-words').innerText = '';
+                
+                document.getElementById('cb-auto-date').checked = true;
+                document.getElementById('cb-auto-transfer-date').checked = true;
+                toggleAutoDate();
+                toggleAutoTransferDate();
+            }
+        }
+
+        function deleteProfile() {
+            const select = document.getElementById('profile-select');
+            const profileName = select.value;
+            if (!profileName) {
+                alert("Please select a profile to delete.");
+                return;
+            }
+            if(confirm(`Are you sure you want to delete the profile "${profileName}"?`)) {
+                let profiles = JSON.parse(localStorage.getItem('rtgs_profiles')) || {};
+                delete profiles[profileName];
+                localStorage.setItem('rtgs_profiles', JSON.stringify(profiles));
+                updateProfileDropdown();
+            }
+        }
+
+        function exportProfiles() {
+            let profiles = localStorage.getItem('rtgs_profiles');
+            if (!profiles || profiles === '{}') {
+                alert("There are no saved profiles to export.");
+                return;
+            }
+            
+            let blob = new Blob([profiles], { type: "application/json" });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            
+            let d = new Date();
+            let dateStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+            a.download = `RTGS_Profiles_Backup_${dateStr}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importProfiles(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let importedData = JSON.parse(e.target.result);
+                    if (typeof importedData !== 'object' || importedData === null) {
+                        throw new Error("Invalid format");
+                    }
+                    
+                    let existingProfiles = JSON.parse(localStorage.getItem('rtgs_profiles')) || {};
+                    
+                    if(confirm("Do you want to MERGE these profiles with your existing ones?\n\n(Click 'OK' to merge. Click 'Cancel' to entirely overwrite your current profiles with the backup).")) {
+                        Object.assign(existingProfiles, importedData);
+                        localStorage.setItem('rtgs_profiles', JSON.stringify(existingProfiles));
+                    } else {
+                        localStorage.setItem('rtgs_profiles', JSON.stringify(importedData));
+                    }
+                    
+                    updateProfileDropdown();
+                    alert("Profiles imported successfully!");
+                } catch (err) {
+                    alert("Error importing file. Please make sure it is a valid RTGS backup JSON file.");
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // --- Core Application Logic ---
+
+        function toggleAutoDate() {
+            const cb = document.getElementById('cb-auto-date');
+            const dateInput = document.getElementById('in-date');
+            if (cb.checked) {
+                const today = new Date();
+                const dd = String(today.getDate()).padStart(2, '0');
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const yyyy = today.getFullYear();
+                dateInput.value = `${dd}/${mm}/${yyyy}`;
+            } else {
+                dateInput.value = '';
+            }
+            syncText('in-date', 'out-date');
+        }
+
+        function toggleAutoTransferDate() {
+            const cb = document.getElementById('cb-auto-transfer-date');
+            const dateInput = document.getElementById('in-transfer-date');
+            if (cb.checked) {
+                const today = new Date();
+                const dd = String(today.getDate()).padStart(2, '0');
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const yyyy = today.getFullYear();
+                dateInput.value = `${dd}${mm}${yyyy}`;
+            } else {
+                dateInput.value = '';
+            }
+            syncTransferDate();
+        }
+
+        function syncTransferDate() {
+            const rawVal = document.getElementById('in-transfer-date').value.replace(/[^0-9]/g, '');
+            const inputs = document.querySelectorAll('.transfer-date-out input');
+            for (let i = 0; i < inputs.length; i++) {
+                inputs[i].value = rawVal[i] || '';
+            }
+        }
+
+        window.onload = function() {
+            updateProfileDropdown(); 
+            toggleAutoDate();
+            toggleAutoTransferDate(); 
+            syncText('in-branch', 'out-branch');
+            syncType();
+            syncCurrency();
+        };
+
+        function syncText(sourceId, targetId) {
+            const val = document.getElementById(sourceId).value;
+            const target = document.getElementById(targetId);
+            
+            if(target.tagName === 'SPAN' || target.tagName === 'DIV') {
+                target.innerText = val;
+            } else {
+                target.value = val;
+            }
+        }
+
+        function syncBoxes(sourceId, targetContainerId) {
+            const val = document.getElementById(sourceId).value;
+            const inputs = document.querySelectorAll(`#${targetContainerId} input`);
+            for (let i = 0; i < inputs.length; i++) {
+                inputs[i].value = val[i] || '';
+            }
+        }
+
+        function syncDoubleBoxes(sourceId, targetOne, targetTwo) {
+            syncBoxes(sourceId, targetOne);
+            syncBoxes(sourceId, targetTwo);
+        }
+
+        function syncType() {
+            const val = document.getElementById('in-type').value;
+            document.getElementById('out-cb-rtgs').checked = (val === 'rtgs');
+            document.getElementById('out-cb-beftn').checked = (val === 'beftn');
+        }
+
+        function syncCurrency() {
+            const val = document.getElementById('in-currency').value;
+            document.getElementById('out-cb-bdt').checked = (val === 'bdt');
+            document.getElementById('out-cb-usd').checked = (val === 'usd');
+            document.getElementById('out-cb-eur').checked = (val === 'eur');
+            document.getElementById('out-cb-gbp').checked = (val === 'gbp');
+        }
+
+        function convertNumberToWords(amount) {
+            const wordsMap = {
+                0: '', 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine',
+                10: 'Ten', 11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', 15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen',
+                20: 'Twenty', 30: 'Thirty', 40: 'Forty', 50: 'Fifty', 60: 'Sixty', 70: 'Seventy', 80: 'Eighty', 90: 'Ninety'
+            };
+
+            function getWords(num) {
+                if (num === 0) return 'Zero';
+                if (num < 20) return wordsMap[num];
+                if (num < 100) return wordsMap[Math.floor(num / 10) * 10] + (num % 10 !== 0 ? ' ' + wordsMap[num % 10] : '');
+                if (num < 1000) return wordsMap[Math.floor(num / 100)] + ' Hundred' + (num % 100 !== 0 ? ' and ' + getWords(num % 100) : '');
+                if (num < 100000) return getWords(Math.floor(num / 1000)) + ' Thousand' + (num % 1000 !== 0 ? ' ' + getWords(num % 1000) : '');
+                if (num < 10000000) return getWords(Math.floor(num / 100000)) + ' Lakh' + (num % 100000 !== 0 ? ' ' + getWords(num % 100000) : '');
+                return getWords(Math.floor(num / 10000000)) + ' Crore' + (num % 10000000 !== 0 ? ' ' + getWords(num % 10000000) : '');
+            }
+
+            let parts = amount.toString().split('.');
+            let integerPart = parseInt(parts[0], 10);
+            let decimalPart = parts.length > 1 ? parseInt(parts[1].substring(0, 2).padEnd(2, '0'), 10) : 0;
+
+            if (isNaN(integerPart)) return '';
+
+            let finalString = getWords(integerPart);
+            
+            if (decimalPart > 0) {
+                finalString += ' and ' + getWords(decimalPart) + ' Paisa';
+            }
+            
+            return finalString + ' Only';
+        }
+
+        function handleAmountInput(e) {
+            let raw = e.target.value.replace(/[^0-9.]/g, '');
+            let parts = raw.split('.');
+            if(parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
+            
+            let val = parseFloat(raw);
+            
+            if (!isNaN(val)) {
+                let formatted = new Intl.NumberFormat('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(val);
+                
+                document.getElementById('out-amount-fig').value = formatted + '/=';
+                
+                let words = convertNumberToWords(val);
+                document.getElementById('in-amount-words').value = words;
+                syncText('in-amount-words', 'out-amount-words');
+            } else {
+                document.getElementById('out-amount-fig').value = '';
+                document.getElementById('in-amount-words').value = '';
+                syncText('in-amount-words', 'out-amount-words');
+            }
+        }
+
+        function formatAmountOnBlur(e) {
+            let raw = e.target.value.replace(/[^0-9.]/g, '');
+            let val = parseFloat(raw);
+            if (!isNaN(val)) {
+                let formatted = new Intl.NumberFormat('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(val);
+                e.target.value = formatted + '/=';
+            }
+        }
+
+        function unformatAmountOnFocus(e) {
+            let raw = e.target.value.replace(/[^0-9.]/g, '');
+            e.target.value = raw;
+        }
+
+        function clearForm() {
+            document.querySelectorAll('.sidebar input[type="text"]').forEach(el => {
+                if(el.id === 'in-branch') el.value = 'Madhabdi';
+                else el.value = '';
+            });
+            document.querySelectorAll('.sidebar textarea').forEach(el => el.value = '');
+            
+            document.getElementById('in-type').value = 'rtgs';
+            document.getElementById('in-currency').value = 'bdt';
+            
+            document.getElementById('cb-auto-date').checked = true;
+            document.getElementById('cb-auto-transfer-date').checked = true;
+            toggleAutoDate();
+            toggleAutoTransferDate();
+            
+            document.querySelectorAll('.sidebar input[type="text"]').forEach(el => el.dispatchEvent(new Event('input')));
+            document.querySelectorAll('.sidebar textarea').forEach(el => el.dispatchEvent(new Event('input')));
+            document.querySelectorAll('.sidebar select').forEach(el => el.dispatchEvent(new Event('change')));
+            
+            document.getElementById('profile-select').value = '';
+        }
+    </script>
+</body>
+</html>

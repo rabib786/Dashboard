@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Financial Calculators</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet" />
+  <style>
+    /* === MODERNIZED STYLING === */
+    :root {
+      /* Dark Theme (Default) */
+      --accent: #10B981; /* Emerald 500 */
+      --accent-hover: #059669; /* Emerald 600 */
+      --bg-body: #0f172a; /* Slate 900 */
+      --bg-panel: #1e293b; /* Slate 800 */
+      --bg-input: #334155; /* Slate 700 */
+      --bg-results: #0f172a; 
+      --text-main: #f8fafc; /* Slate 50 */
+      --text-muted: #94a3b8; /* Slate 400 */
+      --border-color: #334155;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --btn-reset: #ef4444; /* Red 500 */
+      --btn-reset-hover: #dc2626;
+    }
+
+    body.light {
+      /* Light Theme */
+      --accent: #059669; /* Emerald 600 */
+      --accent-hover: #047857; /* Emerald 700 */
+      --bg-body: #f1f5f9; /* Slate 100 */
+      --bg-panel: #ffffff;
+      --bg-input: #f8fafc;
+      --bg-results: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Inter', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding-bottom: 40px;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    header {
+      width: 100%;
+      padding: 20px 40px;
+      background-color: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.4s ease, border-color 0.4s ease;
+    }
+
+    .header-center {
+      text-align: center;
+      flex: 1;
+    }
+
+    .header-spacer {
+      width: 120px;
+    }
+
+    .logo {
+      width: 280px;
+      max-width: 100%;
+      margin-bottom: 12px;
+      filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));
+    }
+
+    h1 {
+      color: var(--accent);
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .by-rabib {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .theme-toggle {
+      padding: 8px 16px;
+      background-color: transparent;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .tab-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      background-color: var(--bg-panel);
+      padding: 6px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    .tab-button {
+      padding: 12px 24px;
+      margin: 0 4px;
+      background-color: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .tab-button:hover {
+      color: var(--text-main);
+    }
+
+    .tab-button.active {
+      background-color: var(--accent);
+      color: #fff;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      padding: 30px;
+      background-color: var(--bg-panel);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      margin-top: 25px;
+      border: 1px solid var(--border-color);
+      transition: background-color 0.4s ease, border-color 0.4s ease;
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button.action-btn {
+      flex: 3;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    button.action-btn:hover {
+      background-color: var(--accent-hover);
+    }
+    
+    button.action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .reset-button {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--btn-reset);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .reset-button:hover {
+      background-color: var(--btn-reset-hover);
+    }
+
+    .content {
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Results Formatting */
+    .results-panel {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: var(--bg-results);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .result-item {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .result-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .result-item h3 {
+      margin: 0 0 4px 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .result-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0;
+    }
+
+    .words-inline {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .result-words {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-top: 4px;
+      text-transform: capitalize;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    @media (max-width: 560px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+      }
+      .header-spacer {
+        display: none;
+      }
+      .logo {
+        max-width: 200px;
+      }
+      .tab-container {
+        width: 90%;
+      }
+      .tab-button {
+        flex: 1;
+        padding: 10px;
+        font-size: 0.85rem;
+      }
+      .button-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-spacer"></div>
+    <div class="header-center">
+      <img src="https://www.standardbankbd.com/Content/Images/standard-logo.png" alt="Standard Bank Logo" class="logo" />
+      <h1>Financial Calculators</h1>
+      <p class="by-rabib">by Rabib</p>
+    </div>
+    <div class="header-spacer" style="text-align: right;">
+      <button class="theme-toggle" id="themeBtn">Light Mode</button>
+    </div>
+  </header>
+
+  <div class="tab-container" role="tablist" aria-label="Calculators">
+    <button class="tab-button active" data-target="mtdr" role="tab" aria-selected="true">MTDR</button>
+    <button class="tab-button" data-target="UMMI" role="tab" aria-selected="false">UMMI</button>
+  </div>
+
+  <div class="container">
+    <div id="mtdr" class="content active" role="region">
+      <label for="mtdr-amount">Deposit Amount (৳):</label>
+      <input type="number" id="mtdr-amount" value="100000" step="0.01" />
+      <div class="words-inline">Amount in Words: <span id="mtdr-amount-words">--</span></div>
+
+      <label for="mtdr-rate">Profit Rate (%):</label>
+      <input type="number" id="mtdr-rate" value="8" step="0.01" />
+
+      <label for="tenor">Tenure (Months):</label>
+      <input type="number" id="tenor" value="12" />
+
+      <div class="button-group">
+        <button class="action-btn" id="mtdr-calc-btn">Calculate MTDR</button>
+        <button class="reset-button" id="mtdr-reset-btn">Reset</button>
+      </div>
+
+      <div class="results-panel">
+        <div class="result-item">
+          <h3>Profit Before VAT</h3>
+          <div class="result-value">৳ <span id="mtdr-before-vat">--</span></div>
+          <div class="result-words" id="mtdr-before-vat-words">--</div>
+        </div>
+        <div class="result-item">
+          <h3>Profit After VAT</h3>
+          <div class="result-value">৳ <span id="mtdr-after-vat">--</span></div>
+          <div class="result-words" id="mtdr-after-vat-words">--</div>
+        </div>
+        <div class="result-item">
+          <h3>Total Amount with Profit</h3>
+          <div class="result-value">৳ <span id="mtdr-total">--</span></div>
+          <div class="result-words" id="mtdr-total-words">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="UMMI" class="content" role="region">
+      <label for="ummi-amount">Deposit Amount (৳):</label>
+      <input type="number" id="ummi-amount" value="100000" step="0.01" />
+      <div class="words-inline">Amount in Words: <span id="ummi-amount-words">--</span></div>
+
+      <label for="citizen-type">Profit Rate (%):</label>
+      <select id="citizen-type">
+        <option value="11.4">Senior Citizen (11.40%)</option>
+        <option value="10.8">Non-Senior Citizen (10.80%)</option>
+      </select>
+
+      <div class="button-group">
+        <button class="action-btn" id="ummi-calc-btn">Calculate UMMI</button>
+        <button class="reset-button" id="ummi-reset-btn">Reset</button>
+      </div>
+
+      <div class="results-panel">
+        <div class="result-item">
+          <h3>Monthly Profit Before VAT</h3>
+          <div class="result-value">৳ <span id="ummi-before-vat">--</span></div>
+          <div class="result-words" id="ummi-before-vat-words">--</div>
+        </div>
+        <div class="result-item">
+          <h3>Monthly Profit After VAT</h3>
+          <div class="result-value">৳ <span id="ummi-after-vat">--</span></div>
+          <div class="result-words" id="ummi-after-vat-words">--</div>
+        </div>
+        <div class="result-item">
+          <h3>Total Yearly Profit After VAT</h3>
+          <div class="result-value">৳ <span id="ummi-total">--</span></div>
+          <div class="result-words" id="ummi-total-words">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Financial Calculators by Rabib. All rights reserved.
+  </footer>
+
+  <script>
+    /* ============================
+       Original JS Logic (Preserved entirely)
+    ============================ */
+
+    (function() {
+      'use strict';
+
+      const VAT_FACTOR = 0.85; 
+      const DEFAULTS = {
+        mtdr: { amount: 100000, rate: 8, tenor: 12 },
+        ummi: { amount: 100000, rate: 11.4 } 
+      };
+
+      const qs = sel => document.querySelector(sel);
+      const qsa = sel => Array.from(document.querySelectorAll(sel));
+
+      const themeBtn = qs('#themeBtn');
+
+      const tabButtons = qsa('.tab-button');
+      const contents = qsa('.content');
+
+      const mtdrAmount = qs('#mtdr-amount');
+      const mtdrAmountWords = qs('#mtdr-amount-words');
+      const mtdrRate = qs('#mtdr-rate');
+      const mtdrTenor = qs('#tenor');
+      const mtdrCalcBtn = qs('#mtdr-calc-btn');
+      const mtdrResetBtn = qs('#mtdr-reset-btn');
+      const mtdrBeforeVat = qs('#mtdr-before-vat');
+      const mtdrAfterVat = qs('#mtdr-after-vat');
+      const mtdrTotal = qs('#mtdr-total');
+      const mtdrBeforeVatWords = qs('#mtdr-before-vat-words');
+      const mtdrAfterVatWords = qs('#mtdr-after-vat-words');
+      const mtdrTotalWords = qs('#mtdr-total-words');
+
+      const ummiAmount = qs('#ummi-amount');
+      const ummiAmountWords = qs('#ummi-amount-words');
+      const ummiCitizen = qs('#citizen-type');
+      const ummiCalcBtn = qs('#ummi-calc-btn');
+      const ummiResetBtn = qs('#ummi-reset-btn');
+      const ummiBeforeVat = qs('#ummi-before-vat');
+      const ummiAfterVat = qs('#ummi-after-vat');
+      const ummiTotal = qs('#ummi-total');
+      const ummiBeforeVatWords = qs('#ummi-before-vat-words');
+      const ummiAfterVatWords = qs('#ummi-after-vat-words');
+      const ummiTotalWords = qs('#ummi-total-words');
+
+      const toNum = v => {
+        if (v === undefined || v === null || v === '') return NaN;
+        const cleaned = String(v).replace(/,/g, '').trim();
+        return parseFloat(cleaned);
+      };
+
+      const setText = (el, txt) => { if (el) el.innerText = txt; };
+
+      const formatFixed = (n) => {
+        if (!isFinite(n)) return '--';
+        // Format with commas for better readability
+        return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      };
+
+      function numberToWordsBD(num) {
+        if (num === undefined || num === null || num === '' || isNaN(num)) return '';
+        let negative = false;
+        if (Number(num) < 0) { negative = true; num = Math.abs(Number(num)); }
+        num = Number(num);
+        const intPart = Math.floor(num);
+        const decimal = Math.round((num - intPart) * 100);
+
+        const units = ['', 'one', 'two', 'three', 'four', 'five',
+          'six', 'seven', 'eight', 'nine', 'ten',
+          'eleven', 'twelve', 'thirteen', 'fourteen',
+          'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+        const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty',
+          'sixty', 'seventy', 'eighty', 'ninety'];
+
+        function numToWords(n) {
+          if (n < 20) return units[n];
+          if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? ' ' + units[n % 10] : '');
+          if (n < 1000) return units[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + numToWords(n % 100) : '');
+          return '';
+        }
+
+        function getPart(n, label) {
+          return n ? numToWords(n) + ' ' + label : '';
+        }
+
+        let remainder = intPart;
+        const crore = Math.floor(remainder / 10000000);
+        remainder %= 10000000;
+        const lac = Math.floor(remainder / 100000);
+        remainder %= 100000;
+        const thousand = Math.floor(remainder / 1000);
+        remainder %= 1000;
+        const hundred = Math.floor(remainder / 100);
+        const rest = remainder % 100;
+
+        const parts = [
+          getPart(crore, 'crore'),
+          getPart(lac, 'lac'),
+          getPart(thousand, 'thousand'),
+          getPart(hundred, 'hundred'),
+          rest ? 'and ' + numToWords(rest) : ''
+        ].filter(Boolean).join(' ');
+
+        let words = parts.trim();
+        if (!words) words = 'zero';
+        if (decimal && decimal !== 0) {
+          words = words + ' and ' + (decimal < 20 ? (['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'][decimal]) : tens[Math.floor(decimal/10)] + (decimal%10 ? ' ' + units[decimal%10] : '')) + ' paise';
+        }
+        words = words + ' taka';
+        if (negative) words = 'negative ' + words;
+        return words.charAt(0).toUpperCase() + words.slice(1);
+      }
+
+      function showTabById(tabId) {
+        qsa('.content').forEach(tab => tab.classList.remove('active'));
+        qsa('.tab-button').forEach(button => button.classList.remove('active'));
+        const content = qs('#' + tabId);
+        if (content) content.classList.add('active');
+        const btn = qsa('.tab-button').find(b => b.dataset.target === tabId);
+        if (btn) btn.classList.add('active');
+      }
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const target = btn.dataset.target;
+          showTabById(target);
+        });
+      });
+
+      function setThemeFromStorage() {
+        const stored = localStorage.getItem('fc_theme');
+        if (stored === 'light') {
+          document.body.classList.add('light');
+          themeBtn.innerText = 'Dark Mode';
+        } else {
+          document.body.classList.remove('light');
+          themeBtn.innerText = 'Light Mode';
+        }
+      }
+      themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light');
+        const isLight = document.body.classList.contains('light');
+        themeBtn.innerText = isLight ? 'Dark Mode' : 'Light Mode';
+        localStorage.setItem('fc_theme', isLight ? 'light' : 'dark');
+      });
+      setThemeFromStorage();
+
+      function calculateMTDR() {
+        const amount = toNum(mtdrAmount.value);
+        const rate = toNum(mtdrRate.value) / 100;
+        const tenor = parseInt(mtdrTenor.value, 10);
+
+        if (!isFinite(amount) || amount <= 0) { alert('Please enter a valid deposit amount.'); return; }
+        if (!isFinite(rate) || rate <= 0) { alert('Please enter a valid profit rate.'); return; }
+        if (!Number.isInteger(tenor) || tenor <= 0) { alert('Please enter a valid tenure (months).'); return; }
+
+        const profit = amount * rate * (tenor / 12);
+        const vatAdjustedProfit = profit * VAT_FACTOR;
+        const totalAmountWithProfit = amount + vatAdjustedProfit;
+
+        setText(mtdrBeforeVat, formatFixed(profit));
+        setText(mtdrAfterVat, formatFixed(vatAdjustedProfit));
+        setText(mtdrTotal, formatFixed(totalAmountWithProfit));
+
+        setText(mtdrAmountWords, numberToWordsBD(amount));
+        setText(mtdrBeforeVatWords, numberToWordsBD(profit));
+        setText(mtdrAfterVatWords, numberToWordsBD(vatAdjustedProfit));
+        setText(mtdrTotalWords, numberToWordsBD(totalAmountWithProfit));
+      }
+
+      function calculateUMMI() {
+        const amount = toNum(ummiAmount.value);
+        const rate = toNum(ummiCitizen.value) / 100;
+
+        if (!isFinite(amount) || amount <= 0) { alert('Please enter a valid deposit amount.'); return; }
+        if (!isFinite(rate) || rate <= 0) { alert('Please select a valid profit rate.'); return; }
+
+        const monthlyProfitBeforeVAT = amount * rate / 12;
+        const monthlyProfitAfterVAT = monthlyProfitBeforeVAT * VAT_FACTOR;
+        const yearlyProfitAfterVAT = monthlyProfitAfterVAT * 12;
+
+        setText(ummiBeforeVat, formatFixed(monthlyProfitBeforeVAT));
+        setText(ummiAfterVat, formatFixed(monthlyProfitAfterVAT));
+        setText(ummiTotal, formatFixed(yearlyProfitAfterVAT));
+
+        setText(ummiAmountWords, numberToWordsBD(amount));
+        setText(ummiBeforeVatWords, numberToWordsBD(monthlyProfitBeforeVAT));
+        setText(ummiAfterVatWords, numberToWordsBD(monthlyProfitAfterVAT));
+        setText(ummiTotalWords, numberToWordsBD(yearlyProfitAfterVAT));
+      }
+
+      function resetMTDR() {
+        mtdrAmount.value = DEFAULTS.mtdr.amount;
+        mtdrRate.value = DEFAULTS.mtdr.rate;
+        mtdrTenor.value = DEFAULTS.mtdr.tenor;
+        ['mtdr-before-vat', 'mtdr-after-vat', 'mtdr-total',
+         'mtdr-amount-words', 'mtdr-before-vat-words', 'mtdr-after-vat-words', 'mtdr-total-words']
+         .forEach(id => setText(qs('#' + id), '--'));
+      }
+
+      function resetUMMI() {
+        ummiAmount.value = DEFAULTS.ummi.amount;
+        ummiCitizen.value = DEFAULTS.ummi.rate;
+        ['ummi-before-vat', 'ummi-after-vat', 'ummi-total',
+         'ummi-amount-words', 'ummi-before-vat-words', 'ummi-after-vat-words', 'ummi-total-words']
+         .forEach(id => setText(qs('#' + id), '--'));
+      }
+
+      if (mtdrCalcBtn) mtdrCalcBtn.addEventListener('click', calculateMTDR);
+      if (mtdrResetBtn) mtdrResetBtn.addEventListener('click', resetMTDR);
+      if (ummiCalcBtn) ummiCalcBtn.addEventListener('click', calculateUMMI);
+      if (ummiResetBtn) ummiResetBtn.addEventListener('click', resetUMMI);
+
+      mtdrAmount.addEventListener('input', () => {
+        const n = toNum(mtdrAmount.value);
+        setText(mtdrAmountWords, isFinite(n) ? numberToWordsBD(n) : '--');
+      });
+      ummiAmount.addEventListener('input', () => {
+        const n = toNum(ummiAmount.value);
+        setText(ummiAmountWords, isFinite(n) ? numberToWordsBD(n) : '--');
+      });
+
+      setText(mtdrAmountWords, numberToWordsBD(toNum(mtdrAmount.value)));
+      setText(ummiAmountWords, numberToWordsBD(toNum(ummiAmount.value)));
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const active = document.querySelector('.content.active');
+          if (!active) return;
+          if (active.id === 'mtdr') {
+            e.preventDefault();
+            calculateMTDR();
+          } else if (active.id === 'UMMI') {
+            e.preventDefault();
+            calculateUMMI();
+          }
+        }
+      });
+
+      window.calculateMTDR = calculateMTDR;
+      window.calculateUMMI = calculateUMMI;
+      window.resetMTDR = resetMTDR;
+      window.resetUMMI = resetUMMI;
+      window.showTab = showTabById;
+      window.numberToWordsBD = numberToWordsBD;
+
+    })();
+  </script>
+</body>
+</html>

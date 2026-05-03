@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Form Generator - Standard Islami Bank PLC</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+
+    <style>
+        /* Strict A4 Printing Rules */
+        @media print {
+            @page { size: A4; margin: 0; }
+            * { 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+                box-shadow: none !important; 
+            }
+            body, html { margin: 0; padding: 0; background: white !important; }
+            .no-print { display: none !important; }
+            
+            .print-area { 
+                display: block !important;
+                width: 100% !important; 
+                height: auto !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+                overflow: visible !important; 
+                page-break-after: avoid; 
+                page-break-before: avoid;
+            }
+            .print-reset-height { height: auto !important; min-height: 100vh !important; margin: 0 !important; padding: 0 !important; }
+            .print-reset-transform { transform: none !important; position: static !important; }
+            
+            .a4-preview-container {
+                width: 100% !important;
+                min-height: 100vh !important; 
+                height: 100vh !important;
+                box-shadow: none !important; 
+                border: none !important; 
+                margin: 0 !important;
+            }
+
+            .acc-box { border-color: black !important; border-style: solid !important; color: black !important; }
+            .paper-texture { background-image: none !important; background-color: white !important; }
+        }
+
+        /* Screen Preview & Base Styling */
+        body { font-family: 'Inter', sans-serif; }
+        .bank-font { font-family: "Times New Roman", Times, serif; }
+        .text-bank-green { color: #006837; }
+        .text-bank-red { color: #8C0000; }
+        
+        .a4-preview-container {
+            width: 210mm; height: 297mm; background: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0,0,0,0.05);
+            overflow: hidden; display: flex; flex-direction: column; position: relative;
+            color: black; 
+        }
+
+        /* Tactile Paper Grain Overlay */
+        .paper-texture {
+            background-color: #ffffff;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+        }
+
+        .acc-box { 
+            width: 28px; height: 32px; border-width: 1.5px; 
+            display: inline-flex; align-items: center; justify-content: center; 
+            font-weight: bold; margin-right: -1.5px; background: transparent;
+        }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+        
+        /* Dynamic Background Pattern */
+        .pattern-light { background-color: #e2e8f0; background-image: radial-gradient(#94a3b8 1px, transparent 1px); background-size: 20px 20px; }
+        .pattern-dark { background-color: #0f172a; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px; }
+
+        .custom-select-bg {
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-size: 12px 12px; background-repeat: no-repeat; background-position: right 16px center;
+        }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body x-data="bankApp" :class="darkMode ? 'dark pattern-dark' : 'pattern-light'" class="min-h-screen antialiased selection:bg-green-200 selection:text-green-900 dark:selection:bg-green-900 dark:selection:text-green-100 transition-colors duration-500">
+
+    <div class="flex flex-col lg:flex-row max-w-[1800px] mx-auto min-h-screen relative overflow-x-hidden">
+        
+        <button x-show="!sidebarOpen" @click="sidebarOpen = true" x-transition.opacity.delay.300ms class="fixed top-8 left-8 z-40 bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 text-[#006837] dark:text-green-500 hover:scale-105 hover:shadow-green-900/20 transition-all no-print focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+        </button>
+
+        <div :class="sidebarOpen ? 'w-full lg:w-[440px] translate-x-0 opacity-100' : 'w-0 -translate-x-full opacity-0 pointer-events-none'" 
+             class="bg-[#f8fafc] dark:bg-[#1e293b] border-r border-slate-300 dark:border-slate-800 shadow-[20px_0_40px_-10px_rgba(0,0,0,0.05)] dark:shadow-[20px_0_40px_-10px_rgba(0,0,0,0.4)] no-print h-screen sticky top-0 flex flex-col z-30 shrink-0 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
+            
+            <div :class="darkMode ? 'bg-gradient-to-br from-slate-900 to-slate-800 border-b border-slate-800' : 'bg-gradient-to-r from-[#006837] to-[#004d29]'" class="text-white p-6 pb-7 shadow-md relative z-20 transition-colors duration-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-[22px] font-extrabold tracking-tight flex items-center gap-2 mb-1">
+                            <svg class="w-6 h-6 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Form Generator
+                        </h2>
+                        <p class="text-green-100/70 text-xs font-bold uppercase tracking-[0.15em]">Standard Islami Bank PLC</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="darkMode = !darkMode" title="Toggle Night Shift" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg transition-all active:scale-90 border border-white/5">
+                            <svg x-show="!darkMode" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                            <svg x-show="darkMode" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </button>
+                        <button @click="sidebarOpen = false" title="Focus Mode" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg transition-all active:scale-90 border border-white/5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <button @click="showClearModal = true" title="Clear Form Data" class="bg-red-500/30 hover:bg-red-500/60 text-red-50 p-2 rounded-lg transition-all active:scale-90 border border-red-500/20">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scroll p-5 space-y-5">
+                
+                <div x-data="{ open: false }" class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] dark:shadow-none border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
+                    <button @click="open = !open" class="w-full flex justify-between items-center p-5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider outline-none">
+                        <span class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Global Settings
+                        </span>
+                        <svg :class="open ? 'rotate-180 text-[#006837] dark:text-green-500' : 'text-slate-400'" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="open" x-collapse x-cloak>
+                        <div class="p-5 pt-0 border-t border-slate-50 dark:border-slate-700 space-y-4 bg-white dark:bg-slate-800">
+                            <div class="relative group mt-2">
+                                <input type="text" id="branchName" x-model="settings.branchName" :class="ui.input" placeholder=" ">
+                                <label for="branchName" :class="`${ui.label} ${settings.branchName ? ui.labelActive : ''}`">Branch Name</label>
+                            </div>
+                            <div class="relative group">
+                                <input type="text" id="district" x-model="settings.district" :class="ui.input" placeholder=" ">
+                                <label for="district" :class="`${ui.label} ${settings.district ? ui.labelActive : ''}`">District / Location</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] dark:shadow-none border border-slate-100 dark:border-slate-700 transition-colors">
+                    <label for="formType" class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1 cursor-pointer">Application Type</label>
+                    <div class="relative">
+                        <select id="formType" x-model="selectedForm" :class="ui.input" class="appearance-none custom-select-bg cursor-pointer pr-10">
+                            <option value="closure">Account Closure Form</option>
+                            <option value="cheque">Cheque Book Authorization</option>
+                            <option value="mobile">Mobile Number Change</option>
+                            <option value="transfer">Fund Transfer Request</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] dark:shadow-none border border-slate-100 dark:border-slate-700 space-y-5 transition-colors">
+                    <div class="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-700 pb-4">
+                        <div class="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg text-slate-500 dark:text-slate-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </div>
+                        <h3 class="text-[12px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Document Details</h3>
+                    </div>
+
+                    <div class="space-y-4">
+
+                        <div class="relative group">
+                            <input type="date" id="docDate" x-model="formData.date" :class="ui.input" class="cursor-not-allowed opacity-80 bg-slate-100 dark:bg-slate-900" readonly placeholder=" ">
+                            <label for="docDate" :class="`${ui.label} ${ui.labelActive} !text-[#006837] dark:!text-green-500`">Date (Locked to Today)</label>
+                        </div>
+
+                        <div class="relative group">
+                            <input type="text" id="appName" x-model="formData.title" :class="`${ui.input} ${showErrors && !formData.title ? ui.error : ''}`" class="uppercase" placeholder=" ">
+                            <label for="appName" :class="`${ui.label} ${formData.title ? ui.labelActive : ''}`">
+                                Applicant Name <span class="text-[#8C0000] dark:text-red-400">*</span>
+                            </label>
+                        </div>
+
+                        <div class="relative group">
+                            <input type="text" id="accNum" x-model="formData.accNo" @input="formData.accNo = formatAccount($event.target.value)" maxlength="13" 
+                                   :class="`${ui.input} ${showErrors && (!formData.accNo || (selectedForm === 'closure' && rawAccNo.length !== 11)) ? ui.error : ''}`" 
+                                   class="font-mono tracking-widest text-[15px]" placeholder=" ">
+                            <label for="accNum" :class="`${ui.label} ${formData.accNo ? ui.labelActive : ''}`">
+                                Account Number (11 Digits) <span class="text-[#8C0000] dark:text-red-400">*</span>
+                            </label>
+                        </div>
+                        
+                        <div x-show="selectedForm === 'transfer'" x-collapse x-cloak>
+                            <div class="grid grid-cols-1 gap-4 pt-4 mt-2 border-t border-slate-100 dark:border-slate-700">
+                                <div class="relative group">
+                                    <input type="text" id="txAmount" x-model="formData.amount" @input="handleAmountInput" 
+                                           :class="`${ui.input} ${showErrors && !formData.amount ? ui.error : ''}`" 
+                                           class="font-mono font-bold text-[15px]" placeholder=" ">
+                                    <label for="txAmount" :class="`${ui.label} ${formData.amount ? ui.labelActive : ''}`">
+                                        Amount Figure (Tk.) <span class="text-[#8C0000] dark:text-red-400">*</span>
+                                    </label>
+                                </div>
+                                <div class="relative group">
+                                    <input type="text" id="txWords" x-model="formData.amountWords" class="w-full h-[58px] bg-slate-100/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed rounded-xl px-4 pt-[20px] pb-1.5 text-[13px] capitalize outline-none font-medium" placeholder=" " readonly>
+                                    <label for="txWords" :class="`${ui.label} ${formData.amountWords ? ui.labelActive : ''}`">Amount in Words</label>
+                                </div>
+                                <div class="relative group">
+                                    <input type="text" id="destAcc" x-model="formData.toAcc" @input="formData.toAcc = formatAccount($event.target.value)" maxlength="13" 
+                                           :class="`${ui.input} ${showErrors && !formData.toAcc ? ui.error : ''}`" 
+                                           class="font-mono tracking-widest text-[15px]" placeholder=" ">
+                                    <label for="destAcc" :class="`${ui.label} ${formData.toAcc ? ui.labelActive : ''}`">
+                                        Destination Account No. <span class="text-[#8C0000] dark:text-red-400">*</span>
+                                    </label>
+                                </div>
+                                <div class="relative group">
+                                    <input type="text" id="destTitle" x-model="formData.toTitle" 
+                                           :class="`${ui.input} ${showErrors && !formData.toTitle ? ui.error : ''}`" 
+                                           class="uppercase" placeholder=" ">
+                                    <label for="destTitle" :class="`${ui.label} ${formData.toTitle ? ui.labelActive : ''}`">
+                                        Destination Account Title <span class="text-[#8C0000] dark:text-red-400">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="selectedForm === 'mobile'" x-collapse x-cloak>
+                            <div class="grid grid-cols-1 gap-4 pt-4 mt-2 border-t border-slate-100 dark:border-slate-700">
+                                <div class="relative group">
+                                    <input type="text" id="oldMob" x-model="formData.oldMobile" @input="formData.oldMobile = formatMobile($event.target.value)" maxlength="13" 
+                                           :class="`${ui.input} ${showErrors && (!formData.oldMobile || rawOldMobile.length !== 11) ? ui.error : ''}`" 
+                                           class="font-mono tracking-widest text-[15px]" placeholder=" ">
+                                    <label for="oldMob" :class="`${ui.label} ${formData.oldMobile ? ui.labelActive : ''}`">
+                                        Old Mobile Number <span class="text-[#8C0000] dark:text-red-400">*</span>
+                                    </label>
+                                </div>
+                                <div class="relative group">
+                                    <input type="text" id="newMob" x-model="formData.newMobile" @input="formData.newMobile = formatMobile($event.target.value)" maxlength="13" 
+                                           :class="`${ui.input} ${showErrors && (!formData.newMobile || rawNewMobile.length !== 11) ? ui.error : ''}`" 
+                                           class="font-mono tracking-widest text-[15px]" placeholder=" ">
+                                    <label for="newMob" :class="`${ui.label} ${formData.newMobile ? ui.labelActive : ''}`">
+                                        New Mobile Number <span class="text-[#8C0000] dark:text-red-400">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="selectedForm === 'cheque'" x-collapse x-cloak>
+                            <div class="grid grid-cols-1 gap-4 pt-4 mt-2 border-t border-slate-100 dark:border-slate-700">
+                                <div class="relative group">
+                                    <input type="text" id="authName" x-model="formData.authPerson" 
+                                           :class="`${ui.input} ${showErrors && !formData.authPerson ? ui.error : ''}`" 
+                                           class="uppercase" placeholder=" ">
+                                    <label for="authName" :class="`${ui.label} ${formData.authPerson ? ui.labelActive : ''}`">
+                                        Authorized Person Name <span class="text-[#8C0000] dark:text-red-400">*</span>
+                                    </label>
+                                </div>
+                                <div class="relative group">
+                                    <input type="text" id="appMob" x-model="formData.mobile" @input="formData.mobile = formatMobile($event.target.value)" maxlength="13" 
+                                           :class="`${ui.input} ${showErrors && (!formData.mobile || rawAppMobile.length !== 11) ? ui.error : ''}`" 
+                                           class="font-mono tracking-widest text-[15px]" placeholder=" ">
+                                    <label for="appMob" :class="`${ui.label} ${formData.mobile ? ui.labelActive : ''}`">
+                                        Applicant Mobile <span class="text-[#8C0000] dark:text-red-400">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-6"></div> </div>
+
+            <div class="sticky bottom-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-700 p-6 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.1)] z-30 transition-colors">
+                
+                <div class="mb-4">
+                    <div class="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider">
+                        <span>Form Status</span>
+                        <span :class="completionPercentage === 100 ? 'text-[#006837] dark:text-green-400 scale-110 transition-transform' : ''" x-text="completionPercentage + '%'"></span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div :class="completionPercentage === 100 ? 'bg-[#006837] dark:bg-green-500' : 'bg-slate-400 dark:bg-slate-500'" class="h-full transition-all duration-500 ease-out" :style="`width: ${completionPercentage}%`"></div>
+                    </div>
+                </div>
+
+                <input type="file" @change="handleLogoUpload" id="logoIn" class="hidden" accept="image/*">
+                <div class="flex gap-3">
+                    <label for="logoIn" title="Upload Custom Logo" class="w-[52px] h-[52px] flex-shrink-0 flex items-center justify-center border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl cursor-pointer transition-all shadow-sm active:scale-95">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    </label>
+                    
+                    <button @click="validateAndPrint()" 
+                            :class="completionPercentage === 100 ? 'bg-[#006837] text-white hover:bg-[#004d29] hover:shadow-green-900/40 dark:hover:shadow-green-900/60' : 'bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'"
+                            class="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold transition-all duration-300 shadow-lg active:scale-[0.98] uppercase text-[13px] tracking-widest relative overflow-hidden group">
+                        <div x-show="completionPercentage === 100" class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                        <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        <span class="relative z-10">Print Document</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 w-full overflow-y-auto print-area pt-12 pb-20 custom-scroll flex flex-col items-center relative z-10 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
+            <div class="print-reset-height relative flex justify-center w-full" :style="`height: ${297 * previewScale}mm;`">
+                
+                <div class="print-reset-transform origin-top absolute top-0" :style="`transform: scale(${previewScale}); transform-origin: top center;`">
+                     
+                    <div class="a4-preview-container paper-texture bank-font leading-snug"
+                         :style="'padding: ' + format.paddingTop + 'mm 20mm 15mm 20mm; font-size: ' + format.fontSize + 'pt;'">
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none z-0" x-show="logoSrc">
+                            <img :src="logoSrc" class="w-[80%] grayscale mix-blend-multiply" alt="Watermark" />
+                        </div>
+                        
+                        <div class="relative z-10 h-full flex flex-col">
+                            
+                            <div class="flex justify-between items-start mb-6 border-b-[1.5px] border-black pb-4">
+                                <div class="flex items-center gap-4">
+                                    <template x-if="logoSrc"><img :src="logoSrc" alt="Logo" class="h-[60px] w-auto"></template>
+                                    <template x-if="!logoSrc"><div class="w-[60px] h-[60px] bg-slate-100 flex items-center justify-center text-[10px] no-print text-slate-400 border border-slate-300 font-sans">LOGO</div></template>
+                                    <div>
+                                        <h1 class="text-3xl font-extrabold leading-none text-black tracking-tight">Standard Islami Bank PLC</h1>
+                                        <p class="text-[11px] font-bold text-black mt-1 uppercase tracking-widest">Shari'ah Based Islami Bank</p>
+                                        <p class="text-[10px] uppercase font-bold text-black mt-1 tracking-wide">
+                                            <span x-text="settings.branchName"></span>, <span x-text="settings.district"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end gap-2 mt-1">
+                                    <template x-if="qrDataUrl">
+                                        <img :src="qrDataUrl" alt="QR Code" class="w-[70px] h-[70px] border border-black p-1 bg-white">
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-start font-bold mb-5 text-[13px]">
+                                <div class="space-y-0.5">
+                                    <p>The Manager</p>
+                                    <p>Standard Islami Bank PLC</p>
+                                    <p x-text="settings.branchName"></p>
+                                    <p x-text="settings.district"></p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[12px] font-bold">Date: 
+                                        <span class="border-b border-black px-2 pb-0.5 min-w-[120px] inline-block text-center font-normal" x-text="formattedDate"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <template x-if="selectedForm === 'closure'">
+                                <div class="flex-grow flex flex-col space-y-3">
+                                    
+                                    <div class="text-center font-extrabold border-[1.5px] border-black py-2.5 uppercase text-[14px] tracking-widest">
+                                        FIXED DEPOSIT / SCHEME / SAVINGS / CURRENT ACCOUNT CLOSURE
+                                    </div>
+                                    
+                                    <p class="text-[13px] pt-1">I/We request you to kindly close the following Term Deposit / Scheme account maintained in my/our name:</p>
+                                    
+                                    <div class="w-full border-t border-l border-black text-[13px]">
+                                        <div class="flex border-b border-r border-black">
+                                            <div class="w-[35%] p-2 font-bold border-r border-black uppercase text-[11px] flex items-center">Account Type:</div>
+                                            <div class="w-[65%] p-2 italic uppercase">Fixed Deposit / Scheme / Savings / Current A/C</div>
+                                        </div>
+                                        <div class="flex border-b border-r border-black">
+                                            <div class="w-[35%] p-2 font-bold border-r border-black uppercase text-[11px] flex items-center">Account Number:</div>
+                                            <div class="w-[65%] p-2 flex items-center justify-start gap-[2px]">
+                                                <template x-for="n in 11">
+                                                    <div class="acc-box transition-colors duration-200" 
+                                                         :class="rawAccNo.charAt(n-1) ? 'border-black text-black' : 'border-gray-300 border-dashed text-transparent'"
+                                                         :style="'font-size: ' + (parseInt(format.fontSize) + 2) + 'pt;'" 
+                                                         x-text="rawAccNo.charAt(n-1) || '0'">
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="flex border-b border-r border-black">
+                                            <div class="w-[35%] p-2 font-bold border-r border-black uppercase text-[11px] flex items-center">Account Title:</div>
+                                            <div class="w-[65%] p-2 font-bold uppercase" x-text="formData.title"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex gap-10 font-bold text-[13px] py-1">
+                                        <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-3 cursor-pointer select-none">
+                                            <div class="w-4 h-4 border-[1.5px] border-black flex-shrink-0 flex items-center justify-center bg-white"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                            <span>To be encashed at maturity</span>
+                                        </div>
+                                        <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-3 cursor-pointer select-none">
+                                            <div class="w-4 h-4 border-[1.5px] border-black flex-shrink-0 flex items-center justify-center bg-white"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                            <span>To be encashed before maturity</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-justify leading-relaxed text-[13px]">Please cancel any standing instructions on this account and pay the total balance, including accrued interest (if applicable), after deducting all relevant charges as per the following instructions:</p>
+                                    
+                                    <div class="pl-4 space-y-3 text-[13px] py-1">
+                                        <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-3 cursor-pointer select-none">
+                                            <div class="w-4 h-4 border-[1.5px] border-black flex-shrink-0 flex items-center justify-center bg-white"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                            <span>Transfer funds to Account No: <span class="border-b border-black font-bold px-4 min-w-[150px] inline-block font-mono"></span></span>
+                                        </div>
+                                        <div class="flex items-center gap-10">
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-3 cursor-pointer select-none">
+                                                <div class="w-4 h-4 border-[1.5px] border-black flex-shrink-0 flex items-center justify-center bg-white"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                                <span>Pay Order</span>
+                                            </div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-3 cursor-pointer select-none">
+                                                <div class="w-4 h-4 border-[1.5px] border-black flex-shrink-0 flex items-center justify-center bg-white"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                                <span>Pay Slip</span>
+                                            </div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-3 cursor-pointer select-none">
+                                                <div class="w-4 h-4 border-[1.5px] border-black flex-shrink-0 flex items-center justify-center bg-white"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                                                <span>Other: .................................</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p class="italic text-[12px] text-justify font-bold mt-1">The original FDR / Scheme certificate (if applicable) is enclosed and duly discharged by me/us.</p>
+                                    
+                                    <div class="flex justify-between pt-14 pb-2">
+                                        <div class="text-center"><div class="w-56 border-t-[1.5px] border-black"></div><p class="text-[11px] mt-2 font-bold uppercase tracking-wide">Signature of Applicant</p></div>
+                                        <div class="text-center"><div class="w-56 border-t-[1.5px] border-black"></div><p class="text-[11px] mt-2 font-bold uppercase tracking-wide">Signature of Applicant</p></div>
+                                    </div>
+                                    
+                                    <div class="border-[1.5px] border-black p-4 mt-auto relative bg-white">
+                                        <p class="font-extrabold text-center border-b-[1.5px] border-black pb-1.5 mb-3 uppercase text-[12px] tracking-[0.2em]">For Bank Use Only</p>
+                                        <div class="mb-3 text-center"><span class="font-bold bg-black text-white px-3 py-1 text-[11px] uppercase tracking-[0.15em] rounded-sm">Check Points</span></div>
+                                        
+                                        <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-[11px] uppercase font-bold text-black mb-3 px-4">
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Signature verified</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Receipt received</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Instructions cancelled</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Interest update</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Lien marked checked</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Funds transferred</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Loan account checked</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Zero balance confirmed</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>Charges/Tax/Excise</span></div>
+                                            <div x-data="{ checked: false }" @click="checked = !checked" class="flex items-center gap-2.5 cursor-pointer select-none"><div class="w-4 h-4 border-[1.5px] border-black bg-white flex-shrink-0 flex items-center justify-center"><svg x-show="checked" x-cloak class="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span>System account closed</span></div>
+                                        </div>
+                                        
+                                        <div class="flex justify-between mt-10 pb-2 px-6">
+                                            <div class="text-center"><div class="w-48 border-t-[1.5px] border-black"></div><p class="text-[11px] mt-1.5 font-bold uppercase">Action Taken By & Seal</p></div>
+                                            <div class="text-center"><div class="w-48 border-t-[1.5px] border-black"></div><p class="text-[11px] mt-1.5 font-bold uppercase">Authorized By & Seal</p></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template x-if="selectedForm === 'cheque'">
+                                <div class="space-y-8 mt-2">
+                                    <p class="font-bold border-b border-black inline-block uppercase italic text-[15px]">Subject: Authorization Letter for Cheque Book Collection.</p>
+                                    <p class="text-[14px]">Dear Sir,</p>
+                                    <p class="leading-[2.6] text-justify text-[14px]">I hereby authorize Mr./Mrs. <span class="border-b border-black font-bold px-4 inline-block min-w-[300px] text-center uppercase" x-text="formData.authPerson || '...........................................'"></span>, whose specimen signature is attested below, to collect the cheque book for my SB/CD/SND/SOD Account No. <span class="border-b border-black font-bold px-4 inline-block min-w-[240px] text-center font-mono" x-text="rawAccNo || '...........................................'"></span> from your branch on my behalf.</p>
+                                    <div class="pt-20"><div class="w-80 border-b border-black mb-1"></div><p class="text-[11px] font-bold italic uppercase">Specimen Signature of Authorized Person</p></div>
+                                    <div class="pt-16"><div class="w-48 border-b border-black mb-1"></div><p class="text-[11px] font-bold uppercase">Signature Attested</p></div>
+                                    
+                                    <div class="pt-24 space-y-6">
+                                        <p class="text-[14px] font-bold">Yours faithfully,</p>
+                                        <div class="mt-16 space-y-3 text-[14px]">
+                                            <p><span class="w-28 inline-block font-bold">Name:</span> <span class="font-bold uppercase" x-text="formData.title"></span></p>
+                                            <p><span class="w-28 inline-block font-bold">Account No:</span> <span class="font-bold font-mono" x-text="rawAccNo"></span></p>
+                                            <p><span class="w-28 inline-block font-bold">Mobile No:</span> <span class="font-bold font-mono" x-text="rawAppMobile"></span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template x-if="selectedForm === 'mobile'">
+                                <div class="space-y-8 mt-2">
+                                    <p class="font-bold border-b border-black inline-block uppercase italic text-[15px]">Subject: Request for Update of Registered Mobile Number.</p>
+                                    <p class="text-[14px]">Dear Sir,</p>
+                                    <p class="text-[14px]">I am a customer of your branch, maintaining Account No. <span class="font-bold border-b border-black px-4 font-mono text-[15px]" x-text="rawAccNo || '___________'"></span>.</p>
+                                    <p class="text-[14px] leading-relaxed">At the time of account opening, I provided the mobile number <span class="font-bold border-b border-black px-4 font-mono text-[15px]" x-text="rawOldMobile || '__________'"></span> for my records and SMS banking services.</p>
+                                    <p class="text-justify leading-relaxed text-[14px]">Due to personal reasons, I have changed my mobile number and am now using <span class="font-bold border-b border-black px-4 font-mono text-[15px]" x-text="rawNewMobile || '___________'"></span>. I request you to update your database and alternative delivery channels with this new number to ensure uninterrupted service.</p>
+                                    <p class="pt-16 text-[14px] font-bold">Yours truly,</p>
+                                    <div class="pt-28"><div class="w-72 border-t-[1.5px] border-black mb-2"></div><p class="font-bold uppercase text-[16px]" x-text="formData.title"></p><p class="font-bold text-[12px] uppercase mt-1">Account No: <span class="font-mono" x-text="rawAccNo"></span></p></div>
+                                </div>
+                            </template>
+
+                            <template x-if="selectedForm === 'transfer'">
+                                <div class="space-y-8 mt-2">
+                                    <p class="font-bold border-b border-black inline-block uppercase italic text-[15px]">Subject: Request for Balance Transfer Between Accounts.</p>
+                                    <p class="text-[14px]">Dear Sir,</p>
+                                    <p class="text-justify leading-relaxed text-[14px]">I wish to transfer a sum of Tk. <span class="font-bold border-b border-black font-mono px-2 text-[15px]" x-text="formData.amount || '______/='"></span> (<span class="italic border-b border-black font-semibold px-2" x-text="formData.amountWords || 'amount in words'"></span>) from my Account No. <span class="font-bold border-b border-black font-mono px-2" x-text="rawAccNo"></span> (Title: <span class="font-bold uppercase border-b border-black px-2" x-text="formData.title"></span>) to Account No. <span class="font-bold border-b border-black font-mono px-2" x-text="rawToAcc"></span> (Title: <span class="font-bold uppercase border-b border-black px-2" x-text="formData.toTitle"></span>).</p>
+                                    <p class="text-[14px]">I request you to kindly process this transfer. Your early cooperation in this matter is highly appreciated.</p>
+                                    <p class="pt-16 text-[14px] font-bold">Yours sincerely,</p>
+                                    <div class="pt-28"><div class="w-72 border-t-[1.5px] border-black mb-2"></div><p class="font-bold uppercase text-[16px]" x-text="formData.title"></p><p class="font-bold text-[12px] uppercase mt-1">Account No: <span class="font-mono" x-text="rawAccNo"></span></p></div>
+                                </div>
+                            </template>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="showClearModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm no-print" x-cloak>
+           <div @click.away="showClearModal = false" 
+                x-show="showClearModal" 
+                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90 translate-y-8" x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-90 translate-y-8"
+                class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] w-[400px] max-w-[90%] border border-slate-100 dark:border-slate-700 relative overflow-hidden">
+              
+              <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-red-500/10 dark:bg-red-500/5 blur-2xl"></div>
+
+              <div class="flex items-center gap-4 mb-4 relative z-10">
+                  <div class="bg-red-100 dark:bg-red-500/20 p-3 rounded-2xl text-red-600 dark:text-red-400">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </div>
+                  <h3 class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">Clear Form Data?</h3>
+              </div>
+              <p class="text-slate-500 dark:text-slate-400 text-[14px] leading-relaxed mb-8 relative z-10 font-medium">Are you sure you want to clear all entered fields? This action cannot be undone and you will lose your progress.</p>
+              
+              <div class="flex justify-end gap-3 relative z-10">
+                 <button @click="showClearModal = false" class="px-5 py-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 font-bold transition-all">Cancel</button>
+                 <button @click="executeClearForm()" class="px-5 py-2.5 rounded-xl bg-red-600 text-white hover:bg-red-700 font-bold transition-all shadow-lg shadow-red-600/30 active:scale-95">Yes, Clear</button>
+              </div>
+           </div>
+        </div>
+
+        <div class="fixed bottom-8 right-8 z-50 no-print pointer-events-none" x-show="toast.show" 
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8 scale-95" x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 scale-100" x-transition:leave-end="opacity-0 translate-y-8 scale-95" x-cloak>
+            <div :class="toast.type === 'error' ? 'bg-gradient-to-r from-red-600 to-red-500 shadow-red-500/30' : 'bg-gradient-to-r from-[#006837] to-[#004d29] shadow-green-900/30'" 
+                 class="text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 font-sans border border-white/10 pointer-events-auto">
+                <template x-if="toast.type === 'error'">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </template>
+                <template x-if="toast.type === 'success'">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </template>
+                <span class="text-[13px] font-semibold tracking-wide" x-text="toast.message"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('bankApp', function () {
+                const getLocalDateString = () => {
+                    const now = new Date();
+                    const offset = now.getTimezoneOffset() * 60000;
+                    return new Date(now.getTime() - offset).toISOString().split('T')[0];
+                };
+
+                return {
+                    sidebarOpen: true,
+                    darkMode: this.$persist(false),
+                    showClearModal: false,
+                    selectedForm: this.$persist('closure'), 
+                    logoSrc: this.$persist(''),
+                    previewScale: 0.8, 
+                    format: { paddingTop: 10, fontSize: 13 },
+                    showErrors: false,
+                    qrDataUrl: '',
+                    
+                    settings: this.$persist({
+                        branchName: 'Madhabdi Branch',
+                        district: 'Madhabdi, Narsingdi'
+                    }),
+                    
+                    toast: { show: false, message: '', type: 'error' },
+
+                    formData: this.$persist({
+                        date: getLocalDateString(), 
+                        title: '', accNo: '', toAcc: '', toTitle: '', 
+                        amount: '', amountWords: '', transferAcc: '', authPerson: '', 
+                        mobile: '', oldMobile: '', newMobile: ''
+                    }),
+
+                    ui: {
+                        input: 'w-full h-[58px] bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-4 pt-[20px] pb-1.5 text-[14px] font-semibold outline-none transition-all duration-300 focus:bg-white dark:focus:bg-slate-800 focus:ring-[3px] focus:ring-[#006837]/20 dark:focus:ring-green-500/20 focus:border-[#006837] dark:focus:border-green-500 shadow-inner hover:border-slate-300 dark:hover:border-slate-600 text-slate-800 dark:text-slate-100 peer',
+                        label: 'absolute left-4 top-[17px] text-[14px] text-slate-400 dark:text-slate-500 pointer-events-none transition-all duration-200 peer-placeholder-shown:top-[17px] peer-placeholder-shown:text-[14px] peer-focus:top-[6px] peer-focus:text-[11px] peer-focus:text-[#006837] dark:peer-focus:text-green-500 font-medium',
+                        labelActive: '!top-[6px] !text-[11px]',
+                        error: 'border-red-400 focus:border-red-500 focus:ring-red-500/20 bg-red-50 dark:bg-red-900/10'
+                    },
+
+                    get rawAccNo() { return this.formData.accNo ? this.formData.accNo.replace(/\D/g, '') : ''; },
+                    get rawToAcc() { return this.formData.toAcc ? this.formData.toAcc.replace(/\D/g, '') : ''; },
+                    get rawOldMobile() { return this.formData.oldMobile ? this.formData.oldMobile.replace(/\D/g, '') : ''; },
+                    get rawNewMobile() { return this.formData.newMobile ? this.formData.newMobile.replace(/\D/g, '') : ''; },
+                    get rawAppMobile() { return this.formData.mobile ? this.formData.mobile.replace(/\D/g, '') : ''; },
+                    
+                    init() {
+                        // FORCE OVERRIDE: Automatically update to today's date, ignoring cached dates
+                        this.formData.date = getLocalDateString();
+                        
+                        this.$watch('formData', () => this.generateQR(), { deep: true });
+                        this.$watch('selectedForm', () => { this.generateQR(); this.showErrors = false; });
+                        this.$watch('settings', () => this.generateQR(), { deep: true });
+                        setTimeout(() => this.generateQR(), 300);
+                    },
+
+                    formatAccount(val) {
+                        if(!val) return '';
+                        let raw = val.replace(/\D/g, '').substring(0, 11);
+                        if (raw.length > 7) return `${raw.substring(0,3)} ${raw.substring(3,7)} ${raw.substring(7,11)}`;
+                        if (raw.length > 3) return `${raw.substring(0,3)} ${raw.substring(3,7)}`;
+                        return raw;
+                    },
+
+                    formatMobile(val) {
+                        if(!val) return '';
+                        let raw = val.replace(/\D/g, '').substring(0, 11);
+                        if (raw.length > 7) return `${raw.substring(0,3)} ${raw.substring(3,7)} ${raw.substring(7,11)}`;
+                        if (raw.length > 3) return `${raw.substring(0,3)} ${raw.substring(3,7)}`;
+                        return raw;
+                    },
+
+                    get completionPercentage() {
+                        let required = 0;
+                        let filled = 0;
+                        
+                        if (this.formData.title) filled++;
+                        if (this.rawAccNo) filled++;
+                        required += 2; 
+
+                        if (this.selectedForm === 'closure') {
+                            if (this.rawAccNo && this.rawAccNo.length === 11) filled++;
+                            required++; 
+                        } else if (this.selectedForm === 'transfer') {
+                            required += 3;
+                            if (this.formData.amount) filled++;
+                            if (this.rawToAcc) filled++;
+                            if (this.formData.toTitle) filled++;
+                        } else if (this.selectedForm === 'mobile') {
+                            required += 2;
+                            if (this.rawOldMobile && this.rawOldMobile.length === 11) filled++;
+                            if (this.rawNewMobile && this.rawNewMobile.length === 11) filled++;
+                        } else if (this.selectedForm === 'cheque') {
+                            required += 2;
+                            if (this.formData.authPerson) filled++;
+                            if (this.rawAppMobile && this.rawAppMobile.length === 11) filled++;
+                        }
+                        return Math.round((filled / required) * 100);
+                    },
+
+                    get formattedDate() {
+                        if (!this.formData.date) return '';
+                        const d = new Date(this.formData.date);
+                        if (isNaN(d)) return this.formData.date;
+                        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+                    },
+
+                    showToastMsg(message, type = 'error') {
+                        this.toast.message = message;
+                        this.toast.type = type;
+                        this.toast.show = true;
+                        setTimeout(() => { this.toast.show = false; }, 4000);
+                    },
+
+                    generateQR() {
+                        if (typeof QRious === 'undefined') return;
+                        const payload = `Bank: SIB PLC\nBranch: ${this.settings.branchName}\nType: ${this.selectedForm}\nDate: ${this.formData.date}\nAcc: ${this.rawAccNo || 'N/A'}`;
+                        const qr = new QRious({ value: payload, size: 150, level: 'M' });
+                        this.qrDataUrl = qr.toDataURL();
+                    },
+
+                    handleAmountInput() {
+                        let rawStr = this.formData.amount.replace(/[^\d.]/g, '');
+                        let parts = rawStr.split('.');
+                        if (parts.length > 2) parts = [parts[0], parts.slice(1).join('')];
+                        if (!parts[0] && parts.length === 1) { this.formData.amount = ''; this.formData.amountWords = ''; return; }
+
+                        let num = parts[0] ? parseInt(parts[0], 10) : 0;
+                        let dec = parts[1] ? parts[1].substring(0, 2) : ''; 
+                        let formatted = num.toLocaleString('en-IN');
+                        if (parts.length > 1) formatted += '.' + dec;
+                        this.formData.amount = formatted;
+
+                        let words = this.numberToWords(num) + ' Taka';
+                        if (dec && parseInt(dec, 10) > 0) {
+                            let paisaNum = parseInt(dec, 10);
+                            if (dec.length === 1) paisaNum *= 10; 
+                            words += ' and ' + this.numberToWords(paisaNum) + ' Paisa';
+                        }
+                        this.formData.amountWords = words + ' Only';
+                    },
+
+                    numberToWords(num) {
+                        if (num === 0) return 'Zero';
+                        const a = ['','One ','Two ','Three ','Four ', 'Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+                        const b = ['', '', 'Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'];
+                        const convertInteger = (n) => {
+                            if (n < 20) return a[n];
+                            if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : ' ');
+                            if (n < 1000) return a[Math.floor(n / 100)] + 'Hundred ' + (n % 100 !== 0 ? 'and ' + convertInteger(n % 100) : '');
+                            if (n < 100000) return convertInteger(Math.floor(n / 1000)) + 'Thousand ' + (n % 1000 !== 0 ? convertInteger(n % 1000) : '');
+                            if (n < 10000000) return convertInteger(Math.floor(n / 100000)) + 'Lakh ' + (n % 100000 !== 0 ? convertInteger(n % 100000) : '');
+                            return convertInteger(Math.floor(n / 10000000)) + 'Crore ' + (n % 10000000 !== 0 ? convertInteger(n % 10000000) : '');
+                        }
+                        return convertInteger(num).trim();
+                    },
+
+                    validateAndPrint() {
+                        this.showErrors = true;
+                        if (this.completionPercentage === 100) {
+                            this.showErrors = false;
+                            this.showToastMsg('Document ready for printing.', 'success');
+                            setTimeout(() => { window.print(); }, 400);
+                        } else {
+                            this.showToastMsg('Please verify all mandatory fields. Ensure 11-digit rules are met.');
+                        }
+                    },
+
+                    executeClearForm() {
+                        this.formData = {
+                            date: getLocalDateString(), 
+                            title: '', accNo: '', toAcc: '', toTitle: '', 
+                            amount: '', amountWords: '', transferAcc: '', authPerson: '', 
+                            mobile: '', oldMobile: '', newMobile: ''
+                        };
+                        this.showErrors = false;
+                        this.showClearModal = false;
+                        this.showToastMsg('Form cleared successfully.', 'success');
+                    },
+
+                    handleLogoUpload(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => { this.logoSrc = e.target.result; };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                }
+            })
+        });
+    </script>
+</body>
+</html>

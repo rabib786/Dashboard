@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STANDARD ISLAMI BANK - Prepaid Card Application Workspace</title>
+    <style>
+        /* --- RESET & WORKSPACE LAYOUT --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; height: 100vh; overflow: hidden; background-color: #1e1e1e; }
+        
+        .workspace-left { width: 420px; background-color: #1e1e1e; color: #d4d4d4; display: flex; flex-direction: column; border-right: 1px solid #333; z-index: 10; flex-shrink: 0;}
+        .workspace-right { flex: 1; background-color: #525659; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 40px; }
+        
+        /* --- LEFT PANEL STYLING --- */
+        .toolbar { padding: 15px; background: #252526; border-bottom: 1px solid #3c3c3c; display: flex; flex-wrap: wrap; gap: 8px; position: sticky; top: 0; z-index: 20; }
+        .toolbar button { background: #0e639c; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: bold; }
+        .toolbar button:hover { background: #1177bb; }
+        .toolbar button.danger { background: #ac2925; }
+        .toolbar button.danger:hover { background: #c9302c; }
+        
+        .form-controls { flex: 1; overflow-y: auto; padding: 20px; }
+        .input-group { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
+        .input-group label { font-size: 12px; color: #9cdcfe; flex-shrink: 0;}
+        .input-group.stack { flex-direction: column; align-items: stretch; gap: 4px; }
+        
+        /* FORCES ALL INPUT TEXT TO UPPERCASE */
+        .input-group input[type="text"] { flex: 1; padding: 5px; background: #3c3c3c; border: 1px solid #555; color: white; border-radius: 3px; font-family: inherit; font-size: 12px; min-width: 80px; text-transform: uppercase; }
+        .input-group input[type="date"], .input-group select { flex: 1; padding: 5px; background: #3c3c3c; border: 1px solid #555; color: white; border-radius: 3px; font-family: inherit; font-size: 12px; min-width: 80px; }
+        
+        .input-group input:focus { outline: 1px solid #0e639c; }
+        .checkbox-group { display: flex; gap: 8px; font-size: 12px; align-items: center; flex-wrap: wrap;}
+        .checkbox-group label { color: #d4d4d4; display: flex; align-items: center; gap: 3px;}
+        
+        .page-divider { background: #333; color: #fff; padding: 8px; font-size: 14px; font-weight: bold; text-align: center; margin: 25px -20px 15px -20px; border-top: 1px solid #555; border-bottom: 1px solid #555;}
+        h3.section-title { font-size: 12px; color: #ce9178; border-bottom: 1px solid #444; padding-bottom: 3px; margin: 15px 0 10px 0; text-transform: uppercase; }
+
+        /* --- RIGHT PANEL (A4 REPLICA) --- */
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            color: black;
+            padding: 10mm 12mm;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            pointer-events: none; /* Lock from direct editing */
+            position: relative;
+            flex-shrink: 0;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+
+        /* Form Typography & Structure */
+        .form-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .logo-area { display: flex; align-items: flex-start; gap: 8px; }
+        .logo-icon { width: 35px; height: 35px; background: #007336; position: relative; }
+        .logo-icon::before { content: 'S'; color: white; font-weight: bold; font-size: 24px; position: absolute; top: 2px; left: 10px; }
+        .bank-name { color: #007336; font-size: 18px; font-weight: bold; margin:0; letter-spacing: -0.5px;}
+        .bank-sub { color: #e31837; font-size: 10px; margin:0; font-style: italic;}
+        .address-text { font-size: 7px; line-height: 1.2; margin-top: 5px; }
+        
+        .title-area { text-align: center; flex: 1; margin-top: 15px;}
+        .main-title { font-size: 24px; font-weight: bold; letter-spacing: 5px; margin:0;}
+        .sub-title { font-size: 12px; font-weight: bold; margin:0;}
+
+        .photo-box { width: 30mm; height: 35mm; border: 1px solid #000; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 9px; color: #666; padding: 2px; }
+
+        .section-bar { background: #888; color: white; font-weight: bold; padding: 2px 5px; margin: 8px 0 6px 0; font-size: 11px; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .kyc-bar { background: #222; color: white; font-weight: bold; padding: 3px 5px; margin: 8px 0 6px 0; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .branch-bar { background: #888; color: white; font-weight: bold; padding: 2px 5px; margin: 8px 0 6px 0; font-size: 11px; text-transform: uppercase; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+        /* Exact layout replication classes */
+        .row { display: flex; align-items: flex-end; width: 100%; margin-bottom: 6px; white-space: nowrap; }
+        .row label { white-space: nowrap; margin-right: 4px;}
+        
+        /* FORCES ALL OUTPUT TEXT TO UPPERCASE */
+        .row .line-out { display: inline-block; border-bottom: 1px solid #000; min-height: 12px; flex-grow: 1; padding-left: 5px; padding-bottom: 1px; word-break: break-word; text-transform: uppercase;}
+        
+        .segmented-container { display: inline-flex; gap: 2px; }
+        .seg-box { width: 13px; height: 16px; border: 1px solid #000; display: flex; align-items: center; justify-content: center; font-family: monospace; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        
+        .chk-box { display: inline-block; width: 10px; height: 10px; border: 1px solid #000; margin-right: 3px; position: relative; top: 1px; }
+        .chk-box.checked::after { content: '✔'; position: absolute; top: -3px; left: 1px; font-size: 10px; }
+
+        .tc-content { column-count: 2; column-gap: 25px; text-align: justify; font-size: 9px; line-height: 1.5; margin-top: 15px;}
+        .tc-content ul { padding-left: 15px; margin-bottom: 10px; }
+        .tc-content li { margin-bottom: 5px; }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body { background: white; height: auto; overflow: visible; display: block; }
+            .workspace-left { display: none; }
+            .workspace-right { padding: 0; background: none; display: block; gap: 0; overflow: visible;}
+            .a4-page { box-shadow: none; padding: 10mm 12mm; width: 210mm; min-height: 297mm; height: 297mm; page-break-after: always; margin: 0; }
+            .a4-page:last-child { page-break-after: auto; }
+            @page { size: A4 portrait; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="workspace-left">
+        <div class="toolbar">
+            <button onclick="window.print()">🖨️ Print Document</button>
+            <button onclick="clearForm()" class="danger">🗑️ Clear</button>
+            <div class="checkbox-group" style="width: 100%; margin-top: 5px;">
+                <label><input type="checkbox" id="auto-date" onchange="toggleAutoDate()"> Auto-fill Today's Date</label>
+            </div>
+        </div>
+
+        <div class="form-controls">
+            <div class="page-divider">PAGE 1: MAIN APPLICATION</div>
+
+            <div class="input-group checkbox-group">
+                <label>Card Type:</label>
+                <label><input type="radio" name="cardType" value="VISA Hajj Card" onchange="syncRadio('cardType')"> Hajj</label>
+                <label><input type="radio" name="cardType" value="VISA Travel Card" onchange="syncRadio('cardType')"> Travel</label>
+                <label><input type="radio" name="cardType" value="Others" onchange="syncRadio('cardType')"> Others:</label>
+                <input type="text" id="in-cardTypeOther" oninput="syncText(this, 'out-cardTypeOther')" style="width:60px;">
+            </div>
+
+            <h3 class="section-title">Details</h3>
+            <div class="input-group stack">
+                <label>Applicant Name (Syncs to KYC)</label>
+                <input type="text" id="in-applicantName" oninput="syncMultiText(this, ['out-applicantName', 'out-kyc-applicantName'])">
+            </div>
+            <div class="input-group stack">
+                <label>Name to be printed on Card (Max 19 chars)</label>
+                <input type="text" id="in-cardName" maxlength="19" oninput="syncSegmented(this, 'out-cardName', 19)">
+            </div>
+            
+            <div class="input-group">
+                <label>DOB</label><input type="date" id="in-dob" oninput="syncDate(this, 'out-dob')" style="width:100px;">
+                <label style="margin-left:5px;">Sex:</label>
+                <label><input type="radio" name="sex" value="Male" onchange="syncRadio('sex')"> M</label>
+                <label><input type="radio" name="sex" value="Female" onchange="syncRadio('sex')"> F</label>
+            </div>
+            <div class="input-group">
+                <label>Nationality</label><input type="text" id="in-nationality" oninput="syncText(this, 'out-nationality')">
+                <label>NID #</label><input type="text" id="in-nid" oninput="syncText(this, 'out-nid')">
+            </div>
+            <div class="input-group stack">
+                <label>Father's Name (Syncs to KYC)</label><input type="text" id="in-fatherName" oninput="syncMultiText(this, ['out-fatherName', 'out-kyc-fatherName'])">
+                <label>Mother's Name</label><input type="text" id="in-motherName" oninput="syncText(this, 'out-motherName')">
+            </div>
+
+            <div class="input-group checkbox-group">
+                <label>Marital:</label>
+                <label><input type="radio" name="marital" value="Married" onchange="syncRadio('marital')"> Married</label>
+                <label><input type="radio" name="marital" value="Unmarried" onchange="syncRadio('marital')"> Unmarried</label>
+                <label><input type="radio" name="marital" value="Others" onchange="syncRadio('marital')"> Others</label>
+                <input type="text" id="in-maritalOther" oninput="syncText(this, 'out-maritalOther')" style="width:50px;">
+            </div>
+            <div class="input-group">
+                <label>Spouse Name</label><input type="text" id="in-spouseName" oninput="syncText(this, 'out-spouseName')">
+            </div>
+
+            <div class="input-group stack">
+                <label>Residence / Mailing Address</label><input type="text" id="in-residence" oninput="syncText(this, 'out-residence')">
+                <label>Permanent Address</label><input type="text" id="in-permanent" oninput="syncText(this, 'out-permanent')">
+            </div>
+
+            <div class="input-group">
+                <label>Passport</label><input type="text" id="in-passport" oninput="syncText(this, 'out-passport')">
+                <label>Exp</label><input type="date" id="in-passExp" oninput="syncFormattedDate(this, 'out-passExp')">
+                <label>Iss</label><input type="date" id="in-passIss" oninput="syncFormattedDate(this, 'out-passIss')">
+            </div>
+
+            <div class="input-group">
+                <label>Mob 1)</label><input type="text" id="in-mob1" oninput="syncText(this, 'out-mob1')">
+                <label>2)</label><input type="text" id="in-mob2" oninput="syncText(this, 'out-mob2')">
+            </div>
+            <div class="input-group stack">
+                <label>E-mail</label><input type="text" id="in-email" oninput="syncText(this, 'out-email')">
+            </div>
+
+            <h3 class="section-title">Profession & Business</h3>
+            <div class="input-group checkbox-group">
+                <label><input type="radio" name="prof" value="Salaried" onchange="syncRadio('prof')"> Salaried</label>
+                <label><input type="radio" name="prof" value="Self Employed" onchange="syncRadio('prof')"> Self Emp.</label>
+                <label><input type="radio" name="prof" value="Businessman" onchange="syncRadio('prof')"> Business</label>
+                <label><input type="radio" name="prof" value="Student" onchange="syncRadio('prof')"> Student</label>
+                <label><input type="radio" name="prof" value="Retired" onchange="syncRadio('prof')"> Retired</label>
+                <label><input type="radio" name="prof" value="Lawyer" onchange="syncRadio('prof')"> Lawyer</label>
+                <label><input type="radio" name="prof" value="Doctor" onchange="syncRadio('prof')"> Doctor</label>
+                <label><input type="radio" name="prof" value="Engineer" onchange="syncRadio('prof')"> Engineer</label>
+                <label><input type="radio" name="prof" value="Others" onchange="syncRadio('prof')"> Others:</label>
+                <input type="text" id="in-profOther" oninput="syncText(this, 'out-profOther')" style="width:50px;">
+            </div>
+            <div class="input-group stack">
+                <label>Company Name</label><input type="text" id="in-company" oninput="syncText(this, 'out-company')">
+                <label>Designation</label><input type="text" id="in-desig" oninput="syncText(this, 'out-desig')">
+            </div>
+            <div class="input-group">
+                <label>Nature of Biz</label><input type="text" id="in-natureBiz" oninput="syncText(this, 'out-natureBiz')">
+                <label>Contact #</label><input type="text" id="in-bizContact" oninput="syncText(this, 'out-bizContact')">
+            </div>
+            <div class="input-group stack">
+                <label>Business Address</label><input type="text" id="in-bizAddr" oninput="syncText(this, 'out-bizAddr')">
+            </div>
+
+            <h3 class="section-title">Identity & Address Proof</h3>
+            <div class="input-group checkbox-group">
+                <label>ID:</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-idPassport')"> Passport</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-idNid')"> NID</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-idDrive')"> Driving Lic.</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-idBirth')"> Birth Cert.</label>
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Address:</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-adUtil')"> Utility Bill</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-adBirth')"> Birth Cert.</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-adDrive')"> Driving Lic.</label>
+            </div>
+
+            <h3 class="section-title">Nominee & Bank</h3>
+            <div class="input-group">
+                <label>Nominee Name</label><input type="text" id="in-nomName" oninput="syncText(this, 'out-nomName')">
+            </div>
+            <div class="input-group">
+                <label>DOB</label><input type="date" id="in-nomDob" oninput="syncFormattedDate(this, 'out-nomDob')">
+                <label>Relation</label><input type="text" id="in-nomRel" oninput="syncText(this, 'out-nomRel')">
+            </div>
+            <div class="input-group">
+                <label>Bank Name</label><input type="text" id="in-bankName" oninput="syncText(this, 'out-bankName')">
+            </div>
+            <div class="input-group">
+                <label>Account #</label><input type="text" id="in-bankAcc" oninput="syncText(this, 'out-bankAcc')">
+                <label>Branch</label><input type="text" id="in-bankBranch" oninput="syncText(this, 'out-bankBranch')">
+            </div>
+
+            <h3 class="section-title">Mode of Payment</h3>
+            <div class="input-group checkbox-group">
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-payAuto')"> Auto Debit</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-payAutoAccBox')"> SIB CASA Acc</label>
+            </div>
+            <div class="input-group">
+                <label>Acc #</label><input type="text" id="in-payAutoAcc" oninput="syncText(this, 'out-payAutoAcc')">
+                <label>Branch</label><input type="text" id="in-payAutoBranch" oninput="syncText(this, 'out-payAutoBranch')">
+            </div>
+            <div class="input-group checkbox-group">
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-payCash')"> Cash</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-payCheque')"> Cheque</label>
+                <label>Chq Branch</label><input type="text" id="in-chqBranch" oninput="syncText(this, 'out-chqBranch')">
+            </div>
+            <div class="input-group">
+                <label>Chq #</label><input type="text" id="in-chqNo" oninput="syncText(this, 'out-chqNo')">
+                <label>Amount</label><input type="text" id="in-chqAmt" oninput="syncText(this, 'out-chqAmt')">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Pay for:</label>
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-pfLocal')"> Local BDT</label>
+                <input type="text" id="in-pfLocalAmt" oninput="syncText(this, 'out-pfLocalAmt')" style="width:40px;">
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-pfIntl')"> Intl BDT</label>
+                <input type="text" id="in-pfIntlAmt" oninput="syncText(this, 'out-pfIntlAmt')" style="width:40px;">
+                <label>@</label><input type="text" id="in-pfRate" oninput="syncText(this, 'out-pfRate')" style="width:30px;">
+                <label>= USD</label><input type="text" id="in-pfUsd" oninput="syncText(this, 'out-pfUsd')" style="width:40px;">
+            </div>
+
+            <div class="page-divider">PAGE 3: KYC DETAILS</div>
+            
+            <div class="input-group stack">
+                <label>Name of Organization</label><input type="text" oninput="syncText(this, 'out-kyc-org')">
+                <label>Father's Last Occupation</label><input type="text" oninput="syncText(this, 'out-kyc-fatherOcc')">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Education:</label>
+                <label><input type="radio" name="kycEd" value="Post Graduate" onchange="syncRadio('kycEd')"> Post Grad</label>
+                <label><input type="radio" name="kycEd" value="Graduate" onchange="syncRadio('kycEd')"> Grad</label>
+                <label><input type="radio" name="kycEd" value="Under Graduate" onchange="syncRadio('kycEd')"> Under Grad</label>
+                <label>Others:</label><input type="text" oninput="syncText(this, 'out-kyc-edOther')" style="width:50px;">
+            </div>
+            <div class="input-group stack">
+                <label>Last Educational Institution</label><input type="text" oninput="syncText(this, 'out-kyc-institution')">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Politically Exposed:</label>
+                <label><input type="radio" name="kycPol" value="Yes" onchange="syncRadio('kycPol')"> Yes</label>
+                <label><input type="radio" name="kycPol" value="No" onchange="syncRadio('kycPol')"> No</label>
+            </div>
+
+            <h3 class="section-title">Job & Business Standing</h3>
+            <div class="input-group checkbox-group">
+                <label>Job Status:</label>
+                <label><input type="radio" name="kycJobStat" value="Permanent" onchange="syncRadio('kycJobStat')"> Permanent</label>
+                <label><input type="radio" name="kycJobStat" value="Others" onchange="syncRadio('kycJobStat')"> Others:</label>
+                <input type="text" oninput="syncText(this, 'out-kyc-jobStatOther')" style="width:60px;">
+            </div>
+            <div class="input-group">
+                <label>Exp at Present Org</label><input type="text" oninput="syncText(this, 'out-kyc-expPres')">
+                <label>Total Exp</label><input type="text" oninput="syncText(this, 'out-kyc-expTot')">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Biz Nature:</label>
+                <label><input type="radio" name="kycBizNat" value="Manufacturing" onchange="syncRadio('kycBizNat')"> Manu.</label>
+                <label><input type="radio" name="kycBizNat" value="Traders" onchange="syncRadio('kycBizNat')"> Traders</label>
+                <label><input type="radio" name="kycBizNat" value="Suppliers" onchange="syncRadio('kycBizNat')"> Suppliers</label>
+                <label>Others:</label><input type="text" oninput="syncText(this, 'out-kyc-bizNatOther')" style="width:40px;">
+            </div>
+            <div class="input-group stack">
+                <label>Item Manufactured/Traded</label><input type="text" oninput="syncText(this, 'out-kyc-itemMano')">
+            </div>
+            <div class="input-group">
+                <label>Initial Invest BDT</label><input type="text" oninput="syncText(this, 'out-kyc-invest')">
+                <label>Annual Turn Over BDT</label><input type="text" oninput="syncText(this, 'out-kyc-turnover')">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Biz Premises:</label>
+                <label><input type="radio" name="kycBizPrem" value="Rented" onchange="syncRadio('kycBizPrem')"> Rented</label>
+                <label><input type="radio" name="kycBizPrem" value="Owned" onchange="syncRadio('kycBizPrem')"> Owned</label>
+                <label><input type="radio" name="kycBizPrem" value="Leased" onchange="syncRadio('kycBizPrem')"> Leased</label>
+                <label>Others:</label><input type="text" oninput="syncText(this, 'out-kyc-bizPremOther')" style="width:40px;">
+            </div>
+            <div class="input-group stack">
+                <label>Total Business Experience</label><input type="text" oninput="syncText(this, 'out-kyc-bizExpTot')">
+            </div>
+
+            <h3 class="section-title">Credit & Net Worth</h3>
+            <div class="input-group checkbox-group">
+                <label>Loan/Credit with other banks?</label>
+                <label><input type="radio" name="kycLoan" value="Yes" onchange="syncRadio('kycLoan')"> Yes</label>
+                <label><input type="radio" name="kycLoan" value="No" onchange="syncRadio('kycLoan')"> No</label>
+            </div>
+            <div class="input-group checkbox-group">
+                <label>If yes, status:</label>
+                <label><input type="radio" name="kycRepay" value="Regular" onchange="syncRadio('kycRepay')"> Regular</label>
+                <label><input type="radio" name="kycRepay" value="Partially Regular" onchange="syncRadio('kycRepay')"> Partial</label>
+                <label><input type="radio" name="kycRepay" value="Irregular" onchange="syncRadio('kycRepay')"> Irregular</label>
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Residential Status:</label>
+                <label><input type="radio" name="kycRes" value="Rented" onchange="syncRadio('kycRes')"> Rented</label>
+                <label><input type="radio" name="kycRes" value="Owned" onchange="syncRadio('kycRes')"> Owned</label>
+                <label><input type="radio" name="kycRes" value="Permanent" onchange="syncRadio('kycRes')"> Perm</label>
+                <label><input type="radio" name="kycRes" value="Company provided" onchange="syncRadio('kycRes')"> Co.</label>
+                <label>Others:</label><input type="text" oninput="syncText(this, 'out-kyc-resOther')" style="width:40px;">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Own landed property?</label>
+                <label><input type="radio" name="kycLand" value="Yes" onchange="syncRadio('kycLand')"> Yes</label>
+                <label><input type="radio" name="kycLand" value="No" onchange="syncRadio('kycLand')"> No</label>
+                <label>Total Value (BDT):</label><input type="text" oninput="syncText(this, 'out-kyc-landVal')" style="width:60px;">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Own vehicle?</label>
+                <label><input type="radio" name="kycVeh" value="Yes" onchange="syncRadio('kycVeh')"> Yes</label>
+                <label><input type="radio" name="kycVeh" value="No" onchange="syncRadio('kycVeh')"> No</label>
+                <label>Brand:</label><input type="text" oninput="syncText(this, 'out-kyc-vehBrand')" style="width:60px;">
+            </div>
+            <div class="input-group stack">
+                <label>Vehicle Model Number</label><input type="text" oninput="syncText(this, 'out-kyc-vehModel')">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Has FD with other banks?</label>
+                <label><input type="radio" name="kycFd" value="Yes" onchange="syncRadio('kycFd')"> Yes</label>
+                <label><input type="radio" name="kycFd" value="No" onchange="syncRadio('kycFd')"> No</label>
+                <label>Total FD (BDT):</label><input type="text" oninput="syncText(this, 'out-kyc-fdVal')" style="width:60px;">
+            </div>
+
+            <h3 class="section-title">Social Standing</h3>
+            <div class="input-group checkbox-group">
+                <label>Club Membership?</label>
+                <label><input type="radio" name="kycClub" value="Yes" onchange="syncRadio('kycClub')"> Yes</label>
+                <label><input type="radio" name="kycClub" value="No" onchange="syncRadio('kycClub')"> No.</label>
+                <label>Name:</label><input type="text" oninput="syncText(this, 'out-kyc-clubName')" style="width:60px;">
+            </div>
+            <div class="input-group stack">
+                <label>Club Membership No</label><input type="text" oninput="syncText(this, 'out-kyc-clubNum')">
+            </div>
+            <div class="input-group checkbox-group">
+                <label>Annual Foreign Travel:</label>
+                <label><input type="radio" name="kycTravel" value="Less than 3 times" onchange="syncRadio('kycTravel')"> Less than 3 times</label>
+                <label><input type="radio" name="kycTravel" value="More than 3 times" onchange="syncRadio('kycTravel')"> More than 3 times</label>
+            </div>
+            <div class="input-group checkbox-group">
+                <label><input type="checkbox" onchange="syncCheck(this, 'out-kyc-na')"> Not applicable</label>
+            </div>
+
+            <div class="page-divider">GLOBAL / OFFICE USE</div>
+            <div class="input-group stack">
+                <label>Global Form Date (Fills signature & KYC dates)</label>
+                <input type="date" id="in-globalDate" oninput="syncGlobalDate(this)">
+            </div>
+            <div class="input-group stack">
+                <label>Prepaid Card Number (Branch Use - 16 chars)</label>
+                <input type="text" id="in-branchCardNum" maxlength="16" oninput="syncSegmented(this, 'out-branchCardNum', 16)">
+            </div>
+
+        </div>
+    </div>
+
+    <div class="workspace-right">
+        
+        <div class="a4-page" id="page-1">
+            <div class="form-header">
+                <div class="logo-area">
+                    <div class="logo-icon"></div>
+                    <div>
+                        <h1 class="bank-name">STANDARD ISLAMI BANK</h1>
+                        <h2 class="bank-sub">Shari'ah Based Islami Bank</h2>
+                        <div class="address-text">
+                            Address:<br>Card Division<br>Islam Chamber (6th Floor)<br>
+                            125/A Motijheel C/A, Dhaka-1000<br>
+                            Contact: 01713186883, 02-9513930, e-mail:card@standardbankbd.com
+                        </div>
+                    </div>
+                </div>
+                <div class="title-area">
+                    <div class="main-title">PREPAID CARD</div>
+                    <div class="sub-title">APPLICATION FORM</div>
+                </div>
+                <div class="photo-box">Please Insert<br>Applicant's<br>Passport<br>Size Photo<br>here</div>
+            </div>
+
+            <div class="row">
+                <label><b>Please select your desire card type</b></label>
+                <span style="margin-left: 8px;"><span class="chk-box" id="chk-cardType-VISA Hajj Card"></span> VISA Hajj Card</span>
+                <span style="margin-left: 8px;"><span class="chk-box" id="chk-cardType-VISA Travel Card"></span> VISA Travel Card</span>
+                <span style="margin-left: 8px;"><span class="chk-box" id="chk-cardType-Others"></span> Others <span class="line-out" id="out-cardTypeOther" style="max-width:80px; flex:none;"></span></span>
+            </div>
+
+            <div class="section-bar">DETAILS</div>
+            
+            <div class="row"><label>Applicant Name:</label><span class="line-out" id="out-applicantName"></span></div>
+            
+            <div class="row" style="margin-top: 5px;">
+                <label>Name to be printed on Card (Maximum 19 characters) : </label>
+                <div class="segmented-container" id="out-cardName"></div>
+                <span class="line-out" style="visibility: hidden;"></span>
+            </div>
+
+            <div class="row" style="margin-top: 5px;">
+                <label>Date of Birth:</label><div class="segmented-container" id="out-dob" style="margin-right: 15px;"></div>
+                <label>Sex:</label><span class="chk-box" id="chk-sex-Male"></span> Male <span class="chk-box" id="chk-sex-Female" style="margin-left:4px;"></span> Female;
+                <label style="margin-left:10px;">Nationality:</label><span class="line-out" id="out-nationality" style="max-width:150px; flex:none;"></span>
+                <label>NID Number:</label><span class="line-out" id="out-nid"></span>
+            </div>
+
+            <div class="row">
+                <label>Father's Name:</label><span class="line-out" id="out-fatherName"></span>
+                <label>; Mother's Name:</label><span class="line-out" id="out-motherName"></span>
+            </div>
+
+            <div class="row">
+                <label>Marital Status:</label>
+                <span style="margin-left: 4px;"><span class="chk-box" id="chk-marital-Married"></span> Married</span>
+                <span style="margin-left: 4px;"><span class="chk-box" id="chk-marital-Unmarried"></span> Unmarried</span>
+                <span style="margin-left: 4px;"><span class="chk-box" id="chk-marital-Others"></span> Others</span>
+                <span class="line-out" id="out-maritalOther" style="max-width:120px; flex:none;"></span>
+                <label>Spouse Name:</label><span class="line-out" id="out-spouseName"></span>
+            </div>
+
+            <div class="row"><label>Residence / Mailing Address:</label><span class="line-out" id="out-residence"></span></div>
+            <div class="row"><label>Permanent Address:</label><span class="line-out" id="out-permanent"></span></div>
+
+            <div class="row">
+                <label>Passport Number:</label><span class="line-out" id="out-passport"></span>
+                <label>; Expiry Date:</label><span class="line-out" id="out-passExp"></span>
+                <label>Issue Date:</label><span class="line-out" id="out-passIss"></span>
+            </div>
+
+            <div class="row">
+                <label>Mobile No: 1)</label><span class="line-out" id="out-mob1"></span>
+                <label>2)</label><span class="line-out" id="out-mob2"></span>
+                <label>; E-mail</label><span class="line-out" id="out-email"></span>
+            </div>
+
+            <div class="row">
+                <label>Profession:</label>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Salaried"></span> Salaried</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Self Employed"></span> Self Employed</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Businessman"></span> Businessman</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Student"></span> Student</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Retired"></span> Retired</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Lawyer"></span> Lawyer</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Doctor"></span> Doctor</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Engineer"></span> Engineer</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="chk-prof-Others"></span> Others:</span><span class="line-out" id="out-profOther"></span>
+            </div>
+
+            <div class="row">
+                <label>Company Name:</label><span class="line-out" id="out-company"></span>
+                <label>; Designation:</label><span class="line-out" id="out-desig"></span>
+            </div>
+            <div class="row">
+                <label>Nature of Business:</label><span class="line-out" id="out-natureBiz"></span>
+                <label>; Contact No:</label><span class="line-out" id="out-bizContact"></span>
+            </div>
+            <div class="row"><label>Business Address:</label><span class="line-out" id="out-bizAddr"></span></div>
+
+            <div class="section-bar">IDENTITY & ADDRESS PROOF</div>
+            <div style="font-size: 9px; margin-bottom:4px;">Please submit any one of the following valid document and tick against the document attached.</div>
+            <div class="row">
+                <label>• Identity Proof: </label>
+                <span style="margin-left:4px;"><span class="chk-box" id="out-idPassport"></span> Valid Passport</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="out-idNid"></span> NID Card</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="out-idDrive"></span> Driving License</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="out-idBirth"></span> Birth Certificate (in that case additional Photo ID is required)</span>
+            </div>
+            <div class="row">
+                <label>• Address Proof: </label>
+                <span style="margin-left:4px;"><span class="chk-box" id="out-adUtil"></span> Utility Bill (WASA/DESA/DESCO/Gas Bill/BTTB/Post Paid Connection)</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="out-adBirth"></span> Birth Certificate</span>
+                <span style="margin-left:4px;"><span class="chk-box" id="out-adDrive"></span> Driving License</span>
+            </div>
+
+            <div class="section-bar">NOMINEE INFORMATION</div>
+            <div class="row">
+                <label>Name:</label><span class="line-out" id="out-nomName"></span>
+                <label>, Date of Birth:</label><span class="line-out" id="out-nomDob" style="max-width:100px; flex:none;"></span>
+                <label>, Relationship with Applicant</label><span class="line-out" id="out-nomRel"></span>
+            </div>
+
+            <div class="section-bar">BANK ACCOUNT INFORMATION (if any)</div>
+            <div class="row">
+                <label>Bank Name:</label><span class="line-out" id="out-bankName"></span>
+                <label>, Account Number:</label><span class="line-out" id="out-bankAcc"></span>
+                <label>, Branch Name:</label><span class="line-out" id="out-bankBranch"></span>
+            </div>
+
+            <div class="section-bar">MODE OF PAYMENT</div>
+            <div class="row">
+                <span class="chk-box" id="out-payAuto"></span> Auto Debit from SIB CASA Account 
+                <span style="margin-left:8px;"><span class="chk-box" id="out-payAutoAccBox"></span> Account Number: </span><span class="line-out" id="out-payAutoAcc" style="max-width:150px; flex:none;"></span>
+                <label>Branch Name:</label><span class="line-out" id="out-payAutoBranch"></span>
+            </div>
+            <div class="row">
+                <span class="chk-box" id="out-payCash"></span> Cash payment 
+                <span style="margin-left:8px;"><span class="chk-box" id="out-payCheque"></span> Cheque: Branch Name </span><span class="line-out" id="out-chqBranch" style="max-width:150px; flex:none;"></span>
+                <label>, Cheque No:</label><span class="line-out" id="out-chqNo" style="max-width:100px; flex:none;"></span>
+                <label>, Amount:</label><span class="line-out" id="out-chqAmt"></span>
+            </div>
+            <div class="row">
+                <label>Payment for </label>
+                <span style="margin-left:5px;"><span class="chk-box" id="out-pfLocal"></span> Local: BDT </span><span class="line-out" id="out-pfLocalAmt" style="max-width:80px; flex:none;"></span>
+                <span style="margin-left:5px;"><span class="chk-box" id="out-pfIntl"></span> International: BDT </span><span class="line-out" id="out-pfIntlAmt" style="max-width:80px; flex:none;"></span>
+                <label> @ </label><span class="line-out" id="out-pfRate" style="max-width:80px; flex:none;"></span>
+                <label> = USD: </label><span class="line-out" id="out-pfUsd"></span>
+            </div>
+
+            <div style="font-size: 8.5px; line-height: 1.2; text-align: justify; margin: 8px 0;">
+                Declaration: I have read, understood and hereby agree to abide by the terms & conditions (mentioned in this form) in relation to the usage, rules & regulations and other statutory requirements in respect to the SIB VISA Prepaid Card. I confirm that above information is true and correct. I agree to be responsible for all transactions through this prepaid card & I acknowledge receipt of prepaid card and PIN.
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 25px;">
+                <div style="width: 50%;"><b>Customer Signature & Date</b> <span class="line-out" style="width:120px; margin-left:10px;" id="out-date-sig1"></span></div>
+                <div style="width: 50%; text-align: right;"><b>Signature Verified by(Branch)</b> <span class="line-out" style="width:140px;"></span></div>
+            </div>
+
+            <div class="branch-bar">BRANCH USE ONLY</div>
+            <div class="row" style="margin-top: 6px;">
+                <label>Prepaid Card Number:</label><div class="segmented-container" id="out-branchCardNum"></div>
+                <label style="margin-left: 20px;">Initial Deposit:</label><span class="line-out"></span>
+            </div>
+            <div class="row">
+                <label>Prepaid Card total loaded amount in BDT</label><span class="line-out" style="max-width:120px; flex:none;"></span>
+                <label> X Exchange rate </label><span class="line-out" style="max-width:100px; flex:none;"></span>
+                <label> = USD </label><span class="line-out"></span>
+            </div>
+            <div class="row">
+                <label>Issuing Fee: BDT</label><span class="line-out" style="max-width:100px; flex:none;"></span>
+                <label> + 15% VAT </label><span class="line-out" style="max-width:100px; flex:none;"></span>
+                <label> = BDT </label><span class="line-out"></span>
+            </div>
+            <div class="row">
+                <label>• KYC (Know Your Customer) </label>
+                <span style="margin-left:4px;"><span class="chk-box"></span> Completed</span>
+                <span style="margin-left:4px;"><span class="chk-box"></span> Not Completed</span>
+                <label style="margin-left:15px;">• Customer Physically: </label>
+                <span style="margin-left:4px;"><span class="chk-box"></span> Present</span>
+                <span style="margin-left:4px;"><span class="chk-box"></span> Not Present</span>
+            </div>
+            <div class="row">
+                <label>Authorized by (Seal, Sign & Date)</label><span class="line-out"></span>
+                <label>, Approved by Operations Manager/Branch Manager (Seal, Sign & Date):</label><span class="line-out"></span>
+            </div>
+
+            <div class="branch-bar">CARDS USE ONLY</div>
+            <div class="row">
+                <label>Prepaid Card number:</label><span class="line-out"></span>
+                <label>Date of Issuance:</label><span class="line-out"></span>
+            </div>
+            <div class="row">
+                <label>Input Date:</label><span class="line-out"></span>
+                <label>Code:</label><span class="line-out"></span>
+                <label>All identification documents & forms received in order: </label>
+                <span style="margin-left:4px;"><span class="chk-box"></span> Yes</span>
+                <span style="margin-left:4px;"><span class="chk-box"></span> No</span>
+            </div>
+
+            <div style="display: flex; margin-top: 25px; text-align: center;">
+                <div style="flex:1; border-top:1px solid #000; margin-right: 15px; padding-top:2px;">Captured by</div>
+                <div style="flex:1; border-top:1px solid #000; margin-right: 15px; padding-top:2px;">Information Checked by</div>
+                <div style="flex:1.5; border-top:1px solid #000; padding-top:2px;">Approved By Operations Manager/Head of Card (Seal, Sign & Date)</div>
+            </div>
+        </div>
+
+        <div class="a4-page" id="page-2">
+            <div class="branch-bar" style="font-size: 13px; padding: 4px;">TERMS & CONDITIONS</div>
+            <div class="tc-content">
+                <p>The STANDARD ISLAMI BANK (SIB) Prepaid Card will be known as valid SIB Prepaid Card issued to applicants to avail services related to drawing cash from ATMs and/or to purchase from merchants with electronic Point of Sales (POS) terminal displaying Visa logo. The necessary Personal Identification Number (PIN) for the Prepaid Card will be provided by SIB. The receipt of the card will be known as the Cardholder and he/she will be the user of the Prepaid Card. Card Account means the account which is maintained by SIB in the name of the Cardholder. Please advise the bank of any discrepancies within 30 days of card transaction(s). In the absence to do so, transaction(s) will be considered as valid transaction.</p>
+                <br>
+                <p><strong>• Enquiries:</strong> For any general enquiries, contact at 24/7 card-customer service number 01713186883, 02-9513930 or visit any STANDARD ISLAMI BANK Branch(s).</p>
+                <br>
+                <p><strong>• Card Validity:</strong> The STANDARD ISLAMI BANK Prepaid Card is valid for outside of Bangladesh (Travel Card, Hajj Card and other Cards issued against TQ/Hajj Quota). Any attempt to use Hajj Prepaid Card outside Saudi Arabia will make the USD Prepaid Card facility liable for suspension instantly. STANDARD ISLAMI BANK prohibits the use of this USD Prepaid Card for online transactions.</p>
+                <br>
+                <p><strong>• Cash Advance:</strong> For every cash advance facilities a transaction fee will be charged as per published Schedule of Charges.</p>
+                <br>
+                <p><strong>• Exchange Rate and Conversion:</strong> All transactions will be converted into US Dollar as at the date they are processed by Visa International in accordance with its rules. Accordingly the conversion rate may differ from in the country where the transaction occurred.</p>
+                <br>
+                <p><strong>• Lost or Stolen Card:</strong> If your Prepaid Card gets lost, Stolen or snatched away it should be reported immediately to 24/7 SIB Card-Customer Service numbers: 01713186883, 02-9513930 else Card holder will liable for any card transactions.</p>
+                <br>
+                <p><strong>• Card Replacement:</strong> Replacement card will be issued on request of the Cardholder in case of loss/damage of his/her Prepaid Card and fee will be levied for the replacement of card.</p>
+                <br>
+                <p><strong>• Dispute:</strong> All disputes must be brought to the attention of the Card Division within 30 days from the transaction date. If you believe that an error has occurred you should contact Card Division immediately. All disputes are subject to jurisdiction of courts of law in Bangladesh and or VISA rules will be applicable (where required).</p>
+                <br>
+                <p><strong>• Voucher Retrieval Request:</strong> Cardholder may seek for voucher retrieval request for any transaction that is reflected on statement of the Cardholder which needs to be verified. The Cardholder will file such request within 30 days from the statement date.</p>
+                <br>
+                <p>• Cardholders will be allowed to reload as and when they wish, but the total spending limit will not exceed the Travel Quota(TQ) or as guided by Bangladesh Bank.</p>
+                <br>
+                <p>• All fees and charges that may be incurred from the use of the card will be debited from the card account. Any fees like issuance fee, load & reload fee that has already been cleared, may not be claimed for reimbursement.</p>
+                <br>
+                <p>• SIB will not provide any statement on card account. However, the cardholder may collect the same by paying applicable charges.</p>
+                <br>
+                <p>• The terms & Conditions, fees & charges and all other information regarding the use of the SIB Prepaid card are subject to change without any prior notice at the sole discretion of SIB.</p>
+                <br>
+                <p>• In case of any act of God, war, riot, civil disturbance, changes in the prevailing law upon which SIB has no control, and when any such cases make it impossible for SIB to abide by this agreement, SIB reverse the right to terminate this agreement prior to its without assigning any reason whatsoever.</p>
+                <br>
+                <p>• No interest or profit will be credited to the cardholder's account with respect to the available on his/her Card Account.</p>
+                <br>
+                <p>• It is the sole responsibility of the cardholder to safe-keep the card and PIN. SIB shall not be held liable for any misuse of the card.</p>
+                <br>
+                <p><strong>• Mandatory Security Instructions:</strong><br>
+                [1] Never share your <strong>Personal Identification Number (PIN)</strong> with others.<br>
+                [2] Do not keep your <strong>Personal Identification Number (PIN)</strong> with your Prepaid Card under any circumstances.<br>
+                [3] The <strong>3 digit Card Verification Code (CVC)</strong> is very sensitive one and required for online transaction(s). It is located at backside of your card and advised to use it safely.<br>
+                [4] Please do not handover your STANDARD ISLAMI BANK Prepaid Card to any other reason whatsoever to prevent misuse of your Prepaid Card.</p>
+                <br>
+                <p><strong>Required Documents for Travel /Hajj Prepaid Card:</strong></p>
+                <p>[1] <strong>For Individual Prepaid Card:</strong></p>
+                <ul>
+                    <li>A valid passport/Hajj Passport with valid Pilgrim visa</li>
+                    <li>NID copy</li>
+                    <li>Photograph</li>
+                    <li>Properly filled prepaid card application form</li>
+                </ul>
+                <p>[1] <strong>For Agency Hajj Prepaid Card:</strong></p>
+                <ul>
+                    <li>Hajj License,</li>
+                    <li>Trade License copy,</li>
+                    <li>Passport copy with valid Visa,</li>
+                    <li>Hajj Pilgrims Registration Certificate (Photocopy),</li>
+                    <li>List of pilgrimage,</li>
+                    <li>02 copy Passport size photograph,</li>
+                </ul>
+                <p>For any update information, please call at 24/7 customer service number which is printed on the reverse side of the prepaid card</p>
+            </div>
+            
+            <div style="margin-top: 50px; text-align: center; font-size: 8px;">
+                Please note: The usage of this card is strictly subject to regulations stipulated by the Central Bank of Bangladesh and the Foreign Exchange Transactions Regulations, Guidelines, Circulars which is/ are publish from time to time.
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+                <div style="width: 45%; display: flex; align-items: flex-end;"><label style="white-space:nowrap; margin-right:5px;">Customer's Signature:</label><span class="line-out" style="flex:1;"></span></div>
+                <div style="width: 45%; display: flex; align-items: flex-end;"><label style="white-space:nowrap; margin-right:5px;">Date:</label><span class="line-out" id="out-date-sig2" style="flex:1;"></span></div>
+            </div>
+        </div>
+
+        <div class="a4-page" id="page-3" style="font-size: 10.5px;">
+            <div style="background: #111; color: white; font-weight: bold; padding: 5px; text-align: center; font-size: 18px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">Know Your Customer (KYC)</div>
+            
+            <div class="row" style="margin-top: 20px;">
+                <label>Name of the Applicant</label><span class="line-out" id="out-kyc-applicantName"></span>
+                <label style="margin-left: 15px;">Date:</label><span class="line-out" id="out-date-kyc" style="max-width: 150px; flex: none;"></span>
+            </div>
+            <div class="row">
+                <label>Name of the Organization</label><span class="line-out" id="out-kyc-org"></span>
+            </div>
+
+            <div class="kyc-bar">Family Information</div>
+            <div class="row">
+                <label>Father's&nbsp;&nbsp;&nbsp;Last&nbsp;&nbsp;&nbsp;Occupation</label><span class="line-out" id="out-kyc-fatherOcc"></span>
+            </div>
+            <div class="row">
+                <label>Education</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycEd-Post Graduate"></span> Post Graduate</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycEd-Graduate"></span> Graduate</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycEd-Under Graduate"></span> Under Graduate</span>
+                <span style="margin-left: 5px;">Others (Please mention here)</span><span class="line-out" id="out-kyc-edOther"></span>
+            </div>
+            <div class="row">
+                <label>Name of the Last Educational institution</label><span class="line-out" id="out-kyc-institution"></span>
+            </div>
+            <div class="row">
+                <label>Politically exposed person</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycPol-Yes"></span> Yes</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycPol-No"></span> No</span>
+            </div>
+
+            <div class="kyc-bar">Job Standing-Salaried Person</div>
+            <div class="row">
+                <label>Job Status</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycJobStat-Permanent"></span> Permanent</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycJobStat-Others"></span> Others (Please mention)</span>
+                <span class="line-out" id="out-kyc-jobStatOther"></span>
+            </div>
+            <div class="row">
+                <label>Job Experience at Present organization</label><span class="line-out" id="out-kyc-expPres" style="max-width:200px; flex:none;"></span>
+                <label style="margin-left:10px;">Total Job Experience</label><span class="line-out" id="out-kyc-expTot"></span>
+            </div>
+
+            <div class="kyc-bar">Business Standing-Self Employed Person</div>
+            <div class="row">
+                <label>Nature of Business</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycBizNat-Manufacturing"></span> Manufacturing</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycBizNat-Traders"></span> Traders</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycBizNat-Suppliers"></span> Suppliers</span>
+                <span style="margin-left: 5px;">Others (Please mention)</span><span class="line-out" id="out-kyc-bizNatOther"></span>
+            </div>
+            <div class="row">
+                <label>Item manufactured/Traded</label><span class="line-out" id="out-kyc-itemMano"></span>
+            </div>
+            <div class="row">
+                <label>Initial Investment in BDT</label><span class="line-out" id="out-kyc-invest" style="max-width:200px; flex:none;"></span>
+                <label style="margin-left:10px;">Annual Turn Over/ Sales(Estimated) in BDT</label><span class="line-out" id="out-kyc-turnover"></span>
+            </div>
+            <div class="row">
+                <label>Business Premises ownership</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycBizPrem-Rented"></span> Rented</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycBizPrem-Owned"></span> Owned</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycBizPrem-Leased"></span> Leased</span>
+                <span style="margin-left: 5px;">Others (Please mention)</span><span class="line-out" id="out-kyc-bizPremOther"></span>
+            </div>
+            <div class="row">
+                <label>Total Business experience</label><span class="line-out" id="out-kyc-bizExpTot"></span>
+            </div>
+
+            <div class="kyc-bar">Credit Worthiness</div>
+            <div class="row">
+                <label>Has Loan or Credit Card(s) with other Bank(s)/financial institution(s)</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycLoan-Yes"></span> Yes</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycLoan-No"></span> No</span>
+            </div>
+            <div class="row">
+                <label>If yes, please mention repayment status of the said loans)/ Credit card(s)</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycRepay-Regular"></span> Regular</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycRepay-Partially Regular"></span> Partially Regular</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycRepay-Irregular"></span> Irregular</span>
+            </div>
+
+            <div class="kyc-bar">Net worth of the Applicant</div>
+            <div class="row">
+                <label>Residential status</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycRes-Rented"></span> Rented</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycRes-Owned"></span> Owned</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycRes-Permanent"></span> Permanent</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycRes-Company provided"></span> Company provided</span>
+                <span style="margin-left: 5px;">Others (Please mention)</span><span class="line-out" id="out-kyc-resOther"></span>
+            </div>
+            <div class="row">
+                <label>Whether owned landed/residential property</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycLand-Yes"></span> Yes</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycLand-No"></span> No.</span>
+                <span style="margin-left: 5px;">If yes then total value of property (BDT)</span><span class="line-out" id="out-kyc-landVal"></span>
+            </div>
+            <div class="row">
+                <label>Whether owned any vehicle</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycVeh-Yes"></span> Yes</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycVeh-No"></span> No.</span>
+                <span style="margin-left: 5px;">If yes then mention Brand Name</span><span class="line-out" id="out-kyc-vehBrand"></span>
+            </div>
+            <div class="row">
+                <label>And Model Number</label><span class="line-out" id="out-kyc-vehModel"></span>
+            </div>
+            <div class="row">
+                <label>Has FD with other Bank/financial Institutions</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycFd-Yes"></span> Yes</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycFd-No"></span> No.</span>
+                <span style="margin-left: 5px;">If yes total FD value in BDT</span><span class="line-out" id="out-kyc-fdVal"></span>
+            </div>
+
+            <div class="kyc-bar">Social Standing</div>
+            <div class="row">
+                <label>Club Membership</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycClub-Yes"></span> Yes</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycClub-No"></span> No .</span>
+                <span style="margin-left: 5px;">If yes, provide club name</span><span class="line-out" id="out-kyc-clubName" style="max-width:300px; flex:none;"></span>
+                <label style="margin-left:10px;">and Membership no</label>
+            </div>
+            <div class="row">
+                <span class="line-out" id="out-kyc-clubNum" style="max-width:300px; flex:none;"></span>
+                <label style="margin-left:5px;">. Annual foreign travelling frequency</label>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycTravel-Less than 3 times"></span> Less than 3 times</span>
+                <span style="margin-left: 5px;"><span class="chk-box" id="chk-kycTravel-More than 3 times"></span> More than 3 times</span>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+                <span class="chk-box" id="out-kyc-na"></span> Not applicable
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 50px; text-align: center;">
+                <div style="width: 30%; border-top: 1px solid #000; padding-top: 5px;">Authorized Signature</div>
+                <div style="width: 45%; border-top: 1px solid #000; padding-top: 5px;">Authorized Signature<br>Sales Manager/ Asst. Br. Manager/Br. Manager</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initSegmentedBoxes('out-cardName', 19);
+            initSegmentedBoxes('out-dob', 6, ['D','D','M','M','Y','Y']);
+            initSegmentedBoxes('out-branchCardNum', 16);
+        });
+
+        function syncText(inputElem, outputId) {
+            const el = document.getElementById(outputId);
+            // Convert everything to uppercase logically in Javascript
+            if(el) el.textContent = inputElem.value.toUpperCase();
+        }
+
+        function syncMultiText(inputElem, outputIds) {
+            outputIds.forEach(id => {
+                const el = document.getElementById(id);
+                // Convert everything to uppercase logically in Javascript
+                if(el) el.textContent = inputElem.value.toUpperCase();
+            });
+        }
+
+        function syncRadio(groupName) {
+            const allOutputs = document.querySelectorAll(`[id^="chk-${groupName}-"]`);
+            allOutputs.forEach(el => el.classList.remove('checked'));
+            const checkedInput = document.querySelector(`input[name="${groupName}"]:checked`);
+            if (checkedInput) {
+                const targetEl = document.getElementById(`chk-${groupName}-${checkedInput.value}`);
+                if(targetEl) targetEl.classList.add('checked');
+            }
+        }
+
+        function syncCheck(inputElem, outputId) {
+            const output = document.getElementById(outputId);
+            if(output) {
+                if(inputElem.checked) output.classList.add('checked');
+                else output.classList.remove('checked');
+            }
+        }
+
+        function initSegmentedBoxes(containerId, count, placeholders = []) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const box = document.createElement('div');
+                box.className = 'seg-box';
+                if(placeholders[i]) box.textContent = placeholders[i];
+                container.appendChild(box);
+            }
+        }
+
+        function syncSegmented(inputElem, containerId, maxLength) {
+            const val = inputElem.value.toUpperCase();
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            const boxes = container.querySelectorAll('.seg-box');
+            for (let i = 0; i < maxLength; i++) {
+                if(boxes[i]) boxes[i].textContent = val[i] || '';
+            }
+        }
+
+        function syncDate(inputElem, containerId) {
+            const val = inputElem.value;
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            const boxes = container.querySelectorAll('.seg-box');
+            
+            if(!val) {
+                const placeholders = ['D','D','M','M','Y','Y'];
+                for(let i=0; i<6; i++) if(boxes[i]) boxes[i].textContent = placeholders[i];
+                return;
+            }
+
+            const parts = val.split('-');
+            if(parts.length === 3) {
+                if(boxes[0]) boxes[0].textContent = parts[2][0]; 
+                if(boxes[1]) boxes[1].textContent = parts[2][1];
+                if(boxes[2]) boxes[2].textContent = parts[1][0]; 
+                if(boxes[3]) boxes[3].textContent = parts[1][1];
+                if(boxes[4]) boxes[4].textContent = parts[0][2]; 
+                if(boxes[5]) boxes[5].textContent = parts[0][3]; 
+            }
+        }
+
+        function syncFormattedDate(inputElem, outputId) {
+            const raw = inputElem.value;
+            let formatted = "";
+            if(raw) {
+                const parts = raw.split('-');
+                formatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            // Passing a dummy object with `.value` so our standard function works
+            syncText({value: formatted}, outputId);
+        }
+
+        function syncGlobalDate(inputElem) {
+            const raw = inputElem.value;
+            let formatted = "";
+            if(raw) {
+                const parts = raw.split('-');
+                formatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            syncMultiText({value: formatted}, ['out-date-sig1', 'out-date-sig2', 'out-date-kyc']);
+        }
+
+        function clearForm() {
+            if(!confirm("Clear all data?")) return;
+            document.querySelectorAll('.workspace-left input').forEach(input => {
+                if(input.type === 'radio' || input.type === 'checkbox') input.checked = false;
+                else input.value = '';
+                input.dispatchEvent(new Event('input'));
+                input.dispatchEvent(new Event('change'));
+            });
+            initSegmentedBoxes('out-dob', 6, ['D','D','M','M','Y','Y']);
+        }
+
+        function toggleAutoDate() {
+            const isChecked = document.getElementById('auto-date').checked;
+            if (isChecked) {
+                const today = new Date().toISOString().split('T')[0];
+                const gDate = document.getElementById('in-globalDate');
+                if(gDate) { gDate.value = today; gDate.dispatchEvent(new Event('input')); }
+            }
+        }
+    </script>
+</body>
+</html>

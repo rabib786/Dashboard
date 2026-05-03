@@ -1,0 +1,10 @@
+🎨 Palette: [Fix] Border-radius bugs & [Enhance] Button hover transitions
+
+🐛 Bug Fixed:
+- Fixed `focus-visible` outline for buttons overriding the original border-radius (e.g. turning circular buttons into square outlines) by using `border-radius: inherit`.
+- Removed redundant inline `border-radius: 12px;` styles on `.btn-add` elements in `index.html` as it was already properly styled via CSS class.
+
+💡 Enhancement: Enhanced `.btn-add` hover transition from `background 0.2s` to `all 0.2s ease` to properly animate the translateY transform and box-shadow.
+
+♿ A11y: The focus ring around buttons now correctly matches their border radius, eliminating the visual confusion of rectangular outlines on rounded elements.
+📸 Visuals: Circular FAB buttons and other rounded elements now maintain their shape when focused. Button hovers are much smoother.

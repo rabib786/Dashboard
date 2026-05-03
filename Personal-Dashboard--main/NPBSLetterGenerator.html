@@ -1,0 +1,497 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBL Letter Generator</title>
+    <style>
+        /* General App Styles */
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-color: #eef2f6;
+            color: #333;
+        }
+
+        /* Sidebar Controls - Modernized */
+        #controls {
+            width: 380px;
+            background: #ffffff;
+            padding: 25px;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            border-right: 1px solid #e1e5eb;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        #controls h2 { margin-top: 0; font-size: 1.25rem; color: #1a237e; border-bottom: 2px solid #e3e8ee; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select { 
+            width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; 
+            font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s; background-color: #f8fafc;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #3b82f6; background-color: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .mtdr-card {
+            background: #ffffff; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .mtdr-card h4 { margin: 0 0 15px 0; font-size: 1rem; color: #0f172a; display: flex; justify-content: space-between; align-items: center; }
+        .remove-btn { color: #dc2626; cursor: pointer; font-size: 0.8rem; background: #fef2f2; border: 1px solid #fca5a5; padding: 4px 8px; border-radius: 4px; font-weight: bold; transition: 0.2s; }
+        .remove-btn:hover { background: #fee2e2; }
+        
+        .btn-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        button {
+            font-family: inherit; font-size: 0.95rem; border: none; padding: 12px; border-radius: 6px; 
+            cursor: pointer; font-weight: 600; width: 100%; transition: all 0.2s; box-sizing: border-box;
+        }
+        button.add-btn { background: #f1f5f9; color: #334155; border: 1px dashed #cbd5e1; margin-bottom: 15px; }
+        button.add-btn:hover { background: #e2e8f0; color: #0f172a; }
+        
+        button.action-btn { background: #10b981; color: white; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
+        button.action-btn:hover { background: #059669; transform: translateY(-1px); }
+        
+        button.print-btn { background: #2563eb; color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
+        button.print-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+        button.word-btn { background: #2b579a; color: white; box-shadow: 0 4px 6px rgba(43, 87, 154, 0.2); margin-bottom: 25px;}
+        button.word-btn:hover { background: #1e3f70; transform: translateY(-1px); }
+
+        .save-load-section { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
+        .save-load-section h3 { margin: 0 0 10px 0; font-size: 1rem; color: #166534; }
+
+        /* Document Preview Area */
+        #preview-container {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            overflow-y: auto;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        #document {
+            background: white;
+            width: 8.27in; 
+            min-height: 11.69in; 
+            padding: 2in 1in 1in 1in; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #000;
+            box-sizing: border-box;
+        }
+
+        p { margin: 0 0 10px 0; }
+        .bold { font-weight: bold; }
+        
+        table { 
+            width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 10pt; 
+            table-layout: fixed; word-wrap: break-word; 
+        }
+        th, td { border: 1px solid #000; padding: 6px 4px; text-align: center; vertical-align: middle; }
+        th { font-weight: bold; }
+
+        th.col-sl { width: 5%; }
+        th.col-mtdr { width: 14%; }
+        th.col-date { width: 14%; }
+        th.col-amt { width: 15%; }
+        th.col-ac { width: 15%; }
+        th.col-title { width: 27%; }
+        th.col-rate { width: 10%; }
+
+        .signatures { display: flex; justify-content: space-between; margin-top: 60px; }
+        .sig-block { text-align: left; }
+
+        /* Print Styles */
+        @media print {
+            body { background: white; }
+            #controls { display: none; }
+            #preview-container { padding: 0; display: block; height: auto; overflow: visible; }
+            #document { box-shadow: none; padding: 0; width: 100%; max-width: 100%; min-height: auto; }
+            @page { size: A4; margin-top: 2in; margin-bottom: 1in; margin-left: 1in; margin-right: 1in; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        
+        <div class="save-load-section">
+            <h3>💾 Save & Load</h3>
+            <div class="btn-group">
+                <button class="action-btn" onclick="saveLetter()">Save Letter</button>
+            </div>
+            <div class="form-group" style="margin-bottom: 0; margin-top: 10px;">
+                <label>Load Previous Letter</label>
+                <select id="loadLetterSelect" onchange="loadLetter()">
+                    <option value="">-- Select Saved Letter --</option>
+                </select>
+            </div>
+        </div>
+
+        <h2>Letter Setup</h2>
+        
+        <div class="form-group">
+            <label>Action Type</label>
+            <select id="actionType" onchange="updatePreview()">
+                <option value="Issuing">Issuing</option>
+                <option value="Renewal">Renewal</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Branch Reference No.</label>
+            <input type="text" id="branchRef" value="SBL/Madhabdi/GB/2026/38" oninput="updatePreview()">
+        </div>
+
+        <div class="form-group">
+            <label>Letter Date</label>
+            <input type="text" id="letterDate" value="01.03.2026" oninput="updatePreview()">
+        </div>
+
+        <div class="form-group">
+            <label>Client Request Ref No.</label>
+            <input type="text" id="clientRef" value="27.12.6860.533.03.050.26.692" oninput="updatePreview()">
+        </div>
+
+        <div class="form-group">
+            <label>Client Request Date</label>
+            <input type="text" id="clientDate" value="25/02/2026" oninput="updatePreview()">
+        </div>
+
+        <hr style="border:0; border-top:1px solid #e1e5eb; margin: 25px 0;">
+        <h2>MTDR Details</h2>
+
+        <div id="mtdr-container"></div>
+
+        <button class="add-btn" onclick="addMTDR()">+ Add Another MTDR</button>
+        
+        <div class="btn-group">
+            <button class="print-btn" onclick="window.print()">🖨️ Print Letter</button>
+            <button class="word-btn" onclick="exportToWord()">📝 Export to Word</button>
+        </div>
+    </div>
+
+    <div id="preview-container">
+        <div id="document" style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.5; color: black;">
+            <p style="margin: 0 0 10px 0;">Ref: <span id="outBranchRef"></span></p>
+            <p style="margin: 0 0 10px 0;">Date: <span id="outLetterDate"></span></p>
+            <br>
+            <p style="margin: 0 0 10px 0;">To<br>
+            The Senior General Manager<br>
+            Narsingdi Palli Bidyut Samity-1<br>
+            Madhabdi, Narsingdi.</p>
+
+            <p class="bold" style="font-weight: bold; text-align: justify; margin: 0 0 10px 0;">Sub: <span id="outSubject"></span></p>
+            
+            <p style="margin: 0 0 10px 0;">Dear Sir,</p>
+            <p style="text-align: justify; margin: 0 0 10px 0;">Thank you very much for maintaining business relationship with us. In this connection, we are delighted to inform you that as per your request and subsequent your letter ref. no <span id="outClientRef"></span> dated <span id="outClientDate"></span>, we have <span id="outBodyAction"></span> <span id="outBodyDetails"></span> for the period of 01 (One) Year. Details are given below:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 10pt;" border="1">
+                <thead>
+                    <tr>
+                        <th style="padding: 6px; font-weight: bold;">Sl.</th>
+                        <th style="padding: 6px; font-weight: bold;">MTDR No.</th>
+                        <th style="padding: 6px; font-weight: bold;">Maturity Date</th>
+                        <th style="padding: 6px; font-weight: bold;">Amount</th>
+                        <th style="padding: 6px; font-weight: bold;">A/C No.</th>
+                        <th style="padding: 6px; font-weight: bold;">MTDR Title</th>
+                        <th style="padding: 6px; font-weight: bold;">Provisional Profit Rate</th>
+                    </tr>
+                </thead>
+                <tbody id="outTableBody">
+                    </tbody>
+            </table>
+
+            <p style="margin: 0 0 10px 0;">It’s our privilege to get Narsingdi Palli Bidyut Samity-1 as business partner since inception of the Branch.<br>
+            We hope this relationship will be stronger in the days to come.</p>
+
+            <p style="text-align: justify; margin: 0 0 10px 0;">Be informed that Original MTDR is already at your custody which was sent vide our Letter <span id="outFooterRef"></span>, dated <span id="outFooterDate"></span>.</p>
+
+            <p style="margin: 0 0 10px 0;">Kindly acknowledge receipt.</p>
+            <p style="margin: 0 0 10px 0;">Thanking You.</p>
+            <br>
+            <p style="margin: 0 0 10px 0;">Yours sincerely,</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 50px; border: none;">
+                <tr>
+                    <td style="text-align: left; border: none; padding: 0;">
+                        <p style="font-weight: bold; margin: 0;">Muntasir Rabib</p>
+                        <p style="margin: 0;">General banking In-Charge</p>
+                    </td>
+                    <td style="text-align: right; border: none; padding: 0;">
+                        <p style="font-weight: bold; margin: 0;">Tawhidur Rahman</p>
+                        <p style="margin: 0;">SEO & Manager</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let mtdrs = [];
+
+        const titles = [
+            "NARSINGDI PALLI BIDDYUT SAMITY-1, DONATION RESERVE FUND",
+            "NARSINGDI PALLI BIDDYUT SAMITY-1, TEMPORARY FUND",
+            "NARSINGDI PALLI BIDDYUT SAMITY-1, MEMBERSHIP FUND"
+        ];
+
+        function formatMoney(numStr) {
+            let num = Number(String(numStr).replace(/,/g, ''));
+            if(isNaN(num) || num === 0) return numStr;
+            return new Intl.NumberFormat('en-IN').format(num);
+        }
+
+        function addMTDR() {
+            let newId = Date.now();
+            mtdrs.push({
+                id: newId,
+                no: '',
+                maturity: '',
+                amount: '',
+                ac: '',
+                title: titles[0],
+                rate: '12%'
+            });
+            renderMTDRInputs();
+            updatePreview();
+        }
+
+        function removeMTDR(id) {
+            mtdrs = mtdrs.filter(m => m.id !== id);
+            renderMTDRInputs();
+            updatePreview();
+        }
+
+        function updateMTDR(id, field, value) {
+            let mtdr = mtdrs.find(m => m.id === id);
+            if(mtdr) mtdr[field] = value;
+            updatePreview();
+        }
+
+        function renderMTDRInputs() {
+            const container = document.getElementById('mtdr-container');
+            container.innerHTML = '';
+            
+            mtdrs.forEach((m, index) => {
+                let optionsHtml = titles.map(t => `<option value="${t}" ${m.title === t ? 'selected' : ''}>${t}</option>`).join('');
+                
+                let html = `
+                    <div class="mtdr-card">
+                        <h4>MTDR ${index + 1} ${mtdrs.length > 1 ? `<button class="remove-btn" onclick="removeMTDR(${m.id})">Remove</button>` : ''}</h4>
+                        <div class="form-group">
+                            <label>MTDR No.</label>
+                            <input type="text" value="${m.no}" oninput="updateMTDR(${m.id}, 'no', this.value)" placeholder="e.g. 410773">
+                        </div>
+                        <div class="form-group">
+                            <label>Maturity Date</label>
+                            <input type="text" value="${m.maturity}" oninput="updateMTDR(${m.id}, 'maturity', this.value)" placeholder="e.g. 01/03/2027">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount (Tk)</label>
+                            <input type="text" value="${m.amount}" oninput="updateMTDR(${m.id}, 'amount', this.value)" placeholder="e.g. 15000000">
+                        </div>
+                        <div class="form-group">
+                            <label>A/C No.</label>
+                            <input type="text" value="${m.ac}" oninput="updateMTDR(${m.id}, 'ac', this.value)" placeholder="e.g. 21055000824">
+                        </div>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <select onchange="updateMTDR(${m.id}, 'title', this.value)">
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function updatePreview() {
+            let actionType = document.getElementById('actionType').value;
+            let branchRef = document.getElementById('branchRef').value;
+            let letterDate = document.getElementById('letterDate').value;
+            let clientRef = document.getElementById('clientRef').value;
+            let clientDate = document.getElementById('clientDate').value;
+
+            document.getElementById('outBranchRef').innerText = branchRef;
+            document.getElementById('outLetterDate').innerText = letterDate;
+            document.getElementById('outClientRef').innerText = clientRef;
+            document.getElementById('outClientDate').innerText = clientDate;
+            document.getElementById('outFooterRef').innerText = branchRef;
+            document.getElementById('outFooterDate').innerText = letterDate;
+
+            let mtdrText = "";
+            let amountText = "";
+
+            if (mtdrs.length > 0) {
+                let nos = mtdrs.map(m => `MTDR No-${m.no || '_____'}`);
+                let amts = mtdrs.map(m => `Tk. ${formatMoney(m.amount) || '_____'}/-`);
+                
+                if (nos.length === 1) {
+                    mtdrText = nos[0];
+                    amountText = amts[0];
+                } else if (nos.length === 2) {
+                    mtdrText = nos[0] + " and " + nos[1];
+                    amountText = amts[0] + " and " + amts[1];
+                } else {
+                    let lastNo = nos.pop();
+                    let lastAmt = amts.pop();
+                    mtdrText = nos.join(", ") + ", and " + lastNo;
+                    amountText = amts.join(", ") + ", and " + lastAmt;
+                    nos.push(lastNo); amts.push(lastAmt); // restore
+                }
+            }
+
+            let subject = `${actionType} of ${mtdrText} amounting of ${amountText} favoring Narsingdi Palli Bidyut Samity-1, Temporary Investment for the period of 01 (One) Year @ 12 % P.A.`;
+            document.getElementById('outSubject').innerText = subject;
+
+            let bodyAction = actionType === "Issuing" ? "Issued" : "renewed";
+            let bodyDetails = `${mtdrText} amounting of ${amountText} favoring Narsingdi Palli Bidyut Samity-1, Temporary Investments`;
+            document.getElementById('outBodyAction').innerText = bodyAction;
+            document.getElementById('outBodyDetails').innerText = bodyDetails;
+
+            let tbody = document.getElementById('outTableBody');
+            tbody.innerHTML = '';
+            mtdrs.forEach((m, i) => {
+                let sl = (i + 1).toString().padStart(2, '0');
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="padding: 6px; text-align: center;">${sl}</td>
+                        <td style="padding: 6px; text-align: center;">${m.no}</td>
+                        <td style="padding: 6px; text-align: center;">Dated ${m.maturity}</td>
+                        <td style="padding: 6px; text-align: center;">${formatMoney(m.amount)}/-</td>
+                        <td style="padding: 6px; text-align: center;">${m.ac}</td>
+                        <td style="padding: 6px; text-align: center;">${m.title}</td>
+                        <td style="padding: 6px; text-align: center;">${m.rate}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- NEW FEATURE: SAVE AND LOAD ---
+        
+        function getSavedData() {
+            return JSON.parse(localStorage.getItem('sblLetterSaves') || '{}');
+        }
+
+        function populateLoadDropdown() {
+            let saved = getSavedData();
+            let select = document.getElementById('loadLetterSelect');
+            select.innerHTML = '<option value="">-- Select Saved Letter --</option>';
+            
+            // Sort by newest first
+            let keys = Object.keys(saved).sort((a,b) => b - a);
+            
+            keys.forEach(key => {
+                let item = saved[key];
+                select.innerHTML += `<option value="${key}">${item.saveName}</option>`;
+            });
+        }
+
+        function saveLetter() {
+            let letterDate = document.getElementById('letterDate').value || 'NoDate';
+            let mtdrCount = mtdrs.length;
+            let timeKey = Date.now().toString();
+            
+            // Format: "2 MTDRs - 01.03.2026"
+            let saveName = `${mtdrCount} MTDR${mtdrCount > 1 ? 's' : ''} - ${letterDate}`;
+
+            let dataToSave = {
+                saveName: saveName,
+                actionType: document.getElementById('actionType').value,
+                branchRef: document.getElementById('branchRef').value,
+                letterDate: document.getElementById('letterDate').value,
+                clientRef: document.getElementById('clientRef').value,
+                clientDate: document.getElementById('clientDate').value,
+                mtdrs: mtdrs
+            };
+
+            let saved = getSavedData();
+            saved[timeKey] = dataToSave;
+            localStorage.setItem('sblLetterSaves', JSON.stringify(saved));
+            
+            alert(`Letter saved as: "${saveName}"`);
+            populateLoadDropdown();
+        }
+
+        function loadLetter() {
+            let select = document.getElementById('loadLetterSelect');
+            let key = select.value;
+            if(!key) return;
+
+            let saved = getSavedData();
+            let data = saved[key];
+            
+            if(data) {
+                document.getElementById('actionType').value = data.actionType;
+                document.getElementById('branchRef').value = data.branchRef;
+                document.getElementById('letterDate').value = data.letterDate;
+                document.getElementById('clientRef').value = data.clientRef;
+                document.getElementById('clientDate').value = data.clientDate;
+                
+                mtdrs = data.mtdrs;
+                renderMTDRInputs();
+                updatePreview();
+            }
+            // Reset dropdown to default after load
+            select.value = "";
+        }
+
+        // --- NEW FEATURE: EXPORT TO WORD ---
+        
+        function exportToWord() {
+            // Get the HTML content
+            let content = document.getElementById('document').innerHTML;
+            
+            // Wrap it in Microsoft Office friendly HTML tags
+            let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML to Word Document with JavaScript</title></head><body>";
+            let footer = "</body></html>";
+            
+            let sourceHTML = header + content + footer;
+            
+            // Create a Blob with the file content
+            let blob = new Blob(['\ufeff', sourceHTML], {
+                type: 'application/msword'
+            });
+            
+            // Create a temporary download link
+            let downloadLink = document.createElement("a");
+            document.body.appendChild(downloadLink);
+            
+            // Set file name based on date
+            let fileDate = document.getElementById('letterDate').value.replace(/\./g, '-');
+            downloadLink.download = `SBL_Letter_${fileDate}.doc`;
+            
+            // Use URL.createObjectURL for the blob
+            let url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            
+            // Trigger the download
+            downloadLink.click();
+            
+            // Clean up
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize App
+        window.onload = () => {
+            addMTDR();
+            populateLoadDropdown();
+        };
+    </script>
+</body>
+</html>

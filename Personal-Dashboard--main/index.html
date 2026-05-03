@@ -1,0 +1,2047 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Daily Dashboard</title>
+
+    <link rel="manifest" href="manifest.json" />
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        corePlugins: {
+          preflight: false,
+        },
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed": "#c284ff",
+              "inverse-on-surface": "#53555a",
+              "surface-tint": "#cc97ff",
+              "surface-container-lowest": "#000000",
+              "primary-dim": "#9c48ea",
+              "secondary-fixed-dim": "#58e7ab",
+              "on-surface-variant": "#aaabb0",
+              "surface-bright": "#292c33",
+              "on-primary-container": "#360061",
+              "on-error": "#490013",
+              "outline-variant": "#46484d",
+              "secondary-container": "#006c49",
+              "on-secondary-container": "#e1ffec",
+              "on-primary": "#47007c",
+              "on-tertiary": "#680921",
+              "surface-container-high": "#1d2025",
+              "surface-container-highest": "#23262c",
+              "on-tertiary-fixed": "#39000d",
+              "surface-container": "#171a1f",
+              "inverse-surface": "#f9f9ff",
+              "secondary-dim": "#58e7ab",
+              "surface-container-low": "#111318",
+              "tertiary-container": "#fe7e8e",
+              "on-background": "#f6f6fc",
+              "on-error-container": "#ffb2b9",
+              "secondary-fixed": "#69f6b8",
+              "surface-variant": "#23262c",
+              "surface-dim": "#0c0e12",
+              "on-surface": "#f6f6fc",
+              outline: "#74757a",
+              "tertiary-fixed-dim": "#fa7c8b",
+              "on-tertiary-container": "#570018",
+              secondary: "#69f6b8",
+              "on-secondary-fixed": "#00452d",
+              "on-tertiary-fixed-variant": "#711227",
+              surface: "#0c0e12",
+              "error-dim": "#d73357",
+              error: "#ff6e84",
+              "on-secondary": "#005a3c",
+              "error-container": "#a70138",
+              "tertiary-fixed": "#ff909c",
+              "tertiary-dim": "#f47786",
+              "on-primary-fixed-variant": "#430076",
+              "primary-container": "#c284ff",
+              "on-secondary-fixed-variant": "#006544",
+              tertiary: "#ff95a0",
+              "on-primary-fixed": "#000000",
+              "inverse-primary": "#842cd3",
+              background: "#0c0e12",
+              "primary-fixed-dim": "#b971ff",
+              primary: "#cc97ff",
+            },
+            fontFamily: {
+              headline: ["Inter"],
+              body: ["Inter"],
+              label: ["Inter"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <div id="classic-dashboard-wrapper">
+      <!-- MACOS NATIVE TOP BAR -->
+
+      <div class="fab-container">
+        <button
+          type="button"
+          id="theme-toggle-btn"
+          class="fab-btn"
+          title="Toggle Theme"
+          aria-label="Toggle Theme"
+        >
+          <i id="theme-icon" class="ph ph-moon" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          id="open-shortcuts-btn"
+          class="fab-btn"
+          title="Keyboard Shortcuts"
+          aria-label="Open Keyboard Shortcuts"
+        >
+          <i class="ph ph-keyboard" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          id="open-settings-btn"
+          class="fab-btn"
+          title="Settings"
+          aria-label="Open Settings"
+        >
+          <i class="ph ph-gear" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="modal-overlay" id="shortcuts-modal">
+        <div class="modal-content shortcuts-modal-content">
+          <div class="modal-header">
+            <h2>
+              <i class="ph ph-keyboard" aria-hidden="true"></i> Keyboard
+              Shortcuts
+            </h2>
+            <button
+              type="button"
+              id="shortcuts-close-btn"
+              class="modal-close"
+              aria-label="Close Keyboard Shortcuts"
+            >
+              <i class="ph ph-x" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="shortcuts-help-grid">
+            <div class="shortcut-help-item">
+              <kbd>Alt</kbd> + <kbd>S</kbd><span>Focus search</span>
+            </div>
+            <div class="shortcut-help-item">
+              <kbd>Alt</kbd> + <kbd>T</kbd><span>Focus new task input</span>
+            </div>
+            <div class="shortcut-help-item">
+              <kbd>Alt</kbd> + <kbd>N</kbd><span>Create a new note</span>
+            </div>
+            <div class="shortcut-help-item">
+              <kbd>?</kbd><span>Open this shortcuts panel</span>
+            </div>
+            <div class="shortcut-help-item">
+              <kbd>Esc</kbd><span>Close open modal</span>
+            </div>
+            <div class="shortcut-help-item">
+              <kbd>0-9</kbd>, <kbd>+</kbd>, <kbd>-</kbd
+              ><span>Use calculator quickly</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2><i class="ph ph-sliders" aria-hidden="true"></i> Settings</h2>
+            <button
+              type="button"
+              id="settings-close-btn"
+              class="modal-close"
+              aria-label="Close Settings"
+            >
+              <i class="ph ph-x" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label for="set-name">Your Name</label>
+            <input
+              type="text"
+              id="set-name"
+              class="form-control"
+              placeholder="e.g. Steve"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="set-profile">Dashboard Profile</label>
+            <div class="backup-row">
+              <select
+                id="set-profile"
+                class="form-control"
+                aria-label="Dashboard Profile"
+              >
+                <option value="custom">Custom</option>
+                <option value="work">Work</option>
+                <option value="weekend">Weekend</option>
+                <option value="gaming">Gaming</option>
+              </select>
+              <button type="button" id="apply-profile-btn" class="backup-btn">
+                Apply Profile
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="toggle-label" for="set-compact"
+              >Compact Workspace Mode</label
+            >
+            <input
+              type="checkbox"
+              id="set-compact"
+              style="width: 20px; height: 20px; accent-color: var(--accent)"
+            />
+          </div>
+
+          <div class="form-group toggle-row" style="margin-top: 15px">
+            <label class="toggle-label" for="set-calc-compact"
+              >Compact Calculator Keypad</label
+            >
+            <input
+              type="checkbox"
+              id="set-calc-compact"
+              style="width: 20px; height: 20px; accent-color: var(--accent)"
+            />
+          </div>
+
+          <div class="form-group toggle-row" style="margin-top: 15px">
+            <label class="toggle-label" for="set-clock24">24-Hour Clock</label>
+            <input
+              type="checkbox"
+              id="set-clock24"
+              style="width: 20px; height: 20px; accent-color: var(--accent)"
+            />
+          </div>
+
+          <div
+            class="form-group"
+            style="
+              margin-top: 20px;
+              border-top: 1px solid var(--glass-border);
+              padding-top: 20px;
+            "
+          >
+            <label
+              ><i
+                class="ph-fill ph-paint-brush"
+                style="margin-right: 5px"
+                aria-hidden="true"
+              ></i>
+              Visual Themes</label
+            >
+
+            <div style="margin-bottom: 15px">
+              <label
+                class="toggle-label"
+                for="set-theme"
+                style="font-size: 0.85rem; display: block; margin-bottom: 5px"
+                >Theme Engine</label
+              >
+              <select
+                id="set-theme"
+                class="form-control"
+                style="padding: 8px 12px; font-weight: bold; cursor: pointer"
+              >
+                <option value="glass">Glassmorphism (Default UI)</option>
+                <option value="cyberpunk">Cyberpunk 2077 (Neon & Edges)</option>
+                <option value="terminal">Terminal (Hacker Monospace)</option>
+                <option value="pixel">Retro OS (8-Bit Pixel)</option>
+                <option value="brutalism">Neo-Brutalism</option>
+                <option value="e-ink">Deep Space / E-Ink</option>
+                <option value="material">Material You</option>
+              </select>
+            </div>
+
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 5px;
+              "
+            >
+              <label
+                class="toggle-label"
+                for="set-accent"
+                style="font-size: 0.85rem"
+                >Global Accent Color</label
+              >
+              <input
+                type="color"
+                id="set-accent"
+                aria-label="Global Accent Color"
+                style="
+                  width: 35px;
+                  height: 35px;
+                  border: none;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  padding: 0;
+                  background: transparent;
+                "
+              />
+            </div>
+            <span style="font-size: 0.7rem; color: var(--text-muted)"
+              >Note: Accent colors dynamically tint the Cyberpunk and Terminal
+              themes!</span
+            >
+          </div>
+
+          <div
+            class="form-group"
+            style="
+              margin-top: 20px;
+              border-top: 1px solid var(--glass-border);
+              padding-top: 20px;
+            "
+          >
+            <label>Module Visibility</label>
+            <div class="visibility-grid">
+              <label for="vis-search"
+                ><input type="checkbox" id="vis-search" class="vis-check" />
+                Search Bar</label
+              >
+              <label for="vis-time"
+                ><input type="checkbox" id="vis-time" class="vis-check" />
+                Clock</label
+              >
+              <label for="vis-tasks"
+                ><input type="checkbox" id="vis-tasks" class="vis-check" />
+                Tasks</label
+              >
+              <label for="vis-torn"
+                ><input type="checkbox" id="vis-torn" class="vis-check" /> Torn
+                Tracker</label
+              >
+              <label for="vis-bank"
+                ><input type="checkbox" id="vis-bank" class="vis-check" /> Bank
+                Tools</label
+              >
+              <label for="vis-weather"
+                ><input type="checkbox" id="vis-weather" class="vis-check" />
+                Weather</label
+              >
+              <label for="vis-calendar"
+                ><input type="checkbox" id="vis-calendar" class="vis-check" />
+                Calendar</label
+              >
+              <label for="vis-shortcuts"
+                ><input type="checkbox" id="vis-shortcuts" class="vis-check" />
+                Quick Links</label
+              >
+              <label for="vis-notepad"
+                ><input type="checkbox" id="vis-notepad" class="vis-check" />
+                Quick Notes</label
+              >
+              <label for="vis-news"
+                ><input type="checkbox" id="vis-news" class="vis-check" /> News
+                Hub</label
+              >
+              <label for="vis-calculator"
+                ><input type="checkbox" id="vis-calculator" class="vis-check" />
+                Calculator</label
+              >
+              <label for="vis-story"
+                ><input type="checkbox" id="vis-story" class="vis-check" />
+                Story</label
+              >
+            </div>
+          </div>
+
+          <div
+            class="form-group"
+            style="
+              margin-top: 20px;
+              border-top: 1px solid var(--glass-border);
+              padding-top: 20px;
+            "
+          >
+            <label for="set-bg-color">Dashboard Background</label>
+            <div
+              class="bg-picker-group"
+              role="group"
+              aria-label="Dashboard Background Type"
+            >
+              <button
+                type="button"
+                class="bg-btn active"
+                id="bg-btn-anim"
+                data-bg-type="animated"
+                aria-pressed="true"
+              >
+                Animated / Theme Default
+              </button>
+              <button
+                type="button"
+                class="bg-btn"
+                id="bg-btn-solid"
+                data-bg-type="solid"
+                aria-pressed="false"
+              >
+                Solid Override
+              </button>
+              <button
+                type="button"
+                class="bg-btn"
+                id="bg-btn-image"
+                data-bg-type="image"
+                aria-pressed="false"
+              >
+                Image Override
+              </button>
+            </div>
+            <input
+              type="color"
+              id="set-bg-color"
+              aria-label="Dashboard Background Color"
+              class="form-control"
+              style="display: none; height: 44px; padding: 4px"
+            />
+            <input
+              type="url"
+              id="set-bg-image"
+              aria-label="Dashboard Background Image URL"
+              class="form-control"
+              placeholder="Image URL (https://...)"
+              style="display: none"
+            />
+          </div>
+
+          <div class="form-group" style="margin-top: 20px">
+            <label for="set-weather">Weather Location Override</label>
+            <input
+              type="text"
+              id="set-weather"
+              class="form-control"
+              placeholder="Leave blank to use auto-IP..."
+              aria-label="Weather Location Override"
+            />
+          </div>
+
+          <div class="form-group" style="margin-top: 20px">
+            <label>Manage News Sources (RSS)</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px">
+              <select
+                id="set-rss-source"
+                aria-label="Select RSS Source"
+                class="form-control"
+                style="flex: 2"
+              ></select>
+              <button
+                type="button"
+                id="rss-add-btn"
+                class="btn-add"
+                aria-label="Add RSS Source"
+                style="padding: 0 15px; font-weight: bold; cursor: pointer"
+              >
+                Add
+              </button>
+            </div>
+            <div
+              id="rss-sources-list"
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                max-height: 150px;
+                overflow-y: auto;
+              "
+            >
+              <!-- Custom RSS sources will be rendered here -->
+            </div>
+          </div>
+
+          <div
+            class="form-group"
+            style="
+              margin-top: 30px;
+              border-top: 1px solid var(--glass-border);
+              padding-top: 20px;
+            "
+          >
+            <label>Data Management</label>
+            <div class="backup-row">
+              <button type="button" class="backup-btn" onclick="exportData()">
+                <i class="ph ph-download-simple" aria-hidden="true"></i> Export
+                Backup
+              </button>
+              <label class="backup-btn" for="import-file" style="margin: 0">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i> Import
+                Backup
+                <input
+                  type="file"
+                  id="import-file"
+                  accept=".json"
+                  style="display: none"
+                  onchange="importData(event)"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div
+            class="form-group"
+            style="
+              margin-top: 20px;
+              border-top: 1px solid var(--glass-border);
+              padding-top: 20px;
+            "
+          >
+            <label>System Update</label>
+            <div class="backup-row">
+              <button
+                type="button"
+                class="backup-btn"
+                onclick="checkForUpdates()"
+              >
+                <i class="ph ph-arrows-clockwise" aria-hidden="true"></i> Check
+                for Updates
+              </button>
+            </div>
+            <div
+              id="update-status"
+              aria-live="polite"
+              style="
+                margin-top: 10px;
+                font-size: 0.85rem;
+                color: var(--text-muted);
+              "
+            ></div>
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              id="settings-cancel-btn"
+              class="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="button" id="settings-save-btn" class="btn-primary">
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="dashboard" id="dashboard-grid">
+        <div class="card span-3 search-card" id="mod-search" tabindex="-1">
+          <i class="ph ph-magnifying-glass search-icon" aria-hidden="true"></i>
+          <select
+            id="search-engine"
+            class="engine-select"
+            aria-label="Search Engine"
+          >
+            <option value="google">Google</option>
+            <option value="duckduckgo">DuckDuckGo</option>
+            <option value="bing">Bing</option>
+          </select>
+          <input
+            type="text"
+            id="universal-search"
+            class="search-input"
+            placeholder="Search the web..."
+            onkeypress="executeSearch(event)"
+            aria-label="Search query"
+          />
+          <div class="search-hint" aria-hidden="true">
+            <kbd>Alt</kbd> <span>+</span> <kbd>S</kbd>
+          </div>
+        </div>
+
+        <div class="card" id="mod-time" tabindex="-1">
+          <div class="time-drag-wrap">
+            <div class="drag-handle" title="Hover to drag">
+              <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="clock-greeting-box">
+            <i
+              id="clock-icon"
+              class="ph-fill ph-sun-horizon clock-greeting-icon"
+              aria-hidden="true"
+            ></i>
+            <span id="greeting">Good Day</span>
+          </div>
+          <div class="clock-time-wrapper">
+            <div class="time-main">
+              <span id="time-hr">00</span><span class="blinking-colon">:</span
+              ><span id="time-min">00</span>
+            </div>
+            <div id="time-ampm" class="time-ampm">AM</div>
+          </div>
+          <div class="date-pills-container">
+            <div class="date-pill" id="date-main">
+              <i class="ph ph-calendar-blank" aria-hidden="true"></i> Loading...
+            </div>
+            <div class="date-pill hijri-pill" id="hijri-wrapper">
+              <i class="ph-fill ph-moon-stars" aria-hidden="true"></i>
+              <span id="hijri-main"></span>
+            </div>
+          </div>
+          <div class="progress-header">
+            <span>Day Progress</span>
+            <span id="week-display">Week 0</span>
+          </div>
+          <div class="progress-container">
+            <div id="day-progress" class="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="card" id="mod-tasks" tabindex="-1">
+          <div class="card-header" style="margin-bottom: 10px">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph ph-check-square-offset"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Tasks
+                <span
+                  id="task-count"
+                  style="
+                    font-size: 0.9rem;
+                    color: var(--accent);
+                    font-weight: 800;
+                    margin-left: 5px;
+                  "
+                  >(0)</span
+                >
+              </h2>
+            </div>
+            <button
+              type="button"
+              id="btn-clear-done"
+              class="btn-clean"
+              onclick="clearCompletedTodos()"
+              title="Clear completed tasks"
+            >
+              Clear Done
+            </button>
+          </div>
+
+          <div class="news-tabs" style="margin-bottom: 15px" role="tablist">
+            <button
+              type="button"
+              class="news-tab active"
+              id="task-tab-work"
+              onclick="switchTaskTab('work')"
+              role="tab"
+              aria-selected="true"
+            >
+              Work
+            </button>
+            <button
+              type="button"
+              class="news-tab"
+              id="task-tab-personal"
+              onclick="switchTaskTab('personal')"
+              role="tab"
+              aria-selected="false"
+            >
+              Personal
+            </button>
+            <button
+              type="button"
+              class="news-tab"
+              id="task-tab-coding"
+              onclick="switchTaskTab('coding')"
+              role="tab"
+              aria-selected="false"
+            >
+              Coding
+            </button>
+          </div>
+
+          <div class="todo-input-group">
+            <input
+              type="text"
+              id="todo-input"
+              placeholder="Add a task... (Press Alt+T)"
+              onkeypress="handleTodoKeyPress(event)"
+              aria-label="New task description"
+            />
+            <button
+              type="button"
+              class="btn-add"
+              onclick="addTodo()"
+              aria-label="Add Task"
+              title="Add Task"
+            >
+              +
+            </button>
+          </div>
+          <ul id="todo-list" class="todo-list"></ul>
+        </div>
+
+        <div class="card" id="mod-torn" tabindex="-1">
+          <div class="card-header" style="margin-bottom: 15px">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph-fill ph-crosshair"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Torn Status
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="icon-btn"
+              onclick="toggleTornConfig()"
+              title="Configure API Key"
+              aria-label="Configure Torn API Key"
+            >
+              <i class="ph ph-gear" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div id="torn-display-view" class="torn-display">
+            <div class="torn-profile">
+              <div class="torn-name" id="torn-profile-name">Connecting...</div>
+              <div
+                class="torn-status state-neutral"
+                id="torn-profile-status"
+                aria-live="polite"
+              >
+                --
+              </div>
+            </div>
+            <div class="torn-sync-row">
+              <div id="torn-sync-state" class="torn-sync-pill">Idle</div>
+              <div
+                id="torn-last-sync"
+                class="torn-last-sync"
+                aria-live="polite"
+              >
+                Never synced
+              </div>
+            </div>
+            <div class="torn-money">
+              <i class="ph-fill ph-wallet" aria-hidden="true"></i>
+              <span id="torn-cash">$0</span>
+            </div>
+            <div class="torn-bars-container">
+              <div class="torn-bar-group">
+                <div class="torn-bar-header">
+                  <span
+                    >Energy
+                    <span
+                      id="torn-en-full"
+                      class="torn-full-text"
+                      aria-live="polite"
+                    ></span></span
+                  ><span id="torn-en-val">-- / --</span>
+                </div>
+                <div class="torn-bar-bg">
+                  <div
+                    id="torn-en-bar"
+                    class="torn-bar-fill"
+                    style="width: 0%; background: #34c759"
+                  ></div>
+                </div>
+              </div>
+              <div class="torn-bar-group">
+                <div class="torn-bar-header">
+                  <span
+                    >Nerve
+                    <span
+                      id="torn-ne-full"
+                      class="torn-full-text"
+                      aria-live="polite"
+                    ></span></span
+                  ><span id="torn-ne-val">-- / --</span>
+                </div>
+                <div class="torn-bar-bg">
+                  <div
+                    id="torn-ne-bar"
+                    class="torn-bar-fill"
+                    style="width: 0%; background: #ff3b30"
+                  ></div>
+                </div>
+              </div>
+              <div class="torn-bar-group">
+                <div class="torn-bar-header">
+                  <span
+                    >Happy
+                    <span
+                      id="torn-ha-full"
+                      class="torn-full-text"
+                      aria-live="polite"
+                    ></span></span
+                  ><span id="torn-ha-val">-- / --</span>
+                </div>
+                <div class="torn-bar-bg">
+                  <div
+                    id="torn-ha-bar"
+                    class="torn-bar-fill"
+                    style="width: 0%; background: #ff9500"
+                  ></div>
+                </div>
+              </div>
+              <div class="torn-bar-group">
+                <div class="torn-bar-header">
+                  <span
+                    >Life
+                    <span
+                      id="torn-li-full"
+                      class="torn-full-text"
+                      aria-live="polite"
+                    ></span></span
+                  ><span id="torn-li-val">-- / --</span>
+                </div>
+                <div class="torn-bar-bg">
+                  <div
+                    id="torn-li-bar"
+                    class="torn-bar-fill"
+                    style="width: 0%; background: #0066cc"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div class="torn-cds">
+              <div class="torn-cd">
+                <i
+                  class="ph-fill ph-first-aid"
+                  style="color: var(--danger)"
+                  aria-hidden="true"
+                ></i>
+                <span id="torn-cd-med" aria-live="polite">Ready</span>
+              </div>
+              <div class="torn-cd">
+                <i
+                  class="ph-fill ph-pill"
+                  style="color: var(--purple)"
+                  aria-hidden="true"
+                ></i>
+                <span id="torn-cd-drug" aria-live="polite">Ready</span>
+              </div>
+              <div class="torn-cd">
+                <i
+                  class="ph-fill ph-lightning"
+                  style="color: var(--warning)"
+                  aria-hidden="true"
+                ></i>
+                <span id="torn-cd-boo" aria-live="polite">Ready</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="collapsible-header"
+              aria-label="Toggle More Stats"
+              style="
+                background: none;
+                border: none;
+                width: 100%;
+                text-align: left;
+                margin-top: 15px;
+                border-top: 1px solid var(--glass-border);
+                padding-top: 10px;
+              "
+              aria-expanded="false"
+              aria-controls="torn-stats-view"
+              onclick="
+                toggleSection(
+                  'torn-stats-view',
+                  'torn-stats-chevron',
+                  'tornStatsState',
+                )
+              "
+              title="Toggle Stats"
+            >
+              <h3
+                style="
+                  font-size: 0.8rem;
+                  margin: 0;
+                  color: var(--text-muted);
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                "
+              >
+                More Stats
+              </h3>
+              <i
+                id="torn-stats-chevron"
+                class="ph ph-caret-down chevron"
+                aria-hidden="true"
+              ></i>
+            </button>
+            <div
+              id="torn-stats-view"
+              style="display: none; width: 100%; margin-top: 10px"
+            >
+              <div
+                class="torn-stats-tabs"
+                role="tablist"
+                aria-label="Torn stats views"
+              >
+                <button
+                  type="button"
+                  class="torn-stats-tab active"
+                  id="torn-tab-overview"
+                  onclick="setTornStatsTab('overview')"
+                  role="tab"
+                  aria-selected="true"
+                >
+                  Overview
+                </button>
+                <button
+                  type="button"
+                  class="torn-stats-tab"
+                  id="torn-tab-work"
+                  onclick="setTornStatsTab('work')"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  Work
+                </button>
+                <button
+                  type="button"
+                  class="torn-stats-tab"
+                  id="torn-tab-battle"
+                  onclick="setTornStatsTab('battle')"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  Battle
+                </button>
+                <button
+                  type="button"
+                  class="torn-stats-tab"
+                  id="torn-tab-compact"
+                  onclick="setTornStatsTab('compact')"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  Compact
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="action-btn"
+              aria-label="Force Sync Torn Data"
+              style="margin-top: 15px; margin-left: auto; margin-right: auto"
+              onclick="fetchTornData()"
+            >
+              <i class="ph ph-arrows-clockwise" aria-hidden="true"></i> Force
+              Sync
+            </button>
+          </div>
+
+          <div id="torn-config-view" class="api-config" style="display: none">
+            <input
+              type="password"
+              id="torn-cfg-key"
+              aria-label="Torn API Key"
+              class="shortcut-input"
+              placeholder="Torn API Key (Public Access)"
+            />
+            <button
+              type="button"
+              class="action-btn"
+              aria-label="Show or Hide Torn API Key"
+              style="margin-top: -2px"
+              onclick="toggleTornKeyVisibility()"
+            >
+              Show / Hide Key
+            </button>
+            <div
+              id="torn-key-feedback"
+              class="torn-key-feedback"
+              aria-live="polite"
+            ></div>
+            <a
+              href="https://www.torn.com/preferences.php#tab=api"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                font-size: 0.75rem;
+                color: var(--accent);
+                text-decoration: none;
+                margin-bottom: 5px;
+              "
+              >Get your API Key here</a
+            >
+            <div style="display: flex; gap: 8px; margin-top: 5px">
+              <button
+                type="button"
+                class="btn-add"
+                style="flex: 1; padding: 8px; font-size: 0.95rem"
+                onclick="saveTornConfig()"
+              >
+                Save Key
+              </button>
+              <button
+                type="button"
+                class="btn-clean"
+                style="flex: 1"
+                onclick="toggleTornConfig()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="mod-bank-apps" tabindex="-1">
+          <div class="card-header" style="margin-bottom: 15px">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph-fill ph-briefcase"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Bank Tools
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="icon-btn"
+              onclick="toggleBankAppInputs()"
+              title="Add Local App"
+              aria-label="Add Local App"
+            >
+              <i class="ph ph-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div
+            id="bank-app-inputs-container"
+            class="shortcuts-inputs"
+            style="display: none"
+          >
+            <input
+              type="text"
+              id="ba-name"
+              aria-label="App Name"
+              class="shortcut-input"
+              placeholder="App Name (e.g. Calculators)"
+            />
+            <input
+              type="text"
+              id="ba-icon"
+              aria-label="App Icon Class"
+              class="shortcut-input"
+              placeholder="Icon Class (e.g. ph-calculator)"
+            />
+            <input
+              type="text"
+              id="ba-path"
+              aria-label="App File Path"
+              class="shortcut-input"
+              placeholder="File Name/Path (e.g. calculator.html)"
+              onkeypress="handleBankAppKeyPress(event)"
+            />
+            <a
+              href="https://phosphoricons.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                font-size: 0.7rem;
+                color: var(--accent);
+                text-decoration: none;
+                align-self: flex-end;
+              "
+              >Find Icons Here</a
+            >
+            <div style="display: flex; gap: 8px">
+              <button
+                type="button"
+                class="btn-add"
+                style="flex: 1; font-size: 0.95rem; padding: 8px"
+                onclick="addBankApp()"
+              >
+                Save Tool
+              </button>
+              <button
+                type="button"
+                class="btn-clean"
+                style="flex: 1"
+                onclick="toggleBankAppInputs()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <div class="bank-apps-grid" id="bank-apps-grid"></div>
+        </div>
+
+        <div class="card tactile-calc-card" id="mod-calculator" tabindex="-1">
+          <div
+            class="card-header"
+            style="margin-bottom: 15px; position: relative; z-index: 10"
+          >
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph-fill ph-calculator"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Calculator
+              </h2>
+            </div>
+            <div class="tactile-calc-actions">
+              <button
+                type="button"
+                class="tactile-icon-btn"
+                aria-label="Clear history"
+                title="Clear history"
+                onclick="clearCalcHistory()"
+              >
+                <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="tactile-calc-display-area">
+            <div class="tactile-calc-display">
+              <div id="calc-history" class="tactile-calc-history"></div>
+              <div
+                id="calc-current-expression"
+                class="tactile-calc-expression"
+              ></div>
+              <div
+                id="calc-current"
+                class="tactile-calc-curr"
+                aria-live="polite"
+              >
+                0
+              </div>
+            </div>
+          </div>
+
+          <div class="tactile-calc-keypad">
+            <!-- Row 1 -->
+            <button
+              type="button"
+              class="tactile-btn tactile-btn-secondary"
+              aria-label="Clear Calculator"
+              onclick="calcAction('clear')"
+            >
+              C
+            </button>
+            <button
+              type="button"
+              class="tactile-btn tactile-btn-secondary"
+              aria-label="Negate Number"
+              onclick="calcAction('negate')"
+            >
+              +/-
+            </button>
+            <button
+              type="button"
+              class="tactile-btn tactile-btn-secondary"
+              aria-label="Percent"
+              onclick="calcAction('percent')"
+            >
+              %
+            </button>
+            <button
+              type="button"
+              class="tactile-btn tactile-btn-accent calc-op-btn"
+              data-op="/"
+              aria-label="Divide"
+              aria-pressed="false"
+              onclick="calcAction('op', '/')"
+            >
+              <i class="ph ph-divide" aria-hidden="true"></i>
+            </button>
+
+            <!-- Row 2 -->
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 7"
+              onclick="calcAction('num', '7')"
+            >
+              7
+            </button>
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 8"
+              onclick="calcAction('num', '8')"
+            >
+              8
+            </button>
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 9"
+              onclick="calcAction('num', '9')"
+            >
+              9
+            </button>
+            <button
+              type="button"
+              class="tactile-btn tactile-btn-accent calc-op-btn"
+              data-op="*"
+              aria-label="Multiply"
+              aria-pressed="false"
+              onclick="calcAction('op', '*')"
+            >
+              <i class="ph ph-x" aria-hidden="true"></i>
+            </button>
+
+            <!-- Row 3 -->
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 4"
+              onclick="calcAction('num', '4')"
+            >
+              4
+            </button>
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 5"
+              onclick="calcAction('num', '5')"
+            >
+              5
+            </button>
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 6"
+              onclick="calcAction('num', '6')"
+            >
+              6
+            </button>
+            <button
+              type="button"
+              class="tactile-btn tactile-btn-accent calc-op-btn"
+              data-op="-"
+              aria-label="Subtract"
+              aria-pressed="false"
+              onclick="calcAction('op', '-')"
+            >
+              <i class="ph ph-minus" aria-hidden="true"></i>
+            </button>
+
+            <!-- Row 4 -->
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 1"
+              onclick="calcAction('num', '1')"
+            >
+              1
+            </button>
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 2"
+              onclick="calcAction('num', '2')"
+            >
+              2
+            </button>
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Digit 3"
+              onclick="calcAction('num', '3')"
+            >
+              3
+            </button>
+            <button
+              type="button"
+              class="tactile-btn tactile-btn-accent calc-op-btn"
+              data-op="+"
+              aria-label="Add"
+              aria-pressed="false"
+              onclick="calcAction('op', '+')"
+            >
+              <i class="ph ph-plus" aria-hidden="true"></i>
+            </button>
+
+            <!-- Row 5 -->
+            <button
+              type="button"
+              class="tactile-btn tactile-zero"
+              aria-label="Digit 0"
+              onclick="calcAction('num', '0')"
+            >
+              0
+            </button>
+            <button
+              type="button"
+              class="tactile-btn"
+              aria-label="Decimal Point"
+              onclick="calcAction('num', '.')"
+            >
+              .
+            </button>
+            <button
+              type="button"
+              class="tactile-btn tactile-btn-accent tactile-btn-equals"
+              aria-label="Equals"
+              onclick="calcAction('equals')"
+            >
+              <i class="ph ph-equals" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="card" id="mod-weather" tabindex="-1">
+          <div class="card-header" style="margin-bottom: 10px">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph ph-cloud-sun"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Weather
+              </h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <div
+                id="location-display"
+                class="location-text"
+                title="Click gear icon to override"
+              >
+                Detecting...
+              </div>
+              <button
+                type="button"
+                style="background: none; border: none; padding: 0"
+                aria-label="Toggle Details"
+                aria-expanded="false"
+                aria-controls="weather-details-view"
+                onclick="
+                  toggleSection(
+                    'weather-details-view',
+                    'weather-card-chevron',
+                    'weatherCardState',
+                  )
+                "
+              >
+                <i
+                  id="weather-card-chevron"
+                  class="ph ph-caret-down chevron"
+                  title="Toggle Details"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            </div>
+          </div>
+          <div id="weather-container" aria-live="polite">
+            <div class="loading">
+              <i class="ph ph-spinner" aria-hidden="true"></i>Tracking
+              atmospheric data...
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="mod-calendar" tabindex="-1">
+          <div class="card-header" style="margin-bottom: 15px">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph ph-calendar-blank"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Calendar
+              </h2>
+            </div>
+          </div>
+          <div class="calendar-nav-header">
+            <button
+              type="button"
+              class="calendar-nav-btn"
+              aria-label="Previous Month"
+              onclick="changeMonth(-1)"
+              title="Previous Month"
+            >
+              &#9664;
+            </button>
+            <input
+              type="month"
+              id="calendar-month-picker"
+              class="calendar-month-name"
+              aria-label="Select Month"
+              style="
+                background: transparent;
+                border: none;
+                font-weight: 700;
+                font-size: 1.1rem;
+                color: var(--text-main);
+                font-family: inherit;
+                outline: none;
+                cursor: pointer;
+                text-align: center;
+              "
+              onchange="jumpToMonth(this.value)"
+            />
+            <button
+              type="button"
+              class="calendar-nav-btn"
+              aria-label="Next Month"
+              onclick="changeMonth(1)"
+              title="Next Month"
+            >
+              &#9654;
+            </button>
+          </div>
+          <div id="mini-calendar"></div>
+
+          <button
+            type="button"
+            class="collapsible-header"
+            aria-label="Toggle Upcoming Holidays"
+            style="
+              background: none;
+              border: none;
+              width: 100%;
+              text-align: left;
+            "
+            aria-expanded="false"
+            aria-controls="holiday-list"
+            onclick="
+              toggleSection('holiday-list', 'holiday-chevron', 'holidayState')
+            "
+            title="Toggle Holidays"
+          >
+            <h3
+              style="
+                font-size: 0.8rem;
+                margin: 0;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+              "
+            >
+              Upcoming Holidays
+            </h3>
+            <i
+              id="holiday-chevron"
+              class="ph ph-caret-down chevron"
+              aria-hidden="true"
+            ></i>
+          </button>
+          <ul id="holiday-list" class="holiday-list" style="display: none"></ul>
+          <div style="display: flex; gap: 5px; align-items: center; margin-top: 15px; justify-content: center;">
+            <button
+              type="button"
+              class="calendar-today-btn"
+              aria-label="Jump to Today"
+              onclick="jumpToToday()"
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              class="calendar-today-btn"
+              aria-label="Jump forward 3 months"
+              title="Jump forward 3 months"
+              onclick="jumpRelativeMonths(3)"
+            >
+              +3m
+            </button>
+            <button
+              type="button"
+              class="calendar-today-btn"
+              aria-label="Jump forward 6 months"
+              title="Jump forward 6 months"
+              onclick="jumpRelativeMonths(6)"
+            >
+              +6m
+            </button>
+          </div>
+        </div>
+
+        <div class="card" id="mod-shortcuts" tabindex="-1">
+          <div class="card-header">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph ph-link"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Quick Links
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="icon-btn"
+              onclick="toggleShortcutInputs()"
+              title="Add New Link"
+              aria-label="Add New Link"
+            >
+              <i class="ph ph-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div
+            id="shortcut-inputs-container"
+            class="shortcuts-inputs"
+            style="display: none"
+          >
+            <input
+              type="text"
+              id="sc-name"
+              aria-label="Shortcut Site Name"
+              class="shortcut-input"
+              placeholder="Site Name (e.g. Reddit)"
+            />
+            <input
+              type="text"
+              id="sc-path"
+              aria-label="Shortcut Site URL"
+              class="shortcut-input"
+              placeholder="URL (e.g. reddit.com)"
+              onkeypress="handleShortcutKeyPress(event)"
+            />
+            <div style="display: flex; gap: 8px">
+              <button
+                type="button"
+                class="btn-add"
+                style="flex: 1; font-size: 0.95rem; padding: 8px"
+                onclick="addShortcut()"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="btn-clean"
+                style="flex: 1"
+                onclick="toggleShortcutInputs()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <div id="shortcuts-grid" class="shortcuts-grid"></div>
+        </div>
+
+        <div class="card" id="mod-notepad" tabindex="-1">
+          <div class="card-header">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2 id="notepad-header-title">
+                <i
+                  class="ph ph-notepad"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Quick Notes
+              </h2>
+            </div>
+            <div id="notepad-list-actions">
+              <button
+                type="button"
+                class="icon-btn"
+                onclick="createNewNote()"
+                title="Create New Note (Alt+N)"
+                aria-label="Create New Note"
+              >
+                <i class="ph ph-plus" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div
+              id="notepad-edit-actions"
+              class="action-group"
+              style="display: none"
+            >
+              <button type="button" aria-label="Copy Note" class="action-btn" onclick="copyNote()">
+                <i class="ph ph-copy" aria-hidden="true"></i> Copy
+              </button>
+              <button type="button" aria-label="Download Note" class="action-btn" onclick="downloadNote()">
+                <i class="ph ph-download-simple" aria-hidden="true"></i> Save
+              </button>
+              <button type="button" aria-label="Close Note" class="action-btn" onclick="closeNote()">
+                <i class="ph ph-check" aria-hidden="true"></i> Done
+              </button>
+            </div>
+          </div>
+          <div id="notepad-list-view" class="notepad-list-container">
+            <input
+              type="text"
+              id="note-search"
+              class="note-search-input"
+              placeholder="Search notes..."
+              oninput="renderNotesList()"
+              aria-label="Search notes"
+            />
+            <div id="notes-list-inject"></div>
+          </div>
+          <div
+            id="notepad-edit-view"
+            style="display: none; flex-direction: column; flex-grow: 1"
+          >
+            <div class="note-edit-header">
+              <input
+                type="text"
+                id="note-title-input"
+                aria-label="Note Title"
+                class="note-title-input"
+                placeholder="Note Title..."
+              />
+              <div class="color-picker-row">
+                <button
+                  type="button"
+                  class="color-dot bg-none active"
+                  id="c-none"
+                  onclick="setNoteColor('none')"
+                  title="Default"
+                  aria-label="Default Color"
+                  aria-pressed="true"
+                ></button>
+                <button
+                  type="button"
+                  class="color-dot bg-blue"
+                  id="c-blue"
+                  onclick="setNoteColor('blue')"
+                  title="Blue"
+                  aria-label="Blue Color"
+                  aria-pressed="false"
+                ></button>
+                <button
+                  type="button"
+                  class="color-dot bg-green"
+                  id="c-green"
+                  onclick="setNoteColor('green')"
+                  title="Green"
+                  aria-label="Green Color"
+                  aria-pressed="false"
+                ></button>
+                <button
+                  type="button"
+                  class="color-dot bg-yellow"
+                  id="c-yellow"
+                  onclick="setNoteColor('yellow')"
+                  title="Yellow"
+                  aria-label="Yellow Color"
+                  aria-pressed="false"
+                ></button>
+                <button
+                  type="button"
+                  class="color-dot bg-purple"
+                  id="c-purple"
+                  onclick="setNoteColor('purple')"
+                  title="Purple"
+                  aria-label="Purple Color"
+                  aria-pressed="false"
+                ></button>
+                <button
+                  type="button"
+                  class="color-dot bg-red"
+                  id="c-red"
+                  onclick="setNoteColor('red')"
+                  title="Red"
+                  aria-label="Red Color"
+                  aria-pressed="false"
+                ></button>
+              </div>
+            </div>
+
+            <div class="editor-container">
+              <textarea
+                id="notepad-input"
+                aria-label="Note Content"
+                placeholder="Write your note here...&#10;Auto-saves instantly."
+              ></textarea>
+            </div>
+
+            <div class="note-status-bar">
+              <span id="note-word-count">0 words</span>
+              <span id="note-save-status"
+                ><i
+                  class="ph ph-cloud-check"
+                  style="margin-right: 3px"
+                  aria-hidden="true"
+                ></i
+                >Saved</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-3" id="mod-story" tabindex="-1">
+          <div class="card-header" style="margin-bottom: 10px">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph ph-book-open"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >Story
+              </h2>
+            </div>
+          </div>
+          <div
+            id="story-container"
+            style="
+              flex-grow: 1;
+              display: flex;
+              flex-direction: column;
+              min-height: 400px;
+              padding: 0;
+              margin: 0 -15px -15px -15px;
+              border-radius: 0 0 var(--border-radius) var(--border-radius);
+              overflow: hidden;
+            "
+          >
+            <iframe
+              src="https://fictionlab.ai"
+              style="border: none; width: 100%; height: 100%; flex-grow: 1"
+              title="FictionLab.ai"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            ></iframe>
+          </div>
+        </div>
+
+        <div class="card span-3" id="mod-news" tabindex="-1">
+          <div class="card-header" style="margin-bottom: 10px">
+            <div class="drag-header-group">
+              <div class="drag-handle" title="Hover to drag">
+                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
+              </div>
+              <h2>
+                <i
+                  class="ph ph-newspaper"
+                  style="margin-right: 8px"
+                  aria-hidden="true"
+                ></i
+                >News Hub
+              </h2>
+            </div>
+            <button
+              type="button"
+              id="news-manage-btn"
+              class="icon-btn"
+              onclick="toggleNewsSettings()"
+              title="Manage Feeds"
+              aria-label="Manage Feeds"
+              aria-expanded="false"
+              aria-controls="news-settings-view"
+            >
+              <i class="ph ph-gear" aria-hidden="true"></i>
+            </button>
+            <button
+              type="button"
+              id="news-refresh-btn"
+              class="icon-btn"
+              onclick="refreshCurrentNews()"
+              title="Force Refresh News"
+              aria-label="Refresh News"
+            >
+              <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
+            </button>
+            <button
+              type="button"
+              id="news-density-btn"
+              class="icon-btn"
+              onclick="toggleNewsDensity()"
+              title="Switch to Compact News Cards"
+              aria-label="Toggle News Density"
+              aria-pressed="false"
+            >
+              <i class="ph ph-text-align-justify" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div
+            id="news-settings-view"
+            style="
+              display: none;
+              padding: 15px;
+              background: rgba(0, 0, 0, 0.03);
+              border-radius: var(--border-radius);
+              margin-bottom: 15px;
+            "
+          >
+            <h3
+              style="
+                margin-top: 0;
+                font-size: 1.1rem;
+                color: var(--text-main);
+                margin-bottom: 10px;
+              "
+            >
+              Manage Topics & Feeds
+            </h3>
+            <div id="news-settings-topics-list"></div>
+            <button
+              type="button"
+              class="action-btn"
+              aria-label="Add New Topic"
+              onclick="addNewsTopic()"
+              style="margin-top: 10px; width: 100%; justify-content: center"
+            >
+              <i class="ph ph-plus" aria-hidden="true"></i> Add New Topic
+            </button>
+          </div>
+          <div id="news-tabs-container" class="news-tabs" role="tablist"></div>
+          <div
+            id="news-tools"
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+              align-items: center;
+              margin-bottom: 10px;
+            "
+          >
+            <input
+              type="search"
+              id="news-search-input"
+              placeholder="Filter headlines or sources..."
+              aria-label="Filter news articles"
+              style="flex: 1; min-width: 220px"
+            />
+            <select
+              id="news-sort-select"
+              aria-label="Sort news articles"
+              style="min-width: 160px"
+            >
+              <option value="newest">Sort: Newest</option>
+              <option value="oldest">Sort: Oldest</option>
+              <option value="source">Sort: Source A–Z</option>
+              <option value="unread">Sort: Unread First</option>
+            </select>
+            <button
+              type="button"
+              id="news-filter-unread-btn"
+              class="news-filter-chip"
+              aria-pressed="false"
+            >
+              Unread only
+            </button>
+            <button
+              type="button"
+              id="news-filter-image-btn"
+              class="news-filter-chip"
+              aria-pressed="false"
+            >
+              With image
+            </button>
+            <button type="button" id="news-mark-read-btn" class="news-mini-btn">
+              Mark all read
+            </button>
+            <button
+              type="button"
+              id="news-mark-unread-btn"
+              class="news-mini-btn"
+            >
+              Mark all unread
+            </button>
+            <button
+              type="button"
+              id="news-clear-filters-btn"
+              class="news-mini-btn"
+            >
+              Clear filters
+            </button>
+            <select
+              id="news-auto-refresh-select"
+              aria-label="Auto refresh news"
+              style="min-width: 170px"
+            >
+              <option value="0">Auto refresh: Off</option>
+              <option value="15">Auto refresh: 15m</option>
+              <option value="30">Auto refresh: 30m</option>
+              <option value="60">Auto refresh: 60m</option>
+            </select>
+            <span
+              id="news-last-updated"
+              style="
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                margin-left: auto;
+              "
+              >Updated: --</span
+            >
+            <span
+              id="news-results-summary"
+              aria-live="polite"
+              style="font-size: 0.75rem; color: var(--text-muted)"
+              >0 visible</span
+            >
+          </div>
+
+          <div id="news-container" aria-live="polite">
+            <div class="loading">
+              <i class="ph ph-spinner" aria-hidden="true"></i>Fetching latest
+              headlines...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="dashboard-context-menu"
+      class="dashboard-context-menu"
+      role="menu"
+      aria-label="Customization Menu"
+    >
+      <button
+        type="button"
+        class="context-menu-item"
+        aria-label="Open Settings"
+        data-context-action="open-settings"
+        role="menuitem"
+      >
+        <i class="ph ph-sliders" aria-hidden="true"></i> Open Settings
+      </button>
+      <button
+        type="button"
+        class="context-menu-item"
+        aria-label="Arrange Widgets Freely"
+        data-context-action="layout-freeform"
+        role="menuitem"
+      >
+        <i class="ph ph-arrows-out-cardinal" aria-hidden="true"></i> Arrange
+        Widgets Freely
+      </button>
+      <button
+        type="button"
+        class="context-menu-item"
+        aria-label="Snap to Column Mode"
+        data-context-action="layout-grid-reset"
+        role="menuitem"
+      >
+        <i class="ph ph-grid-four" aria-hidden="true"></i> Snap to Column Mode
+        (1-4 Columns)
+      </button>
+      <button
+        type="button"
+        class="context-menu-item"
+        aria-label="Change Background Color"
+        data-context-action="set-bg-solid"
+        role="menuitem"
+      >
+        <i class="ph ph-paint-bucket" aria-hidden="true"></i> Change Background
+        Color
+      </button>
+      <button
+        type="button"
+        class="context-menu-item"
+        aria-label="Add Wallpaper URL"
+        data-context-action="set-bg-wallpaper"
+        role="menuitem"
+      >
+        <i class="ph ph-image" aria-hidden="true"></i> Add Wallpaper URL
+      </button>
+      <button
+        type="button"
+        class="context-menu-item"
+        aria-label="Use Animated Background"
+        data-context-action="set-bg-animated"
+        role="menuitem"
+      >
+        <i class="ph ph-wave-sine" aria-hidden="true"></i> Use Animated
+        Background
+      </button>
+      <button
+        type="button"
+        class="context-menu-item"
+        aria-label="Toggle Light/Dark Theme"
+        data-context-action="toggle-theme"
+        role="menuitem"
+      >
+        <i class="ph ph-circle-half-tilt" aria-hidden="true"></i> Toggle
+        Light/Dark Theme
+      </button>
+      <button
+        type="button"
+        class="context-menu-item"
+        aria-label="Toggle Compact Mode"
+        data-context-action="toggle-compact-mode"
+        role="menuitem"
+      >
+        <i class="ph ph-arrows-in-line-horizontal" aria-hidden="true"></i>
+        Toggle Compact Mode
+      </button>
+      <input
+        type="color"
+        id="context-bg-color-picker"
+        aria-label="Context Menu Background Color Picker"
+        value="#141e30"
+        style="
+          position: absolute;
+          opacity: 0;
+          pointer-events: none;
+          width: 0;
+          height: 0;
+        "
+      />
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
