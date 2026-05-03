@@ -3661,14 +3661,14 @@ function renderCalendar() {
   const monthStr = String(displayedMonth + 1).padStart(2, "0");
   const mp = document.getElementById("calendar-month-picker");
   if (mp) mp.value = `${displayedYear}-${monthStr}`;
-  let html = '<div class="calendar-grid">';
-  ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].forEach(
-    (d) => (html += `<div class="calendar-header">${d}</div>`),
+  let htmlParts = ['<div class="calendar-grid">'];
+  ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].forEach((d) =>
+    htmlParts.push(`<div class="calendar-header">${d}</div>`),
   );
 
   const startDay = viewDate.getDay();
   for (let i = 0; i < startDay; i++)
-    html += `<div class="calendar-day calendar-empty"></div>`;
+    htmlParts.push(`<div class="calendar-day calendar-empty"></div>`);
 
   const daysInMonth = new Date(displayedYear, displayedMonth + 1, 0).getDate();
   const datePrefix = `${displayedYear}-${monthStr}-`;
@@ -3694,13 +3694,15 @@ function renderCalendar() {
         ? `title="Weekend"`
         : "";
 
-    html += `<div class="calendar-day ${isToday} ${holidayClass}" ${titleAttr}>${i}</div>`;
+    htmlParts.push(
+      `<div class="calendar-day ${isToday} ${holidayClass}" ${titleAttr}>${i}</div>`,
+    );
 
     currentDayOfWeek = (currentDayOfWeek + 1) % 7;
   }
   const mc = document.getElementById("mini-calendar");
   if (mc) {
-    mc.innerHTML = html + "</div>";
+    mc.innerHTML = htmlParts.join("") + "</div>";
     triggerMasonryUpdate();
   }
 }
