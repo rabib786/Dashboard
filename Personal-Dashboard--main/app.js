@@ -5358,6 +5358,7 @@ document.addEventListener("click", function (e) {
 
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
+    getWindDir,
     getAqiInfo,
     escapeHtml,
     safeUrl,
