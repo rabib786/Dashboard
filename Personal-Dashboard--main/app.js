@@ -2028,7 +2028,7 @@ function initResizableCards(cards) {
   });
 }
 
-function runAccessibilityConsistencyPass() {
+function updateDragHandleAccessibility() {
   document.querySelectorAll(".drag-handle").forEach((handle) => {
     handle.setAttribute("role", "button");
     handle.setAttribute("tabindex", "0");
@@ -2041,7 +2041,9 @@ function runAccessibilityConsistencyPass() {
       handle.setAttribute("aria-label", `Drag ${heading}`);
     }
   });
+}
 
+function updateButtonAccessibility() {
   document.querySelectorAll("button, .icon-btn, .action-btn").forEach((el) => {
     if (!el.getAttribute("aria-label")) {
       const text = el.textContent?.trim();
@@ -2050,6 +2052,11 @@ function runAccessibilityConsistencyPass() {
       else if (text) el.setAttribute("aria-label", text);
     }
   });
+}
+
+function runAccessibilityConsistencyPass() {
+  updateDragHandleAccessibility();
+  updateButtonAccessibility();
 }
 
 // ⚡ Bolt Performance: Extract expensive Intl.DateTimeFormat instantiation to module scope to avoid re-allocating inside hot render loops
