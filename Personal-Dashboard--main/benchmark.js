@@ -40,8 +40,9 @@ function renderCalendarBaseline(displayedYear, displayedMonth) {
     ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(d => html += `<div class="calendar-header">${d}</div>`);
     for (let i = 0; i < viewDate.getDay(); i++) html += `<div class="calendar-day calendar-empty"></div>`;
 
+    const daysInMonth = new Date(displayedYear, displayedMonth + 1, 0).getDate();
     // Core logic loop
-    for (let i = 1; i <= new Date(displayedYear, displayedMonth + 1, 0).getDate(); i++) {
+    for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = `${displayedYear}-${String(displayedMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         let isToday = (actualToday.getDate() === i && actualToday.getMonth() === displayedMonth && actualToday.getFullYear() === displayedYear) ? 'calendar-today' : '';
         const hObj = holidaysData.find(h => h.date === dateStr);
@@ -63,8 +64,9 @@ function renderCalendarOptimized(displayedYear, displayedMonth) {
         holidaysData.forEach(h => holidaysMap.set(h.date, h));
     }
 
+    const daysInMonth = new Date(displayedYear, displayedMonth + 1, 0).getDate();
     // Core logic loop
-    for (let i = 1; i <= new Date(displayedYear, displayedMonth + 1, 0).getDate(); i++) {
+    for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = `${displayedYear}-${String(displayedMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         let isToday = (actualToday.getDate() === i && actualToday.getMonth() === displayedMonth && actualToday.getFullYear() === displayedYear) ? 'calendar-today' : '';
         const hObj = holidaysMap.get(dateStr);
