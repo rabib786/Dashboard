@@ -1,0 +1,11 @@
+--- Personal-Dashboard--main/app.js
++++ Personal-Dashboard--main/app.js
+@@ -544,6 +544,8 @@
+   document.documentElement.setAttribute("data-theme", next);
+   localStorage.setItem("dashboardTheme", next);
+   updateThemeIcon(next);
++  applyBackground();
++  applyVisuals();
+ }
+
+ function updateThemeIcon(theme) {
