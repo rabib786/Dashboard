@@ -544,6 +544,8 @@ function toggleTheme() {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("dashboardTheme", next);
   updateThemeIcon(next);
+  applyBackground();
+  applyVisuals();
 }
 
 function updateThemeIcon(theme) {

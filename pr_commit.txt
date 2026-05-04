@@ -1,0 +1,9 @@
+🎨 Jules: [UI/Customization] - Theme Toggle & Compact Mode Fixes
+
+💡 The Objective: Bug fix to ensure visual and background settings apply immediately on theme change, and a fix to properly apply widget layout and spacing changes upon toggling compact mode via the context menu.
+
+👁️ Visual Changes: When hitting the theme toggle button (moon/sun icon), background images or theme-specific styles (e.g. terminal dash borders) immediately appear. The compact mode context menu option immediately recalculates layout logic instead of needing a refresh.
+
+⚙️ Customization Fixed: Theme Switcher & Compact Mode via Context Menu.
+
+🧪 Verification: Ran unit tests to ensure no core regressions, and created automated Playwright scripts to take before/after screenshots proving that clicking toggle buttons immediately triggers rendering state updates.
