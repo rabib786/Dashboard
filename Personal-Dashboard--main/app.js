@@ -133,6 +133,9 @@ const defaultVis = {
   story: true,
 };
 let rawSettings = safeParseStorageItem("dashSettings", {});
+// Handle null case explicitly if storage is empty/mocked
+if (!rawSettings) rawSettings = {};
+
 const PROFILE_PRESETS = {
   work: {
     themeStyle: "glass",
@@ -230,10 +233,16 @@ let dashSettings = {
       : {},
 
   // OS THEME STATE
+
   minimizedModules: Array.isArray(rawSettings.minimizedModules)
     ? rawSettings.minimizedModules
     : [],
+
+  // ADVANCED WORKSPACES & SCHEDULES
+  workspaces: (rawSettings.workspaces && typeof rawSettings.workspaces === 'object') ? rawSettings.workspaces : {},
+  workspaceSchedules: Array.isArray(rawSettings.workspaceSchedules) ? rawSettings.workspaceSchedules : [],
 };
+
 
 
 
@@ -360,7 +369,7 @@ function applyWidgetScale(card, width, height) {
 }
 
 function persistLayoutMode() {
-  localStorage.setItem("dashSettings", JSON.stringify(dashSettings));
+  saveSettingsToStorage();
 }
 
 function getWidgetMaxY(cardHeight, dashboard) {
@@ -677,6 +686,173 @@ function getThemeIconWeight() {
   return iconWeight;
 }
 
+
+
+// --- SMART WORKSPACES ENGINE ---
+
+// Convert legacy profiles to the new custom workspace format
+function migrateLegacyProfilesToWorkspaces() {
+  if (Object.keys(dashSettings.workspaces).length === 0) {
+    for (const [key, preset] of Object.entries(PROFILE_PRESETS)) {
+      dashSettings.workspaces[key] = {
+        name: key.charAt(0).toUpperCase() + key.slice(1),
+        themeStyle: preset.themeStyle,
+        accentColor: preset.accentColor,
+        compactMode: preset.compactMode,
+        calcCompactMode: preset.calcCompactMode,
+        visibility: { ...preset.visibility },
+        layoutMode: "grid", // default to grid for legacy presets
+        widgetPositions: {},
+      };
+    }
+    // Set custom as empty
+    dashSettings.workspaces["custom"] = {
+      name: "Custom",
+      themeStyle: "glass",
+      accentColor: "#0066cc",
+      compactMode: false,
+      calcCompactMode: false,
+      visibility: { ...defaultVis },
+      layoutMode: "grid",
+      widgetPositions: {},
+    };
+    saveSettingsToStorage();
+  }
+}
+
+function saveSettingsToStorage() {
+  localStorage.setItem("dashSettings", JSON.stringify(dashSettings));
+}
+
+function applyWorkspace(workspaceId) {
+  const workspace = dashSettings.workspaces[workspaceId] || PROFILE_PRESETS[workspaceId];
+  if (!workspace) return;
+
+  dashSettings.activeProfile = workspaceId;
+  dashSettings.themeStyle = workspace.themeStyle || "glass";
+  dashSettings.accentColor = workspace.accentColor || "#0066cc";
+  dashSettings.compactMode = !!workspace.compactMode;
+  dashSettings.calcCompactMode = !!workspace.calcCompactMode;
+  dashSettings.visibility = { ...defaultVis, ...(workspace.visibility || {}) };
+  dashSettings.layoutMode = workspace.layoutMode || "grid";
+  dashSettings.widgetPositions = workspace.widgetPositions ? JSON.parse(JSON.stringify(workspace.widgetPositions)) : {};
+
+  saveSettingsToStorage();
+
+  // Apply UI changes
+  applyBackground();
+  applyVisuals();
+  applyLayoutVisibility();
+
+  if (dashSettings.compactMode) document.body.classList.add("compact-mode");
+  else document.body.classList.remove("compact-mode");
+
+  if (dashSettings.calcCompactMode)
+    document.body.classList.add("calc-compact-mode");
+  else document.body.classList.remove("calc-compact-mode");
+
+  triggerMasonryUpdate();
+}
+
+function saveCurrentWorkspace(name) {
+  const id = name.trim().toLowerCase().replace(/\s+/g, '-');
+  if (!id) return;
+
+  dashSettings.workspaces[id] = {
+    name: name.trim(),
+    themeStyle: dashSettings.themeStyle,
+    accentColor: dashSettings.accentColor,
+    compactMode: dashSettings.compactMode,
+    calcCompactMode: dashSettings.calcCompactMode,
+    visibility: { ...dashSettings.visibility },
+    layoutMode: dashSettings.layoutMode,
+    widgetPositions: JSON.parse(JSON.stringify(dashSettings.widgetPositions)),
+  };
+
+  dashSettings.activeProfile = id;
+  saveSettingsToStorage();
+  renderWorkspacesList();
+}
+
+function deleteWorkspace(id) {
+  if (dashSettings.workspaces[id]) {
+    delete dashSettings.workspaces[id];
+
+    // Remove any schedules for this workspace
+    dashSettings.workspaceSchedules = dashSettings.workspaceSchedules.filter(s => s.workspaceId !== id);
+
+    if (dashSettings.activeProfile === id) {
+       dashSettings.activeProfile = "custom";
+    }
+    saveSettingsToStorage();
+    renderWorkspacesList();
+  }
+}
+
+function addWorkspaceSchedule(timeStr, workspaceId) {
+   if (!timeStr || !workspaceId) return;
+
+   // Check if schedule for this time already exists
+   const existingIdx = dashSettings.workspaceSchedules.findIndex(s => s.time === timeStr);
+   if (existingIdx !== -1) {
+      dashSettings.workspaceSchedules[existingIdx].workspaceId = workspaceId;
+   } else {
+      dashSettings.workspaceSchedules.push({ time: timeStr, workspaceId });
+   }
+
+   dashSettings.workspaceSchedules.sort((a,b) => a.time.localeCompare(b.time));
+   saveSettingsToStorage();
+   renderWorkspacesList();
+}
+
+function removeWorkspaceSchedule(timeStr) {
+   dashSettings.workspaceSchedules = dashSettings.workspaceSchedules.filter(s => s.time !== timeStr);
+   saveSettingsToStorage();
+   renderWorkspacesList();
+}
+
+
+
+function renderWorkspacesList() {
+   const select = document.getElementById("set-workspace");
+   const scheduleSelect = document.getElementById("schedule-workspace-select");
+   if (!select || !scheduleSelect) return;
+
+   let optionsHtml = '';
+   for (const [id, ws] of Object.entries(dashSettings.workspaces)) {
+       optionsHtml += `<option value="${id}">${escapeHtml(ws.name)}</option>`;
+   }
+
+   select.innerHTML = optionsHtml;
+   scheduleSelect.innerHTML = optionsHtml;
+
+   select.value = dashSettings.activeProfile || "custom";
+
+   // Render schedules
+   const list = document.getElementById("workspace-schedules-list");
+   if (!list) return;
+
+   if (!dashSettings.workspaceSchedules || dashSettings.workspaceSchedules.length === 0) {
+      list.innerHTML = `<div style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">No schedules set.</div>`;
+      return;
+   }
+
+   let schedulesHtml = '';
+   dashSettings.workspaceSchedules.forEach(schedule => {
+      const wsName = dashSettings.workspaces[schedule.workspaceId]?.name || schedule.workspaceId;
+      schedulesHtml += `
+         <div style="display: flex; justify-content: space-between; align-items: center; background: var(--inner-bg); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--glass-border);">
+            <span><strong style="color: var(--accent);">${schedule.time}</strong> &rarr; ${escapeHtml(wsName)}</span>
+            <button type="button" class="icon-btn" onclick="removeWorkspaceSchedule('${schedule.time}')" style="color: var(--danger); width: 24px; height: 24px; min-height: 0;">
+               <i class="ph ph-x" aria-hidden="true"></i>
+            </button>
+         </div>
+      `;
+   });
+   list.innerHTML = schedulesHtml;
+}
+
+
 // --- OS THEME LOGIC ---
 
 function applyLayoutVisibility() {
@@ -952,9 +1128,10 @@ function initCustomRssTab() {
 }
 
 function openSettings() {
-  const profileSelect = document.getElementById("set-profile");
-  if (profileSelect)
-    profileSelect.value = dashSettings.activeProfile || "custom";
+
+
+  renderWorkspacesList();
+
   document.getElementById("set-name").value = dashSettings.name;
   document.getElementById("set-clock24").checked = dashSettings.clock24;
   document.getElementById("set-weather").value = dashSettings.weatherCity;
@@ -1174,6 +1351,40 @@ function bindCoreUiEvents() {
   const settingsSaveBtn = document.getElementById("settings-save-btn");
   if (settingsSaveBtn) settingsSaveBtn.addEventListener("click", saveSettings);
 
+
+  const applyWsBtn = document.getElementById("apply-workspace-btn");
+  if (applyWsBtn) applyWsBtn.addEventListener("click", () => {
+     const id = document.getElementById("set-workspace").value;
+     applyWorkspace(id);
+     closeSettings();
+  });
+
+  const saveWsBtn = document.getElementById("save-workspace-btn");
+  if (saveWsBtn) saveWsBtn.addEventListener("click", () => {
+     const name = document.getElementById("save-workspace-name").value;
+     if (name) {
+        saveCurrentWorkspace(name);
+        document.getElementById("save-workspace-name").value = "";
+     }
+  });
+
+  const delWsBtn = document.getElementById("delete-workspace-btn");
+  if (delWsBtn) delWsBtn.addEventListener("click", () => {
+     const id = document.getElementById("set-workspace").value;
+     if (confirm("Delete this workspace?")) {
+        deleteWorkspace(id);
+     }
+  });
+
+  const addSchedBtn = document.getElementById("add-schedule-btn");
+  if (addSchedBtn) addSchedBtn.addEventListener("click", () => {
+     const time = document.getElementById("schedule-time-input").value;
+     const id = document.getElementById("schedule-workspace-select").value;
+     if (time && id) {
+        addWorkspaceSchedule(time, id);
+     }
+  });
+
   const rssAddBtn = document.getElementById("rss-add-btn");
   if (rssAddBtn) rssAddBtn.addEventListener("click", addCustomRssSource);
 
@@ -1219,9 +1430,7 @@ function selectBgType(type) {
 }
 
 function saveSettings() {
-  const selectedProfile =
-    document.getElementById("set-profile")?.value || "custom";
-  dashSettings.activeProfile = selectedProfile;
+
 
   dashSettings.name = document.getElementById("set-name").value.trim();
   dashSettings.clock24 = document.getElementById("set-clock24").checked;
@@ -1253,8 +1462,7 @@ function saveSettings() {
   }
 
   localStorage.setItem("dashSettings", JSON.stringify(dashSettings));
-  if (selectedProfile === "custom") {
-  }
+
   applyBackground();
   applyVisuals();
   applyLayoutVisibility();
@@ -1896,6 +2104,17 @@ function startClock() {
     // Only update time and greeting text if the minute has actually changed
     if (min !== lastMinute) {
       lastMinute = min;
+
+      // Check Auto-Switch Scheduler
+      if (dashSettings.workspaceSchedules && dashSettings.workspaceSchedules.length > 0) {
+        const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+        const schedule = dashSettings.workspaceSchedules.find(s => s.time === timeStr);
+        if (schedule && dashSettings.activeProfile !== schedule.workspaceId) {
+           console.log(`[Workspace Engine] Auto-switching to workspace: ${schedule.workspaceId} at ${timeStr}`);
+           applyWorkspace(schedule.workspaceId);
+        }
+      }
+
       let greeting = "Good Evening";
       let iconClass = "ph-moon-stars w-icon-moon";
       if (hour >= 5 && hour < 12) {
@@ -1967,6 +2186,7 @@ function startClock() {
 
 // --- INIT APP ---
 function initDashboard() {
+  migrateLegacyProfilesToWorkspaces();
 
   bindCoreUiEvents();
   initDesktopContextMenu();
@@ -5379,9 +5599,16 @@ if (typeof module !== "undefined" && module.exports) {
     safeUrl,
     safeParseJson,
     getModuleKeyByCardId,
+
     getCardIdByModuleKey,
     isWidgetLayoutEnabled,
     dashSettings,
+    applyWorkspace,
+    saveCurrentWorkspace,
+    deleteWorkspace,
+    addWorkspaceSchedule,
+    removeWorkspaceSchedule,
+
   };
 }
 
@@ -5589,4 +5816,9 @@ function addNewsTopic() {
   newsHubSettings.topics[id] = { name: "New Topic", feeds: [] };
   saveNewsSettings();
   renderNewsSettings();
+}
+
+// Call migrateLegacyProfilesToWorkspaces on init
+if (typeof window !== 'undefined') {
+
 }

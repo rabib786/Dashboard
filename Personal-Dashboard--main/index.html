@@ -205,24 +205,56 @@
             />
           </div>
 
-          <div class="form-group">
-            <label for="set-profile">Dashboard Profile</label>
-            <div class="backup-row">
+
+          <!-- ADVANCED WORKSPACES & SCHEDULES ENGINE -->
+          <div class="form-group" style="background: var(--glass-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; color: var(--accent); margin-bottom: 12px;">
+               <i class="ph-fill ph-circles-four" aria-hidden="true"></i> Smart Workspaces
+            </label>
+
+            <div class="backup-row" style="margin-bottom: 15px;">
               <select
-                id="set-profile"
+                id="set-workspace"
                 class="form-control"
-                aria-label="Dashboard Profile"
+                aria-label="Select Workspace"
+                style="flex: 1;"
               >
-                <option value="custom">Custom</option>
-                <option value="work">Work</option>
-                <option value="weekend">Weekend</option>
-                <option value="gaming">Gaming</option>
+                <!-- Workspaces populated dynamically -->
               </select>
-              <button type="button" id="apply-profile-btn" class="backup-btn">
-                Apply Profile
+              <button type="button" id="apply-workspace-btn" class="backup-btn" style="background: var(--accent); color: white;">
+                Load
+              </button>
+              <button type="button" id="delete-workspace-btn" class="backup-btn" style="background: var(--danger-light); color: var(--danger);">
+                <i class="ph ph-trash" aria-hidden="true"></i>
               </button>
             </div>
+
+            <div class="backup-row" style="margin-bottom: 20px;">
+               <input type="text" id="save-workspace-name" class="form-control" placeholder="New Workspace Name..." style="flex: 1;" />
+               <button type="button" id="save-workspace-btn" class="backup-btn">
+                 Save Current
+               </button>
+            </div>
+
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--text-main); margin-bottom: 10px;">
+               <i class="ph ph-clock" aria-hidden="true"></i> Auto-Switch Scheduler
+            </label>
+
+            <div class="backup-row" style="margin-bottom: 10px;">
+               <input type="time" id="schedule-time-input" class="form-control" style="width: auto;" />
+               <select id="schedule-workspace-select" class="form-control" style="flex: 1;">
+                 <!-- Populated dynamically -->
+               </select>
+               <button type="button" id="add-schedule-btn" class="backup-btn">
+                 Add Time
+               </button>
+            </div>
+
+            <div id="workspace-schedules-list" style="display: flex; flex-direction: column; gap: 8px;">
+               <!-- Schedules populated dynamically -->
+            </div>
           </div>
+
 
           <div class="form-group toggle-row">
             <label class="toggle-label" for="set-compact"
