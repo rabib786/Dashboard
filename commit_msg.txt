@@ -1,6 +1,6 @@
-✨ Jules: Advanced Feature - Eco Mode
+✨ Jules: Advanced Feature - Dynamic Geometry & Density Engine
 
-💡 The New Power: Added 'Eco Mode' to pause heavy background data fetching and disable CSS animations, saving battery and RAM.
-⚙️ How It Works: Introduced a new dashSettings.ecoMode state variable. When true, applyEcoMode() clears intervals for news AutoRefresh and Torn tracker updates, and toggles an .eco-mode class on the document body.
-🎨 UI Enhancements: Added a new toggle to the settings modal. Disables UI backdrop blurs when eco-mode is active.
-🧪 Verification: Created eco_mode.test.js using JSDOM to verify the persistence logic and clearing of interval timers.
+💡 The New Power: Added the "Geometry & Density" feature which allows users to directly tweak the foundational CSS of the application from the Settings Modal. By dragging sliders, users can fluidly adjust Grid Gap, Border Radius, and Glass Blur dynamically without any page reloads.
+⚙️ How It Works: Introduced a new dashSettings.geometry state variable. Added range sliders in `index.html` hooked to `initGeometryControls()` in `app.js`. The logic intercepts `input` events and modifies `--grid-gap`, `--border-radius`, and `--glass-blur` on the `:root` element. It also overrides `MASONRY_ROW_GAP` dynamically, triggering a debounced masonry update to cleanly reflow the grid as the gap changes.
+🎨 UI Enhancements: A new "Override Theme Geometry" toggle in Settings with a collapsible panel containing the real-time sliders.
+🧪 Verification: Tested masonry flow, settings persistence, and proper theme reversion when cancelled. Tests passed and the layout updates fluidly without jank.
