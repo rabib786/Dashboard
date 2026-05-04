@@ -2160,16 +2160,18 @@ window.calcAction = function (type, val) {
     if (calcCurrent === "") {
       if (calcPrevious !== "") {
         calcOperation = val;
+      } else {
+        return;
       }
-      return;
+    } else {
+      if (calcPrevious !== "") {
+        calcCompute(false);
+      }
+      calcOperation = val;
+      calcPrevious = calcCurrent;
+      calcCurrent = "";
+      calcResultShown = false;
     }
-    if (calcPrevious !== "") {
-      calcCompute(false);
-    }
-    calcOperation = val;
-    calcPrevious = calcCurrent;
-    calcCurrent = "";
-    calcResultShown = false;
   } else if (type === "percent") {
     const current = parseFloat(calcCurrent);
     if (!isNaN(current)) {
