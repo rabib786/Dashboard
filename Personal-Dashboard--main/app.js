@@ -593,6 +593,7 @@ function adjustColorHover(color, amount) {
   return `#${r}${g}${b}`;
 }
 
+let cachedCardsForVisuals = null;
 function applyVisuals() {
   const root = document.documentElement;
 
@@ -601,7 +602,11 @@ function applyVisuals() {
 
   // Revert free-floating styles only when we are in grid mode
   if (!isWidgetLayoutEnabled()) {
-    document.querySelectorAll(".card").forEach((card) => {
+    if (!cachedCardsForVisuals) {
+      cachedCardsForVisuals = Array.from(document.querySelectorAll(".card"));
+    }
+    for (let i = 0; i < cachedCardsForVisuals.length; i++) {
+      const card = cachedCardsForVisuals[i];
       card.style.position = "";
       card.style.left = "";
       card.style.top = "";
@@ -609,7 +614,7 @@ function applyVisuals() {
       card.style.margin = "";
       card.style.width = "";
       card.style.height = "";
-    });
+    }
     const dashboard = document.getElementById("dashboard-grid");
     if (dashboard) dashboard.style.display = ""; // Reset back to grid display via CSS class
     setTimeout(triggerMasonryUpdate, 100);
