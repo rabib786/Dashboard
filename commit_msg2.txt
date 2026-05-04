@@ -1,0 +1,9 @@
+🪲 Jule: Calculator - Fix operator change bug
+
+🚨 The Threat: The calculator module in app.js contained a logic flaw that ignored operator changes if a number was not input first, causing the calculator to swallow inputs and confusing the user.
+
+🔬 The Autopsy: The type === 'op' case in calcAction triggered an early return if calcCurrent was empty. This prevented the calcOperation from being updated properly when chaining operators, failing to reach the display update function.
+
+💉 The Cure: Replaced the early return condition with an if/else structure that successfully updates calcOperation and prevents the early return from blocking the rest of the execution flow if the user wants to change an operator after the fact.
+
+🛡️ Blast Radius: The change only affects app.js's calculator logic and preserves UI updates when changing the calculation operator. Tested thoroughly with playwright and python scripts.
