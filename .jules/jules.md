@@ -1,7 +1,5 @@
-## Flash of Unstyled Content (FOUC)
-When implementing dark mode or themes, applying the theme via a deferred or module script can cause a white flash on initial page load as the DOM renders before the theme attribute is added to the HTML tag.
-To fix this, a blocking, synchronous script should be placed in the `<head>` to read `localStorage` and apply the theme data attribute to `document.documentElement` immediately.
+## Workspace State Refactoring
 
-## Flash of Unstyled Content (FOUC)
-When implementing dark mode or themes, applying the theme via a deferred or module script can cause a white flash on initial page load as the DOM renders before the theme attribute is added to the HTML tag.
-To fix this, a blocking, synchronous script should be placed in the `<head>` to read `localStorage` and apply the theme data attribute to `document.documentElement` immediately.
+In order to allow users to save and configure their layouts properly, I abstracted the `PROFILE_PRESETS` list out of the hardcoded `app.js` file and moved it into the dynamic `dashSettings.workspaces` JSON object.
+
+I also built an auto-switch scheduler by using a `setInterval` loop in `updateTime` to check `dashSettings.workspaceSchedules` and invoke `applyWorkspace()` when the correct minute and hour is triggered.
