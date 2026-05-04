@@ -701,7 +701,7 @@ a:focus-visible {
 .app-tile:hover { border-color: var(--accent); transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: var(--glass-bg); }
 .app-tile i { font-size: 2.2rem; color: var(--accent); transition: transform 0.2s; }
 .app-tile:hover i { transform: scale(1.1); }
-.app-tile span { font-weight: 700; font-size: 0.85rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; padding: 0 12px;}
+.app-tile span { font-weight: 700; font-size: 0.85rem; text-align: center; width: 100%; padding: 0 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; line-height: 1.2; }
 .bank-del-btn { position: absolute; top: -8px; right: -8px; background: var(--danger-light); color: var(--danger); border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; opacity: 0; border: none; cursor: pointer; transition: 0.2s; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10;}
 .bank-edit-btn { position: absolute; top: -8px; left: -8px; background: var(--glass-bg); color: var(--accent); border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; opacity: 0; border: none; cursor: pointer; transition: 0.2s; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10;}
 .bank-app-wrapper:hover .bank-del-btn,
