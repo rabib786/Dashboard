@@ -5371,6 +5371,8 @@ if (typeof module !== "undefined" && module.exports) {
     safeParseJson,
     getModuleKeyByCardId,
     getCardIdByModuleKey,
+    isWidgetLayoutEnabled,
+    dashSettings,
   };
 }
 
