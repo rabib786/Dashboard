@@ -1,4 +1,6 @@
-- In V8/Node.js, array `map` + `join('')` is generally slower than simple loop with `+=` string concatenation. Even though the task requested replacing string concatenation with `map().join('')`, benchmarks demonstrated the string concatenation was around 15% faster.
-
-- Type safety issue in sanitization utilities: When attempting to bypass string manipulation functions with type pollution (e.g. Arrays, Booleans, or Numbers), functions that do not enforce implicit or explicit string casts can cause severe `TypeError` exceptions in V8. Explicitly handling `null`/`undefined` cases and forcing `String()` coercion guarantees crash resistance and plugs potential XSS bypass vulnerabilities where nested arrays containing `<script>` payloads could evade regular expression filtering because they are not strictly strings.
-- CSS structural adjustments to padding and absolute positioning of nested action buttons successfully fixed overlap without relying on cosmetic-only tweaks. Confirmed fix visually.
+# Performance improvement in benchmark.js
+Extracted `new Date(displayedYear, displayedMonth + 1, 0).getDate()` to a variable named `daysInMonth` outside the core logic loop in both `renderCalendarBaseline` and `renderCalendarOptimized` functions in `Personal-Dashboard--main/benchmark.js`.
+This improves performance by reducing the number of unnecessary `Date` instantiations from every loop iteration to just once before the loop.
+# Performance improvement in benchmark.js
+Extracted `new Date(displayedYear, displayedMonth + 1, 0).getDate()` to a variable named `daysInMonth` outside the core logic loop in both `renderCalendarBaseline` and `renderCalendarOptimized` functions in `Personal-Dashboard--main/benchmark.js`.
+This improves performance by reducing the number of unnecessary `Date` instantiations from every loop iteration to just once before the loop.
