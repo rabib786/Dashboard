@@ -2232,6 +2232,7 @@ function initDashboard() {
   startClock();
   fetchWeatherForCity();
   initTornTracker();
+  renderTornDashboard();
 
   loadBDHolidays(new Date().getFullYear());
   fetchNews("top");
@@ -2682,6 +2683,7 @@ function saveTornConfig() {
   localStorage.setItem("dashboardTornTracker", JSON.stringify(tornConfig));
   toggleTornConfig();
   initTornTracker();
+  renderTornDashboard();
 }
 
 function resetTornUI() {
