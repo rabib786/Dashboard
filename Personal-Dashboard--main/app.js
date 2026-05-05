@@ -2390,9 +2390,8 @@ window.calcAction = function (type, val) {
     if (calcCurrent === "") {
       if (calcPrevious !== "") {
         calcOperation = val;
-      } else {
-        return;
       }
+      return;
     } else {
       if (calcPrevious !== "") {
         calcCompute(false);
