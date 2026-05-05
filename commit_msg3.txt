@@ -1,0 +1,7 @@
+fix: torn tracker initialization logic errors and race conditions
+
+- Fixed dynamic script loading logic for `torn_engine.js`, `torn_widgets.js`, and `torn_settings.js` where `!typeof document !== 'undefined'` previously evaluated to false and `querySelector` checked for presence rather than absence.
+- Re-scoped `tornConfig` from `let` to `var` and implemented `|| { key: '' }` inline parsing default to correctly hoist and prevent `ReferenceError: Cannot access 'tornConfig' before initialization` inside event handlers and external functions calling `fetchTornData` and `saveTornConfig`.
+- Ensured default object fallback exists inside `saveTornConfig` to avoid null properties exception when writing keys.
+
+Fixes ReferenceError bugs causing the Torn module settings and views to crash entirely upon user interaction.
