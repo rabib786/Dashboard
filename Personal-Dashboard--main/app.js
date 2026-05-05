@@ -886,7 +886,6 @@ function applyLayoutVisibility() {
     document.body.classList.add("calc-compact-mode");
   else document.body.classList.remove("calc-compact-mode");
 
-  applyWidgetLayoutMode();
   updateModuleWindowControlsVisibility();
   renderMinimizedModuleIcons();
 }
@@ -1466,6 +1465,7 @@ function saveSettings() {
   applyBackground();
   applyVisuals();
   applyLayoutVisibility();
+  applyWidgetLayoutMode();
   initCustomRssTab();
   closeSettings();
   startClock();
