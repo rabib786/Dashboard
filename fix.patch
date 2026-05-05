@@ -1,27 +1,15 @@
---- Personal-Dashboard--main/app.js	2024-05-05
-+++ Personal-Dashboard--main/app.js	2024-05-05
-@@ -879,10 +879,16 @@
-     }
-   }
-
-+  // Keep classes synchronized with settings when this function is called,
-+  // to not break other features relying on this behaviour.
-   if (dashSettings.compactMode) document.body.classList.add("compact-mode");
-   else document.body.classList.remove("compact-mode");
-
-   if (dashSettings.calcCompactMode)
-     document.body.classList.add("calc-compact-mode");
-   else document.body.classList.remove("calc-compact-mode");
-
--  applyWidgetLayoutMode();
-   updateModuleWindowControlsVisibility();
-   renderMinimizedModuleIcons();
-@@ -1466,6 +1468,8 @@
-   applyBackground();
-   applyVisuals();
-   applyLayoutVisibility();
-+
-+  triggerMasonryUpdate();
-   initCustomRssTab();
-   closeSettings();
-   startClock();
+diff --git a/Personal-Dashboard--main/app.js b/Personal-Dashboard--main/app.js
+index 1ece058..23031a9 100644
+--- a/Personal-Dashboard--main/app.js
++++ b/Personal-Dashboard--main/app.js
+@@ -2390,9 +2390,8 @@ window.calcAction = function (type, val) {
+     if (calcCurrent === "") {
+       if (calcPrevious !== "") {
+         calcOperation = val;
+-      } else {
+-        return;
+       }
++      return;
+     } else {
+       if (calcPrevious !== "") {
+         calcCompute(false);
