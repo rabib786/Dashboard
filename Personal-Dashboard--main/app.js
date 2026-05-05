@@ -2575,11 +2575,12 @@ function editBankApp(i, event) {
 }
 
 // --- 3. TORN CITY TRACKER MODULE ---
-let tornConfig = safeParseJson(
+var tornConfig = safeParseJson(
   localStorage.getItem("dashboardTornTracker"),
   { key: "" },
   "dashboardTornTracker",
 );
+if (!tornConfig || typeof tornConfig !== 'object') tornConfig = { key: '' };
 let tornInterval;
 let tornTimers = {};
 let tornTickInterval;
@@ -2671,6 +2672,7 @@ function toggleTornConfig() {
 }
 
 function saveTornConfig() {
+  if (!tornConfig || typeof tornConfig !== 'object') tornConfig = { key: '' };
   tornConfig.key = document.getElementById("torn-cfg-key").value.trim();
   const fb = document.getElementById("torn-key-feedback");
   if (fb) {
@@ -5832,14 +5834,14 @@ if (typeof window !== 'undefined') {
 }
 
 // Import Torn Engine Script dynamically if not present
-if (!typeof document !== 'undefined' && document.querySelector && document.querySelector('script[src="torn_engine.js"]')) {
+if (typeof document !== 'undefined' && document.querySelector && !document.querySelector('script[src="torn_engine.js"]')) {
   const script = typeof document !== 'undefined' ? document.createElement('script') : {};
   script.src = 'torn_engine.js';
   if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
 }
 
 // Import Torn Widgets Script dynamically if not present
-if (!typeof document !== 'undefined' && document.querySelector && document.querySelector('script[src="torn_widgets.js"]')) {
+if (typeof document !== 'undefined' && document.querySelector && !document.querySelector('script[src="torn_widgets.js"]')) {
   const script = typeof document !== 'undefined' ? document.createElement('script') : {};
   script.src = 'torn_widgets.js';
   if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
@@ -5857,7 +5859,7 @@ tornStyles.innerHTML = `
 if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(tornStyles);
 
 // Import Torn Settings UI Script dynamically if not present
-if (!typeof document !== 'undefined' && document.querySelector && document.querySelector('script[src="torn_settings.js"]')) {
+if (typeof document !== 'undefined' && document.querySelector && !document.querySelector('script[src="torn_settings.js"]')) {
   const script = typeof document !== 'undefined' ? document.createElement('script') : {};
   script.src = 'torn_settings.js';
   if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
