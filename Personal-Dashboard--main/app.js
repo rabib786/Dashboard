@@ -5829,3 +5829,98 @@ function addNewsTopic() {
 if (typeof window !== 'undefined') {
 
 }
+
+// Import Torn Engine Script dynamically if not present
+if (!typeof document !== 'undefined' && document.querySelector && document.querySelector('script[src="torn_engine.js"]')) {
+  const script = typeof document !== 'undefined' ? document.createElement('script') : {};
+  script.src = 'torn_engine.js';
+  if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
+}
+
+// Import Torn Widgets Script dynamically if not present
+if (!typeof document !== 'undefined' && document.querySelector && document.querySelector('script[src="torn_widgets.js"]')) {
+  const script = typeof document !== 'undefined' ? document.createElement('script') : {};
+  script.src = 'torn_widgets.js';
+  if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
+}
+
+// Add CSS for Torn Widgets
+const tornStyles = typeof document !== 'undefined' ? document.createElement('style') : {};
+tornStyles.innerHTML = `
+  .torn-widget { border: 1px solid var(--border-color, #ccc); margin-bottom: 10px; padding: 10px; border-radius: 8px; }
+  .torn-widget h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
+  .event-list { list-style-type: none; padding-left: 0; }
+  .event-list li { margin-bottom: 5px; border-bottom: 1px solid var(--border-color, #eee); padding-bottom: 5px; }
+  .event-list li:last-child { border-bottom: none; }
+`;
+if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(tornStyles);
+
+// Import Torn Settings UI Script dynamically if not present
+if (!typeof document !== 'undefined' && document.querySelector && document.querySelector('script[src="torn_settings.js"]')) {
+  const script = typeof document !== 'undefined' ? document.createElement('script') : {};
+  script.src = 'torn_settings.js';
+  if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
+}
+
+// Global hook for the button
+window.openTornSettings = function() {
+    if (typeof TornSettingsUI !== 'undefined') {
+        TornSettingsUI.open();
+    } else {
+        console.error("TornSettingsUI not loaded");
+    }
+};
+
+// CSS for Settings Modal
+const settingsStyles = typeof document !== 'undefined' ? document.createElement('style') : {};
+settingsStyles.innerHTML = `
+  .torn-settings-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+  }
+  .settings-content {
+    background: var(--bg-color, #fff); color: var(--text-color, #000);
+    padding: 20px; border-radius: 8px; width: 80%; max-width: 600px;
+    position: relative;
+  }
+  .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 24px; }
+  .settings-section { margin-bottom: 20px; }
+  .widget-list { list-style: none; padding: 0; }
+  .widget-list li {
+    display: flex; align-items: center; padding: 10px; border: 1px solid #ccc;
+    margin-bottom: 5px; background: rgba(0,0,0,0.05); cursor: grab;
+  }
+  .drag-handle { margin-right: 10px; cursor: grab; }
+  .widget-name { flex-grow: 1; margin-left: 10px; }
+  .poll-override { width: 80px; }
+`;
+if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(settingsStyles);
+
+// Initial Render Hook for Dashboard
+function renderTornDashboard() {
+  const container = document.getElementById("mod-torn-workspace");
+  if (!container) return;
+
+  container.innerHTML = ''; // Clear existing
+  const layout = TornStorage.getLayout();
+
+  layout.order.forEach(widgetId => {
+    if (layout.activeWidgets.includes(widgetId)) {
+      let widget;
+      switch (widgetId) {
+        case 'events': widget = new EventsWidget(); break;
+        case 'travel': widget = new TravelWidget(); break;
+        case 'bars': widget = new BarsWidget(); break;
+        // Mock others for now
+        default:
+           widget = new TornWidget(widgetId, widgetId.toUpperCase(), 60000);
+           break;
+      }
+      container.appendChild(widget.render());
+      widget.start();
+    }
+  });
+}
+
+// Attach a listener to settings modal triggers if any exist in the UI, else the user can call window.openTornSettings()
