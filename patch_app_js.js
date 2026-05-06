@@ -1,18 +1,23 @@
 const fs = require('fs');
-let content = fs.readFileSync('Personal-Dashboard--main/app.js', 'utf8');
 
-content = content.replace(
-  "document.head.appendChild(script);",
-  "if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);"
-).replace(
-  "document.head.appendChild(tornStyles);",
-  "if (typeof document !== 'undefined' && document.head) document.head.appendChild(tornStyles);"
-).replace(
-  "document.head.appendChild(settingsStyles);",
-  "if (typeof document !== 'undefined' && document.head) document.head.appendChild(settingsStyles);"
-).replace(
-  "document.head.appendChild(script);",
-  "if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);"
+let appJs = fs.readFileSync('Personal-Dashboard--main/app.js', 'utf8');
+
+// Replace document.createElement('style') : {} with a safer check
+appJs = appJs.replace(
+  "const tornStyles = typeof document !== 'undefined' ? document.createElement('style') : {};",
+  "const tornStyles = (typeof document !== 'undefined' && document.createElement) ? document.createElement('style') : {};"
 );
 
-fs.writeFileSync('Personal-Dashboard--main/app.js', content);
+appJs = appJs.replace(
+  "const script = typeof document !== 'undefined' ? document.createElement('script') : {};",
+  "const script = (typeof document !== 'undefined' && document.createElement) ? document.createElement('script') : {};"
+);
+
+appJs = appJs.replace(
+  "const settingsStyles = typeof document !== 'undefined' ? document.createElement('style') : {};",
+  "const settingsStyles = (typeof document !== 'undefined' && document.createElement) ? document.createElement('style') : {};"
+);
+
+
+fs.writeFileSync('Personal-Dashboard--main/app.js', appJs);
+console.log('Patched app.js');

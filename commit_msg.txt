@@ -1,3 +1,5 @@
-fix(calculator): allow operator changing without number input
+Fix XSS vulnerability in calculator history rendering
 
-Fixes a logic flaw in the calculator module where changing an operator back-to-back (e.g. typing `5`, `+`, then `-`) would be ignored. The early return was incorrectly triggered on empty current input, effectively ignoring the new operator selection. This commit rectifies the early return control flow in `calcAction`.
+This patch fixes a Cross-Site Scripting (XSS) vulnerability found in the calculator history module where user input expressions and calculation results were rendered directly into the DOM using `innerHTML` without prior sanitization. The data rendered came from the `calcHistory` array which is persisted to LocalStorage, making it a persistent vulnerability vector.
+
+By modifying the map function within `updateCalcDisplay()` in `app.js`, both the equation strings and the numerical calculation results are now properly processed with the application's native `escapeHtml()` utility before being inserted into the DOM. This neutralizes potential payloads embedded in calculator interactions.

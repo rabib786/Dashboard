@@ -2303,10 +2303,10 @@ function updateCalcDisplay() {
     const historyHTML = recentHistory
       .map((item) => {
         if (typeof item === "string")
-          return `<div class="calc-history-item">${item}</div>`;
+          return `<div class="calc-history-item">${escapeHtml(item)}</div>`;
         if (item && typeof item === "object" && item.equation) {
           const hasResult = item.result !== undefined && item.result !== null;
-          return `<div class="calc-history-item">${item.equation}${hasResult ? ` = ${formatCalcValue(item.result)}` : ""}</div>`;
+          return `<div class="calc-history-item">${escapeHtml(item.equation)}${hasResult ? ` = ${escapeHtml(formatCalcValue(item.result))}` : ""}</div>`;
         }
         return "";
       })
@@ -5835,7 +5835,7 @@ if (typeof window !== 'undefined') {
 
 // Import Torn Engine Script dynamically if not present
 if (typeof document !== 'undefined' && document.querySelector && !document.querySelector('script[src="torn_engine.js"]')) {
-  const script = typeof document !== 'undefined' ? document.createElement('script') : {};
+  const script = (typeof document !== 'undefined' && document.createElement) ? document.createElement('script') : {};
   script.src = 'torn_engine.js';
   if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
 }
@@ -5848,7 +5848,7 @@ if (typeof document !== 'undefined' && document.querySelector && !document.query
 }
 
 // Add CSS for Torn Widgets
-const tornStyles = typeof document !== 'undefined' ? document.createElement('style') : {};
+const tornStyles = (typeof document !== 'undefined' && document.createElement) ? document.createElement('style') : {};
 tornStyles.innerHTML = `
   .torn-widget { border: 1px solid var(--border-color, #ccc); margin-bottom: 10px; padding: 10px; border-radius: 8px; }
   .torn-widget h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
@@ -5875,7 +5875,7 @@ window.openTornSettings = function() {
 };
 
 // CSS for Settings Modal
-const settingsStyles = typeof document !== 'undefined' ? document.createElement('style') : {};
+const settingsStyles = (typeof document !== 'undefined' && document.createElement) ? document.createElement('style') : {};
 settingsStyles.innerHTML = `
   .torn-settings-modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
