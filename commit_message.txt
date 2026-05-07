@@ -1,0 +1,6 @@
+fix(torn): resolve memory leaks and storage crashes
+
+- app.js: Store active Torn widgets in \`window.activeTornWidgets\` and cleanly \`stop()\` existing intervals before re-rendering in \`renderTornDashboard()\` to prevent zombie polling leaks.
+- torn_engine.js: Add \`try/catch\` defensive wrappers around all \`JSON.parse(localStorage)\` calls to prevent runtime crashes from poisoned cache states.
+- torn_engine.js: Add a cache eviction loop in \`setCache\` to prune expired entries before storing new data, preventing uncontrolled localStorage bloat.
+- torn_engine.js: Catch \`QuotaExceededError\` when attempting to save the cache, completely wipe the cache except for the newest entry, and retry to handle edge-case hard limits gracefully.

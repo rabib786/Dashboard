@@ -7,45 +7,111 @@ const TORN_CACHE_KEY = "nexus_torn_cache";
 
 class TornStorage {
   static getConfig() {
-    return JSON.parse(localStorage.getItem(TORN_CONFIG_KEY)) || {
-      apiKey: "",
-      syncMode: "standard", // aggressive, standard, eco
-      widgetOverrides: {},
-      thresholdAlerts: [],
-    };
+    try {
+      return JSON.parse(localStorage.getItem(TORN_CONFIG_KEY)) || {
+        apiKey: "",
+        syncMode: "standard", // aggressive, standard, eco
+        widgetOverrides: {},
+        thresholdAlerts: [],
+      };
+    } catch (e) {
+      console.warn("Failed to parse TORN_CONFIG_KEY", e);
+      return {
+        apiKey: "",
+        syncMode: "standard",
+        widgetOverrides: {},
+        thresholdAlerts: [],
+      };
+    }
   }
 
   static saveConfig(config) {
-    localStorage.setItem(TORN_CONFIG_KEY, JSON.stringify(config));
+    try {
+      localStorage.setItem(TORN_CONFIG_KEY, JSON.stringify(config));
+    } catch (e) {
+      console.warn("Failed to save config", e);
+    }
   }
 
   static getLayout() {
-    return JSON.parse(localStorage.getItem(TORN_LAYOUT_KEY)) || {
-      activeWidgets: ["events", "travel", "bars"],
-      order: ["events", "travel", "bars", "chain", "inventory", "stats"],
-    };
+    try {
+      return JSON.parse(localStorage.getItem(TORN_LAYOUT_KEY)) || {
+        activeWidgets: ["events", "travel", "bars"],
+        order: ["events", "travel", "bars", "chain", "inventory", "stats"],
+      };
+    } catch (e) {
+      console.warn("Failed to parse TORN_LAYOUT_KEY", e);
+      return {
+        activeWidgets: ["events", "travel", "bars"],
+        order: ["events", "travel", "bars", "chain", "inventory", "stats"],
+      };
+    }
   }
 
   static saveLayout(layout) {
-    localStorage.setItem(TORN_LAYOUT_KEY, JSON.stringify(layout));
+    try {
+      localStorage.setItem(TORN_LAYOUT_KEY, JSON.stringify(layout));
+    } catch (e) {
+      console.warn("Failed to save layout", e);
+    }
   }
 
   static getCache(key) {
-    const cache = JSON.parse(localStorage.getItem(TORN_CACHE_KEY)) || {};
-    const item = cache[key];
-    if (item && item.expiry > Date.now()) {
-      return item.data;
+    try {
+      const cache = JSON.parse(localStorage.getItem(TORN_CACHE_KEY)) || {};
+      const item = cache[key];
+      if (item && item.expiry > Date.now()) {
+        return item.data;
+      }
+      return null;
+    } catch (e) {
+      console.warn("Failed to parse TORN_CACHE_KEY", e);
+      return null;
     }
-    return null;
   }
 
   static setCache(key, data, ttlMs = 60000) {
-    const cache = JSON.parse(localStorage.getItem(TORN_CACHE_KEY)) || {};
+    let cache = {};
+    try {
+      cache = JSON.parse(localStorage.getItem(TORN_CACHE_KEY)) || {};
+    } catch (e) {
+      console.warn("Failed to parse TORN_CACHE_KEY before setting", e);
+    }
+
+    // Eviction: Prune expired cache entries
+    const now = Date.now();
+    for (const k in cache) {
+      if (cache[k].expiry <= now) {
+        delete cache[k];
+      }
+    }
+
     cache[key] = {
       data,
-      expiry: Date.now() + ttlMs,
+      expiry: now + ttlMs,
     };
-    localStorage.setItem(TORN_CACHE_KEY, JSON.stringify(cache));
+
+    try {
+      localStorage.setItem(TORN_CACHE_KEY, JSON.stringify(cache));
+    } catch (e) {
+      if (e.name === "QuotaExceededError" || e.code === 22) {
+        console.warn("QuotaExceededError: clear torn cache and retry", e);
+        // Fallback: Clear the entire cache and try setting just this one item
+        cache = {
+          [key]: {
+            data,
+            expiry: now + ttlMs
+          }
+        };
+        try {
+          localStorage.setItem(TORN_CACHE_KEY, JSON.stringify(cache));
+        } catch (innerError) {
+          console.error("Failed to set cache even after clearing", innerError);
+        }
+      } else {
+        console.warn("Failed to set cache", e);
+      }
+    }
   }
 }
 
