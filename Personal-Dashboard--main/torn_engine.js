@@ -5,15 +5,29 @@ const TORN_CONFIG_KEY = "nexus_torn_config";
 const TORN_LAYOUT_KEY = "nexus_torn_layout";
 const TORN_CACHE_KEY = "nexus_torn_cache";
 
+// SecureStorage integration for API key protection
+// Note: SecureStorage must be loaded before this file
+const SecureStorageAvailable = typeof SecureStorage !== 'undefined';
+
 class TornStorage {
   static getConfig() {
     try {
-      return JSON.parse(localStorage.getItem(TORN_CONFIG_KEY)) || {
+      const config = JSON.parse(localStorage.getItem(TORN_CONFIG_KEY)) || {
         apiKey: "",
         syncMode: "standard", // aggressive, standard, eco
         widgetOverrides: {},
         thresholdAlerts: [],
       };
+      
+      // If SecureStorage is available, retrieve the API key from secure storage
+      if (SecureStorageAvailable) {
+        const secureApiKey = SecureStorage.getTornApiKey();
+        if (secureApiKey) {
+          config.apiKey = secureApiKey;
+        }
+      }
+      
+      return config;
     } catch (e) {
       console.warn("Failed to parse TORN_CONFIG_KEY", e);
       return {
@@ -27,7 +41,17 @@ class TornStorage {
 
   static saveConfig(config) {
     try {
-      localStorage.setItem(TORN_CONFIG_KEY, JSON.stringify(config));
+      // Extract API key for secure storage
+      const apiKey = config.apiKey || "";
+      
+      // Store API key in secure storage if available
+      if (SecureStorageAvailable && apiKey) {
+        SecureStorage.setTornApiKey(apiKey);
+      }
+      
+      // Store the rest of the config in localStorage (without API key for security)
+      const configWithoutApiKey = { ...config, apiKey: "" };
+      localStorage.setItem(TORN_CONFIG_KEY, JSON.stringify(configWithoutApiKey));
     } catch (e) {
       console.warn("Failed to save config", e);
     }

@@ -2575,11 +2575,39 @@ function editBankApp(i, event) {
 }
 
 // --- 3. TORN CITY TRACKER MODULE ---
-var tornConfig = safeParseJson(
-  localStorage.getItem("dashboardTornTracker"),
-  { key: "" },
-  "dashboardTornTracker",
-);
+// Secure storage integration for Torn API key
+const SecureStorageAvailable = typeof SecureStorage !== 'undefined';
+
+// Initialize tornConfig with empty key, will be populated from secure storage
+var tornConfig = { key: "" };
+
+// Load Torn configuration with secure API key
+function loadTornConfig() {
+  try {
+    // Load base config from localStorage
+    const baseConfig = safeParseJson(
+      localStorage.getItem("dashboardTornTracker"),
+      { key: "" },
+      "dashboardTornTracker",
+    );
+    
+    // Override API key from secure storage if available
+    if (SecureStorageAvailable) {
+      const secureApiKey = SecureStorage.getTornApiKey();
+      if (secureApiKey) {
+        baseConfig.key = secureApiKey;
+      }
+    }
+    
+    return baseConfig;
+  } catch (e) {
+    console.warn("Failed to load Torn config:", e);
+    return { key: "" };
+  }
+}
+
+// Initialize tornConfig
+tornConfig = loadTornConfig();
 if (!tornConfig || typeof tornConfig !== 'object') tornConfig = { key: '' };
 let tornInterval;
 let tornTimers = {};
@@ -2673,15 +2701,26 @@ function toggleTornConfig() {
 
 function saveTornConfig() {
   if (!tornConfig || typeof tornConfig !== 'object') tornConfig = { key: '' };
-  tornConfig.key = document.getElementById("torn-cfg-key").value.trim();
+  const apiKey = document.getElementById("torn-cfg-key").value.trim();
+  tornConfig.key = apiKey;
+  
   const fb = document.getElementById("torn-key-feedback");
   if (fb) {
     fb.innerText =
-      tornConfig.key.length < 8
+      apiKey.length < 8
         ? "API key looks too short. Please verify before saving."
-        : "API key saved locally on this browser.";
+        : "API key saved securely on this browser.";
   }
-  localStorage.setItem("dashboardTornTracker", JSON.stringify(tornConfig));
+  
+  // Save API key to secure storage if available
+  if (SecureStorageAvailable && apiKey) {
+    SecureStorage.setTornApiKey(apiKey);
+  }
+  
+  // Save the rest of the config to localStorage (without API key for security)
+  const configWithoutApiKey = { ...tornConfig, key: "" };
+  localStorage.setItem("dashboardTornTracker", JSON.stringify(configWithoutApiKey));
+  
   toggleTornConfig();
   initTornTracker();
   renderTornDashboard();
