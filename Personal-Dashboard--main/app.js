@@ -5901,9 +5901,17 @@ settingsStyles.innerHTML = `
 if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(settingsStyles);
 
 // Initial Render Hook for Dashboard
+window.activeTornWidgets = window.activeTornWidgets || [];
+
 function renderTornDashboard() {
   const container = document.getElementById("mod-torn-workspace");
   if (!container) return;
+
+  // Clear existing active widgets to prevent zombie polling
+  if (window.activeTornWidgets && window.activeTornWidgets.length > 0) {
+    window.activeTornWidgets.forEach(w => w.stop && w.stop());
+  }
+  window.activeTornWidgets = [];
 
   container.innerHTML = ''; // Clear existing
   const layout = TornStorage.getLayout();
@@ -5922,6 +5930,7 @@ function renderTornDashboard() {
       }
       container.appendChild(widget.render());
       widget.start();
+      window.activeTornWidgets.push(widget);
     }
   });
 }
