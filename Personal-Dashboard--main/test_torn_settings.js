@@ -1,5 +1,17 @@
-const { TornStorage } = require('./torn_engine');
-const { TornSettingsUI } = require('./torn_settings');
+// Set globals BEFORE requiring modules
+global.SecureStorageAvailable = true;
+let mockSecureApiKey = null;
+global.SecureStorage = {
+  getTornApiKey: function() { return mockSecureApiKey; },
+  setTornApiKey: function(key) { mockSecureApiKey = key; }
+};
+
+global.localStorage = {
+  store: {},
+  getItem: function(key) { return this.store[key] || null; },
+  setItem: function(key, value) { this.store[key] = value.toString(); },
+  removeItem: function(key) { delete this.store[key]; }
+};
 
 // Mock DOM
 const jsdomMock = `
@@ -52,13 +64,8 @@ global.TORN_CACHE_KEY = "nexus_torn_cache";
 
 eval(jsdomMock);
 
-
-global.localStorage = {
-  store: {},
-  getItem: function(key) { return this.store[key] || null; },
-  setItem: function(key, value) { this.store[key] = value.toString(); },
-  removeItem: function(key) { delete this.store[key]; }
-};
+const { TornStorage } = require('./torn_engine');
+const { TornSettingsUI } = require('./torn_settings');
 
 global.TornStorage = TornStorage;
 

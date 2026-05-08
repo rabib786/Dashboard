@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.torn.com https://api.openweathermap.org https://fonts.googleapis.com; frame-src 'none'; object-src 'none';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' data:; connect-src 'self' https://api.torn.com https://api.openweathermap.org https://fonts.googleapis.com https://geocoding-api.open-meteo.com https://ipapi.co https://ipinfo.io https://ipwho.is https://api.open-meteo.com https://air-quality-api.open-meteo.com https://api.github.com https://feeds.washingtonpost.com https://api.axios.com https://techcrunch.com https://rss.nytimes.com https://feeds.bbci.co.uk https://feeds.npr.org https://feeds.reuters.com; frame-src 'self' https://fictionlab.ai; object-src 'none';" />
     <title>My Daily Dashboard</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <link rel="manifest" href="manifest.json" />
 
@@ -26,87 +27,11 @@
     </script>
 
     <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="tailwind-generated.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
       rel="stylesheet"
     />
-    <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        corePlugins: {
-          preflight: false,
-        },
-        theme: {
-          extend: {
-            colors: {
-              "primary-fixed": "#c284ff",
-              "inverse-on-surface": "#53555a",
-              "surface-tint": "#cc97ff",
-              "surface-container-lowest": "#000000",
-              "primary-dim": "#9c48ea",
-              "secondary-fixed-dim": "#58e7ab",
-              "on-surface-variant": "#aaabb0",
-              "surface-bright": "#292c33",
-              "on-primary-container": "#360061",
-              "on-error": "#490013",
-              "outline-variant": "#46484d",
-              "secondary-container": "#006c49",
-              "on-secondary-container": "#e1ffec",
-              "on-primary": "#47007c",
-              "on-tertiary": "#680921",
-              "surface-container-high": "#1d2025",
-              "surface-container-highest": "#23262c",
-              "on-tertiary-fixed": "#39000d",
-              "surface-container": "#171a1f",
-              "inverse-surface": "#f9f9ff",
-              "secondary-dim": "#58e7ab",
-              "surface-container-low": "#111318",
-              "tertiary-container": "#fe7e8e",
-              "on-background": "#f6f6fc",
-              "on-error-container": "#ffb2b9",
-              "secondary-fixed": "#69f6b8",
-              "surface-variant": "#23262c",
-              "surface-dim": "#0c0e12",
-              "on-surface": "#f6f6fc",
-              outline: "#74757a",
-              "tertiary-fixed-dim": "#fa7c8b",
-              "on-tertiary-container": "#570018",
-              secondary: "#69f6b8",
-              "on-secondary-fixed": "#00452d",
-              "on-tertiary-fixed-variant": "#711227",
-              surface: "#0c0e12",
-              "error-dim": "#d73357",
-              error: "#ff6e84",
-              "on-secondary": "#005a3c",
-              "error-container": "#a70138",
-              "tertiary-fixed": "#ff909c",
-              "tertiary-dim": "#f47786",
-              "on-primary-fixed-variant": "#430076",
-              "primary-container": "#c284ff",
-              "on-secondary-fixed-variant": "#006544",
-              tertiary: "#ff95a0",
-              "on-primary-fixed": "#000000",
-              "inverse-primary": "#842cd3",
-              background: "#0c0e12",
-              "primary-fixed-dim": "#b971ff",
-              primary: "#cc97ff",
-            },
-            fontFamily: {
-              headline: ["Inter"],
-              body: ["Inter"],
-              label: ["Inter"],
-            },
-            borderRadius: {
-              DEFAULT: "0.25rem",
-              lg: "0.5rem",
-              xl: "0.75rem",
-              full: "9999px",
-            },
-          },
-        },
-      };
-    </script>
   </head>
   <body>
     <div id="classic-dashboard-wrapper">
@@ -387,6 +312,10 @@
               <label for="vis-torn"
                 ><input type="checkbox" id="vis-torn" class="vis-check" /> Torn
                 Tracker</label
+              >
+              <label for="vis-torn-workspace"
+                ><input type="checkbox" id="vis-torn-workspace" class="vis-check" /> Torn
+                Workspace</label
               >
               <label for="vis-bank"
                 ><input type="checkbox" id="vis-bank" class="vis-check" /> Bank
@@ -1798,43 +1727,6 @@
           </div>
         </div>
 
-        <div class="card span-3" id="mod-story" tabindex="-1">
-          <div class="card-header" style="margin-bottom: 10px">
-            <div class="drag-header-group">
-              <div class="drag-handle" title="Hover to drag">
-                <i class="ph ph-dots-six-vertical" aria-hidden="true"></i>
-              </div>
-              <h2>
-                <i
-                  class="ph ph-book-open"
-                  style="margin-right: 8px"
-                  aria-hidden="true"
-                ></i
-                >Story
-              </h2>
-            </div>
-          </div>
-          <div
-            id="story-container"
-            style="
-              flex-grow: 1;
-              display: flex;
-              flex-direction: column;
-              min-height: 400px;
-              padding: 0;
-              margin: 0 -15px -15px -15px;
-              border-radius: 0 0 var(--border-radius) var(--border-radius);
-              overflow: hidden;
-            "
-          >
-            <iframe
-              src="https://fictionlab.ai"
-              style="border: none; width: 100%; height: 100%; flex-grow: 1"
-              title="FictionLab.ai"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            ></iframe>
-          </div>
-        </div>
 
         <div class="card span-3" id="mod-news" tabindex="-1">
           <div class="card-header" style="margin-bottom: 10px">
@@ -2114,6 +2006,10 @@
       />
     </div>
 
+    <script src="secure_storage.js"></script>
+    <script src="torn_engine.js"></script>
+    <script src="torn_widgets.js"></script>
+    <script src="torn_settings.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

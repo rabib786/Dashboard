@@ -1,5 +1,10 @@
-const { TornStorage } = require('./torn_engine');
-const { TornEngine } = require('./torn_engine');
+// Set globals BEFORE requiring the module
+global.SecureStorageAvailable = true;
+let mockSecureApiKey = null;
+global.SecureStorage = {
+  getTornApiKey: function() { return mockSecureApiKey; },
+  setTornApiKey: function(key) { mockSecureApiKey = key; }
+};
 
 global.localStorage = {
   store: {},
@@ -13,6 +18,9 @@ global.localStorage = {
     delete this.store[key];
   }
 };
+
+const { TornStorage } = require('./torn_engine');
+const { TornEngine } = require('./torn_engine');
 
 async function testEngine() {
   console.log("Testing TornEngine...");

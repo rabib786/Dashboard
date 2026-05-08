@@ -1,9 +1,25 @@
-const { TornStorage } = require('./torn_engine');
-const { TornEngine } = require('./torn_engine');
-const { EventsWidget, TravelWidget, BarsWidget } = require('./torn_widgets');
+// Set globals BEFORE requiring modules
+global.SecureStorageAvailable = true;
+let mockSecureApiKey = null;
+global.SecureStorage = {
+  getTornApiKey: function() { return mockSecureApiKey; },
+  setTornApiKey: function(key) { mockSecureApiKey = key; }
+};
+
+global.localStorage = {
+  store: {},
+  getItem: function(key) {
+    return this.store[key] || null;
+  },
+  setItem: function(key, value) {
+    this.store[key] = value.toString();
+  },
+  removeItem: function(key) {
+    delete this.store[key];
+  }
+};
 
 // Mock DOM
-
 global.document = {
   createElement: function(tag) {
     return {
@@ -26,25 +42,15 @@ global.document = {
 };
 global.window = {};
 
-
 // Mock globals needed by widgets
 global.triggerMasonryUpdate = function() {};
+
+const { TornStorage } = require('./torn_engine');
+const { TornEngine } = require('./torn_engine');
+const { EventsWidget, TravelWidget, BarsWidget } = require('./torn_widgets');
+
 global.TornStorage = TornStorage;
 global.TornEngine = TornEngine;
-
-// Mock localStorage
-global.localStorage = {
-  store: {},
-  getItem: function(key) {
-    return this.store[key] || null;
-  },
-  setItem: function(key, value) {
-    this.store[key] = value.toString();
-  },
-  removeItem: function(key) {
-    delete this.store[key];
-  }
-};
 
 async function testWidgets() {
   console.log("Testing Torn Widgets...");

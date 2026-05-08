@@ -7,7 +7,9 @@ const TORN_CACHE_KEY = "nexus_torn_cache";
 
 // SecureStorage integration for API key protection
 // Note: SecureStorage must be loaded before this file
-const SecureStorageAvailable = typeof SecureStorage !== 'undefined';
+if (typeof SecureStorageAvailable === 'undefined') {
+  var SecureStorageAvailable = typeof SecureStorage !== 'undefined';
+}
 
 class TornStorage {
   static getConfig() {

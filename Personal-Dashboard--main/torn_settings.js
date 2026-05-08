@@ -17,8 +17,12 @@ class TornSettingsUI {
 
     el.innerHTML = `
       <div class="settings-content">
-        <span class="close-btn" onclick="TornSettingsUI.close()">&times;</span>
-        <h2>Torn Workspace Settings</h2>
+        <div class="modal-header">
+          <h2><i class="ph ph-sliders" aria-hidden="true"></i> Torn Workspace Settings</h2>
+          <button type="button" class="modal-close" onclick="TornSettingsUI.close()" aria-label="Close Settings">
+            <i class="ph ph-x" aria-hidden="true"></i>
+          </button>
+        </div>
 
         <div class="settings-section">
           <h3>API Configuration</h3>
@@ -43,10 +47,10 @@ class TornSettingsUI {
 
         <div class="settings-section">
           <h3>Data Export</h3>
-          <button onclick="TornSettingsUI.exportData()">Export Local Cache (JSON)</button>
+          <button class="backup-btn" onclick="TornSettingsUI.exportData()">Export Local Cache (JSON)</button>
         </div>
 
-        <button class="save-btn" onclick="TornSettingsUI.save()">Save Configuration</button>
+        <button class="btn-primary" onclick="TornSettingsUI.save()">Save Configuration</button>
       </div>
     `;
 
@@ -197,13 +201,23 @@ class TornSettingsUI {
 
     layout.activeWidgets = activeWidgets;
     layout.order = order;
+    console.log('TornSettings: saving layout', { activeWidgets, order });
     TornStorage.saveLayout(layout);
 
     TornSettingsUI.close();
 
     // In real app, trigger dashboard re-render
+    let renderFn = null;
     if (typeof renderTornDashboard === 'function') {
-        renderTornDashboard();
+        renderFn = renderTornDashboard;
+    } else if (window.renderTornDashboard && typeof window.renderTornDashboard === 'function') {
+        renderFn = window.renderTornDashboard;
+    }
+    if (renderFn) {
+        console.log('TornSettings: triggering dashboard re-render');
+        renderFn();
+    } else {
+        console.warn('TornSettings: renderTornDashboard function not found');
     }
   }
 

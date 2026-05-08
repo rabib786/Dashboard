@@ -123,6 +123,7 @@ const defaultVis = {
   time: true,
   tasks: true,
   torn: true,
+  "torn-workspace": true,
   bank: true,
   weather: true,
   calendar: true,
@@ -147,6 +148,7 @@ const PROFILE_PRESETS = {
       time: true,
       tasks: true,
       torn: false,
+      "torn-workspace": false,
       bank: true,
       weather: true,
       calendar: true,
@@ -167,6 +169,7 @@ const PROFILE_PRESETS = {
       time: true,
       tasks: true,
       torn: false,
+      "torn-workspace": false,
       bank: false,
       weather: true,
       calendar: true,
@@ -187,6 +190,7 @@ const PROFILE_PRESETS = {
       time: true,
       tasks: true,
       torn: true,
+      "torn-workspace": true,
       bank: false,
       weather: false,
       calendar: false,
@@ -253,6 +257,7 @@ const layoutModules = [
   ["time", "mod-time"],
   ["tasks", "mod-tasks"],
   ["torn", "mod-torn"],
+  ["torn-workspace", "mod-torn-workspace-card"],
   ["bank", "mod-bank-apps"],
   ["weather", "mod-weather"],
   ["calendar", "mod-calendar"],
@@ -280,6 +285,7 @@ const MODULE_TYPE_ICONS = {
   time: "ph-clock",
   tasks: "ph-check-square-offset",
   torn: "ph-crosshair",
+  "torn-workspace": "ph-squares-four",
   bank: "ph-briefcase",
   weather: "ph-cloud-sun",
   calendar: "ph-calendar-blank",
@@ -2575,8 +2581,7 @@ function editBankApp(i, event) {
 }
 
 // --- 3. TORN CITY TRACKER MODULE ---
-// Secure storage integration for Torn API key
-const SecureStorageAvailable = typeof SecureStorage !== 'undefined';
+// Secure storage integration for Torn API key (global SecureStorageAvailable defined in torn_engine.js)
 
 // Initialize tornConfig with empty key, will be populated from secure storage
 var tornConfig = { key: "" };
@@ -5918,24 +5923,27 @@ const settingsStyles = (typeof document !== 'undefined' && document.createElemen
 settingsStyles.innerHTML = `
   .torn-settings-modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center;
     z-index: 1000;
   }
   .settings-content {
-    background: var(--bg-color, #fff); color: var(--text-color, #000);
-    padding: 20px; border-radius: 8px; width: 80%; max-width: 600px;
-    position: relative;
+    background: var(--modal-bg); color: var(--text-main);
+    border: 1px solid var(--glass-border); border-radius: var(--border-radius);
+    padding: 30px; width: 90%; max-width: 600px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    max-height: 90vh; overflow-y: auto;
   }
-  .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 24px; }
   .settings-section { margin-bottom: 20px; }
   .widget-list { list-style: none; padding: 0; }
   .widget-list li {
-    display: flex; align-items: center; padding: 10px; border: 1px solid #ccc;
-    margin-bottom: 5px; background: rgba(0,0,0,0.05); cursor: grab;
+    display: flex; align-items: center; padding: 10px;
+    border: 1px solid var(--glass-border); border-radius: 8px;
+    margin-bottom: 8px; background: var(--inner-bg); cursor: grab;
   }
-  .drag-handle { margin-right: 10px; cursor: grab; }
+  .drag-handle { margin-right: 10px; cursor: grab; color: var(--text-muted); }
   .widget-name { flex-grow: 1; margin-left: 10px; }
-  .poll-override { width: 80px; }
+  .poll-override { width: 80px; background: var(--inner-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 4px 8px; border-radius: 4px; }
 `;
 if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(settingsStyles);
 
@@ -5943,8 +5951,12 @@ if (typeof document !== 'undefined' && document.head) if (typeof document !== 'u
 window.activeTornWidgets = window.activeTornWidgets || [];
 
 function renderTornDashboard() {
+  console.log('renderTornDashboard called');
   const container = document.getElementById("mod-torn-workspace");
-  if (!container) return;
+  if (!container) {
+    console.warn('renderTornDashboard: container not found');
+    return;
+  }
 
   // Clear existing active widgets to prevent zombie polling
   if (window.activeTornWidgets && window.activeTornWidgets.length > 0) {
@@ -5954,6 +5966,7 @@ function renderTornDashboard() {
 
   container.innerHTML = ''; // Clear existing
   const layout = TornStorage.getLayout();
+  console.log('renderTornDashboard layout:', { activeWidgets: layout.activeWidgets, order: layout.order });
 
   layout.order.forEach(widgetId => {
     if (layout.activeWidgets.includes(widgetId)) {
