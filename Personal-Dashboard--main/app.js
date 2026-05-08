@@ -4648,13 +4648,19 @@ window.toggleNewsDensity = function toggleNewsDensity() {
   triggerMasonryUpdate();
 };
 
-const fetchWithTimeout = (url, ms, options = {}) =>
-  Promise.race([
-    fetch(url, options),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout")), ms),
-    ),
-  ]);
+const fetchWithTimeout = (url, ms, options = {}) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ms);
+
+  // If an external signal is provided, combine with timeout signal
+  const externalSignal = options.signal;
+  if (externalSignal) {
+    externalSignal.addEventListener('abort', () => controller.abort());
+  }
+
+  return fetch(url, { ...options, signal: controller.signal })
+    .finally(() => clearTimeout(timeoutId));
+};
 
 const DEFAULT_NEWS_TOPICS = {
   top: {
@@ -5262,11 +5268,12 @@ async function fetchSingleFeed(feedUrl, forceRefresh, signal) {
     );
   };
 
+  const doubleEncodedUrl = encodeURIComponent(encodeURIComponent(normalizedFeedUrl));
   const attempts = [
     async () => {
       const cacheBuster = forceRefresh ? `&_t=${Date.now()}` : "";
-      const fetchUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(normalizedFeedUrl)}${cacheBuster}`;
-      const res = await fetchWithTimeout(fetchUrl, 10000, { signal });
+      const fetchUrl = `https://api.rss2json.com/v1/api.json?rss_url=${doubleEncodedUrl}${cacheBuster}`;
+      const res = await fetchWithTimeout(fetchUrl, 5000, { signal });
       if (!res.ok) throw new Error("rss2json unavailable");
       const data = await res.json();
       if (data.status !== "ok" || !Array.isArray(data.items))
@@ -5275,17 +5282,23 @@ async function fetchSingleFeed(feedUrl, forceRefresh, signal) {
       return data.items.slice(0, 15).map((item) => shapeItem(item, sourceName));
     },
     async () => {
-      const fetchUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(normalizedFeedUrl)}`;
-      const res = await fetchWithTimeout(fetchUrl, 10000, { signal });
+      const fetchUrl = `https://api.allorigins.win/raw?url=${doubleEncodedUrl}`;
+      const res = await fetchWithTimeout(fetchUrl, 5000, { signal });
+      if (!res.ok) throw new Error("allorigins raw unavailable");
+      return parseXmlFeed(await res.text());
+    },
+    async () => {
+      const fetchUrl = `https://corsproxy.io/?${doubleEncodedUrl}`;
+      const res = await fetchWithTimeout(fetchUrl, 5000, { signal });
+      if (!res.ok) throw new Error("corsproxy unavailable");
+      return parseXmlFeed(await res.text());
+    },
+    async () => {
+      const fetchUrl = `https://api.allorigins.win/get?url=${doubleEncodedUrl}`;
+      const res = await fetchWithTimeout(fetchUrl, 5000, { signal });
       if (!res.ok) throw new Error("allorigins get unavailable");
       const data = await res.json();
       return parseXmlFeed(data.contents || "");
-    },
-    async () => {
-      const fetchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(normalizedFeedUrl)}`;
-      const res = await fetchWithTimeout(fetchUrl, 10000, { signal });
-      if (!res.ok) throw new Error("allorigins raw unavailable");
-      return parseXmlFeed(await res.text());
     },
   ];
 
@@ -5617,7 +5630,7 @@ async function fetchNews(category, forceRefresh = false) {
       c.style.minHeight = "";
       c.removeAttribute("aria-busy");
       c.innerHTML =
-        "<div class='loading' style='color:var(--danger);'><i class='ph ph-warning-circle' aria-hidden='true'></i>Could not load this topic. Check feed URLs or try refresh.</div>";
+        "<div class='loading' style='color:var(--danger);'><i class='ph ph-warning-circle' aria-hidden='true'></i>Feed temporarily unavailable. Please try again later.</div>";
       updateNewsLastUpdated(null);
       triggerMasonryUpdate();
     }
