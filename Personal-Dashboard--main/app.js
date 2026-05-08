@@ -5268,7 +5268,18 @@ async function fetchSingleFeed(feedUrl, forceRefresh, signal) {
     );
   };
 
-  const doubleEncodedUrl = encodeURIComponent(normalizedFeedUrl);
+  // Ensure the RSS URL is encoded exactly once (no double encoding)
+  const doubleEncodedUrl = (() => {
+    try {
+      // Decode any percent-encoded sequences to avoid double encoding
+      const decoded = decodeURIComponent(normalizedFeedUrl);
+      // Re-encode the decoded URL
+      return encodeURIComponent(decoded);
+    } catch {
+      // If decoding fails (invalid percent encoding), fallback to single encode
+      return encodeURIComponent(normalizedFeedUrl);
+    }
+  })();
   const attempts = [
     async () => {
       const cacheBuster = forceRefresh ? `&_t=${Date.now()}` : "";
