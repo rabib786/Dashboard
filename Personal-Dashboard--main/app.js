@@ -894,6 +894,26 @@ function applyLayoutVisibility() {
 
   updateModuleWindowControlsVisibility();
   renderMinimizedModuleIcons();
+
+  // Handle Torn Workspace visibility
+  const tornWorkspaceHidden = dashSettings.visibility["torn-workspace"] === false;
+  const tornWorkspaceMinimized = isWidgetLayoutEnabled() && dashSettings.minimizedModules.includes("torn-workspace");
+  const tornWorkspaceContainer = document.getElementById("mod-torn-workspace");
+  if (tornWorkspaceContainer) {
+    if (!tornWorkspaceHidden && !tornWorkspaceMinimized) {
+      // Ensure widgets are rendered
+      if (typeof renderTornDashboard === 'function') {
+        renderTornDashboard();
+      }
+    } else {
+      // Stop widgets and clear container
+      if (window.activeTornWidgets && window.activeTornWidgets.length > 0) {
+        window.activeTornWidgets.forEach(w => w.stop && w.stop());
+        window.activeTornWidgets = [];
+      }
+      tornWorkspaceContainer.innerHTML = '';
+    }
+  }
 }
 
 function getMinimizedIconsContainer() {
@@ -5952,6 +5972,19 @@ window.activeTornWidgets = window.activeTornWidgets || [];
 
 function renderTornDashboard() {
   console.log('renderTornDashboard called');
+  // Skip rendering if torn-workspace is hidden or minimized
+  const isHidden = dashSettings.visibility["torn-workspace"] === false;
+  const isMinimized = isWidgetLayoutEnabled() && dashSettings.minimizedModules.includes("torn-workspace");
+  if (isHidden || isMinimized) {
+    // Stop any existing widgets and clear container
+    if (window.activeTornWidgets && window.activeTornWidgets.length > 0) {
+      window.activeTornWidgets.forEach(w => w.stop && w.stop());
+      window.activeTornWidgets = [];
+    }
+    const container = document.getElementById("mod-torn-workspace");
+    if (container) container.innerHTML = '';
+    return;
+  }
   const container = document.getElementById("mod-torn-workspace");
   if (!container) {
     console.warn('renderTornDashboard: container not found');
