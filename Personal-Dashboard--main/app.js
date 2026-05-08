@@ -5293,7 +5293,7 @@ async function fetchSingleFeed(feedUrl, forceRefresh, signal) {
       return data.items.slice(0, 15).map((item) => shapeItem(item, sourceName));
     },
     async () => {
-      const fetchUrl = `https://corsproxy.io/?${doubleEncodedUrl}`;
+      const fetchUrl = `https://corsproxy.io/?url=${doubleEncodedUrl}`;
       const res = await fetchWithTimeout(fetchUrl, 5000, { signal });
       if (!res.ok) throw new Error("corsproxy unavailable");
       return parseXmlFeed(await res.text());
