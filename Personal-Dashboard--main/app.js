@@ -5268,7 +5268,7 @@ async function fetchSingleFeed(feedUrl, forceRefresh, signal) {
     );
   };
 
-  const doubleEncodedUrl = encodeURIComponent(encodeURIComponent(normalizedFeedUrl));
+  const doubleEncodedUrl = encodeURIComponent(normalizedFeedUrl);
   const attempts = [
     async () => {
       const cacheBuster = forceRefresh ? `&_t=${Date.now()}` : "";
@@ -5282,15 +5282,15 @@ async function fetchSingleFeed(feedUrl, forceRefresh, signal) {
       return data.items.slice(0, 15).map((item) => shapeItem(item, sourceName));
     },
     async () => {
-      const fetchUrl = `https://api.allorigins.win/raw?url=${doubleEncodedUrl}`;
-      const res = await fetchWithTimeout(fetchUrl, 5000, { signal });
-      if (!res.ok) throw new Error("allorigins raw unavailable");
-      return parseXmlFeed(await res.text());
-    },
-    async () => {
       const fetchUrl = `https://corsproxy.io/?${doubleEncodedUrl}`;
       const res = await fetchWithTimeout(fetchUrl, 5000, { signal });
       if (!res.ok) throw new Error("corsproxy unavailable");
+      return parseXmlFeed(await res.text());
+    },
+    async () => {
+      const fetchUrl = `https://api.allorigins.win/raw?url=${doubleEncodedUrl}`;
+      const res = await fetchWithTimeout(fetchUrl, 5000, { signal });
+      if (!res.ok) throw new Error("allorigins raw unavailable");
       return parseXmlFeed(await res.text());
     },
     async () => {
@@ -5327,14 +5327,16 @@ async function fetchNewsData(topicId, forceRefresh, signal) {
   ];
   if (feedUrls.length === 0) return [];
 
-  // Fetch feeds in bounded parallel batches for better responsiveness and lower burst load
+  // Fetch feeds sequentially with a delay to avoid rate limiting (429 errors)
   const results = [];
-  for (let i = 0; i < feedUrls.length; i += NEWS_FETCH_CONCURRENCY) {
-    const chunk = feedUrls.slice(i, i + NEWS_FETCH_CONCURRENCY);
-    const chunkResults = await Promise.allSettled(
-      chunk.map((url) => fetchSingleFeed(url, forceRefresh, signal)),
-    );
-    results.push(...chunkResults);
+  for (const url of feedUrls) {
+    try {
+      const items = await fetchSingleFeed(url, forceRefresh, signal);
+      results.push({ status: 'fulfilled', value: items });
+    } catch (error) {
+      results.push({ status: 'rejected', reason: error });
+    }
+    await new Promise(resolve => setTimeout(resolve, 300)); // 300ms pause between feeds
   }
 
   // ⚡ Bolt Performance: Eliminate O(N^2) array concat allocations and combine deduplication into a single O(N) pass using a Map
