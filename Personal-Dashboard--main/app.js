@@ -66,6 +66,27 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// --- MANAGED INTERVAL SYSTEM (Memory Leak Prevention) ---
+const activeIntervals = new Set();
+
+function createManagedInterval(callback, delay) {
+  const id = setInterval(callback, delay);
+  activeIntervals.add(id);
+  return id;
+}
+
+function clearManagedInterval(id) {
+  if (id) {
+    clearInterval(id);
+    activeIntervals.delete(id);
+  }
+}
+
+function clearAllIntervals() {
+  activeIntervals.forEach(id => clearInterval(id));
+  activeIntervals.clear();
+}
+
 // --- UNIVERSAL SEARCH ---
 function executeSearch(e) {
   if (e.key === "Enter") {
@@ -2213,8 +2234,8 @@ function startClock() {
     }
   }
   updateTime();
-  if (clockIntervalId) clearInterval(clockIntervalId);
-  clockIntervalId = setInterval(updateTime, 1000);
+  if (clockIntervalId) clearManagedInterval(clockIntervalId);
+  clockIntervalId = createManagedInterval(updateTime, 1000);
 }
 
 // --- INIT APP ---
@@ -2658,11 +2679,11 @@ function initTornTracker() {
   setTornStatsTab(tornStatsTab, true);
   if (tornConfig.key) {
     fetchTornData();
-    if (tornInterval) clearInterval(tornInterval);
-    tornInterval = setInterval(fetchTornData, 300000);
+    if (tornInterval) clearManagedInterval(tornInterval);
+    tornInterval = createManagedInterval(fetchTornData, 300000);
 
-    if (tornTickInterval) clearInterval(tornTickInterval);
-    tornTickInterval = setInterval(updateTornTimersUI, 1000);
+    if (tornTickInterval) clearManagedInterval(tornTickInterval);
+    tornTickInterval = createManagedInterval(updateTornTimersUI, 1000);
     setTornSyncState("loading", "Syncing...");
   } else {
     resetTornUI();
@@ -4847,11 +4868,11 @@ function updateNewsFilterToggleUi() {
 
 function applyNewsAutoRefresh() {
   if (newsAutoRefreshTimer) {
-    clearInterval(newsAutoRefreshTimer);
+    clearManagedInterval(newsAutoRefreshTimer);
     newsAutoRefreshTimer = null;
   }
   if (!newsAutoRefreshMinutes) return;
-  newsAutoRefreshTimer = setInterval(
+  newsAutoRefreshTimer = createManagedInterval(
     () => {
       if (document.hidden) return;
       const settingsView = document.getElementById("news-settings-view");

@@ -1,5 +1,26 @@
 // --- MODULAR UI WIDGETS FOR TORN ---
 
+// Managed interval system for memory leak prevention
+const tornWidgetActiveIntervals = new Set();
+
+function createTornWidgetManagedInterval(callback, delay) {
+  const id = setInterval(callback, delay);
+  tornWidgetActiveIntervals.add(id);
+  return id;
+}
+
+function clearTornWidgetManagedInterval(id) {
+  if (id) {
+    clearInterval(id);
+    tornWidgetActiveIntervals.delete(id);
+  }
+}
+
+function clearAllTornWidgetIntervals() {
+  tornWidgetActiveIntervals.forEach(id => clearInterval(id));
+  tornWidgetActiveIntervals.clear();
+}
+
 class TornWidget {
   constructor(id, title, updateIntervalMs) {
     this.id = id;
@@ -30,12 +51,12 @@ class TornWidget {
     const config = TornStorage.getConfig();
     const interval = config.widgetOverrides[this.id] || this.updateIntervalMs;
 
-    this.intervalId = setInterval(() => this.update(), interval);
+    this.intervalId = createTornWidgetManagedInterval(() => this.update(), interval);
   }
 
   stop() {
     if (this.intervalId) {
-      clearInterval(this.intervalId);
+      clearTornWidgetManagedInterval(this.intervalId);
       this.intervalId = null;
     }
   }
