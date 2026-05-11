@@ -201,7 +201,7 @@ class TornSettingsUI {
 
     layout.activeWidgets = activeWidgets;
     layout.order = order;
-    console.log('TornSettings: saving layout', { activeWidgets, order });
+    console.debug('TornSettings: saving layout', { activeWidgets, order });
     TornStorage.saveLayout(layout);
 
     TornSettingsUI.close();
@@ -214,7 +214,7 @@ class TornSettingsUI {
         renderFn = window.renderTornDashboard;
     }
     if (renderFn) {
-        console.log('TornSettings: triggering dashboard re-render');
+        console.debug('TornSettings: triggering dashboard re-render');
         renderFn();
     } else {
         console.warn('TornSettings: renderTornDashboard function not found');
