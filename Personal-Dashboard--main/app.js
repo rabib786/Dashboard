@@ -4908,21 +4908,23 @@ function applyNewsFiltersAndSorting(items) {
   const query = newsFilterQuery.trim().toLowerCase();
   let processed = Array.isArray(items) ? [...items] : [];
 
-  if (query) {
+  if (query || newsUnreadOnlyFilter || newsWithImageOnlyFilter) {
     processed = processed.filter((item) => {
-      const haystack = `${item.title || ""} ${item.source || ""}`.toLowerCase();
-      return haystack.includes(query);
+      if (newsUnreadOnlyFilter && readNewsArticleSet.has(item.link)) {
+        return false;
+      }
+      if (
+        newsWithImageOnlyFilter &&
+        (!item.imgUrl || String(item.imgUrl).trim() === "")
+      ) {
+        return false;
+      }
+      if (query) {
+        const haystack = `${item.title || ""} ${item.source || ""}`.toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
+      return true;
     });
-  }
-
-  if (newsUnreadOnlyFilter) {
-    processed = processed.filter((item) => !readNewsArticleSet.has(item.link));
-  }
-
-  if (newsWithImageOnlyFilter) {
-    processed = processed.filter(
-      (item) => item.imgUrl && String(item.imgUrl).trim() !== "",
-    );
   }
 
   const activeSortMode = getSortModeForCategory();
