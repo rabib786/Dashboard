@@ -5723,6 +5723,7 @@ if (typeof module !== "undefined" && module.exports) {
     safeParseJson,
     getModuleKeyByCardId,
 
+    isValidHexColor,
     getCardIdByModuleKey,
     isWidgetLayoutEnabled,
     dashSettings,
