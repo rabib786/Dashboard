@@ -456,7 +456,6 @@
                     <td class="light-gray" style="height: 22px; font-weight: bold;">Account Number</td>
                     <td style="padding: 0;">
                         <div class="box-container" id="out-debit-acc">
-                            <script>for(let i=0; i<13; i++) document.write('<input type="text" maxlength="1">');</script>
                         </div>
                     </td>
                     <td class="light-gray" style="height: 22px; text-align: center; font-weight: bold;">A/C Type</td>
@@ -492,7 +491,6 @@
                                 <td class="light-gray" style="font-weight: bold; text-align: center;">Mobile No.</td>
                                 <td style="padding: 0;">
                                     <div class="box-container" id="out-debit-mobile">
-                                        <script>for(let i=0; i<11; i++) document.write('<input type="text" maxlength="1">');</script>
                                     </div>
                                 </td>
                             </tr>
@@ -513,7 +511,6 @@
                     <td class="light-gray" style="height: 22px; font-weight: bold;">Account Number</td>
                     <td style="padding: 0;">
                         <div class="box-container" id="out-ben-acc">
-                            <script>for(let i=0; i<17; i++) document.write('<input type="text" maxlength="1">');</script>
                         </div>
                     </td>
                     <td class="light-gray" style="height: 22px; text-align: center; font-weight: bold;">Account</td>
@@ -525,7 +522,6 @@
                     <td class="light-gray" style="font-weight: bold; height: 22px;">Confirm Account No.</td>
                     <td style="padding: 0;">
                         <div class="box-container" id="out-ben-acc-confirm">
-                            <script>for(let i=0; i<17; i++) document.write('<input type="text" maxlength="1">');</script>
                         </div>
                     </td>
                     <td class="light-gray" style="text-align: center; font-weight: bold; height: 22px;">Title</td>
@@ -552,7 +548,6 @@
                     <td class="light-gray" style="font-weight: bold; text-align: center; height: 22px;">Routing Number</td>
                     <td style="padding: 0;">
                         <div class="box-container" id="out-routing">
-                            <script>for(let i=0; i<9; i++) document.write('<input type="text" maxlength="1">');</script>
                         </div>
                     </td>
                 </tr>
@@ -582,8 +577,7 @@
                     <td style="height: 22px;"><input type="text"></td>
                     <td class="light-gray" style="font-weight: bold; text-align: center; height: 22px;">Mobile No.</td>
                     <td style="padding: 0;">
-                        <div class="box-container">
-                            <script>for(let i=0; i<11; i++) document.write('<input type="text" maxlength="1">');</script>
+                        <div class="box-container" id="out-customs-mobile">
                         </div>
                     </td>
                 </tr>
@@ -650,6 +644,17 @@
     </div>
 
     <script>
+        function initializeInputBoxes(containerId, count) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            for (let i = 0; i < count; i++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = 1;
+                container.appendChild(input);
+            }
+        }
+
         // --- Profile Management & JSON Backup Logic ---
 
         function updateProfileDropdown() {
@@ -857,6 +862,13 @@
         }
 
         window.onload = function() {
+            initializeInputBoxes('out-debit-acc', 13);
+            initializeInputBoxes('out-debit-mobile', 11);
+            initializeInputBoxes('out-ben-acc', 17);
+            initializeInputBoxes('out-ben-acc-confirm', 17);
+            initializeInputBoxes('out-routing', 9);
+            initializeInputBoxes('out-customs-mobile', 11);
+
             updateProfileDropdown(); 
             toggleAutoDate();
             toggleAutoTransferDate(); 
