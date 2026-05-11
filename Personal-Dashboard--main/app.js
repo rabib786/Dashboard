@@ -5946,34 +5946,36 @@ if (typeof window !== 'undefined') {
 
 // Import Torn Engine Script dynamically if not present
 if (typeof document !== 'undefined' && document.querySelector && !document.querySelector('script[src="torn_engine.js"]')) {
-  const script = (typeof document !== 'undefined' && document.createElement) ? document.createElement('script') : {};
+  const script = document.createElement('script');
   script.src = 'torn_engine.js';
-  if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
+  if (document.head) document.head.appendChild(script);
 }
 
 // Import Torn Widgets Script dynamically if not present
 if (typeof document !== 'undefined' && document.querySelector && !document.querySelector('script[src="torn_widgets.js"]')) {
-  const script = typeof document !== 'undefined' ? document.createElement('script') : {};
+  const script = document.createElement('script');
   script.src = 'torn_widgets.js';
-  if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
+  if (document.head) document.head.appendChild(script);
 }
 
 // Add CSS for Torn Widgets
-const tornStyles = (typeof document !== 'undefined' && document.createElement) ? document.createElement('style') : {};
-tornStyles.innerHTML = `
-  .torn-widget { border: 1px solid var(--border-color, #ccc); margin-bottom: 10px; padding: 10px; border-radius: 8px; }
-  .torn-widget h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
-  .event-list { list-style-type: none; padding-left: 0; }
-  .event-list li { margin-bottom: 5px; border-bottom: 1px solid var(--border-color, #eee); padding-bottom: 5px; }
-  .event-list li:last-child { border-bottom: none; }
-`;
-if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(tornStyles);
+if (typeof document !== 'undefined' && document.createElement) {
+  const tornStyles = document.createElement('style');
+  tornStyles.innerHTML = `
+    .torn-widget { border: 1px solid var(--border-color, #ccc); margin-bottom: 10px; padding: 10px; border-radius: 8px; }
+    .torn-widget h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
+    .event-list { list-style-type: none; padding-left: 0; }
+    .event-list li { margin-bottom: 5px; border-bottom: 1px solid var(--border-color, #eee); padding-bottom: 5px; }
+    .event-list li:last-child { border-bottom: none; }
+  `;
+  if (document.head) document.head.appendChild(tornStyles);
+}
 
 // Import Torn Settings UI Script dynamically if not present
 if (typeof document !== 'undefined' && document.querySelector && !document.querySelector('script[src="torn_settings.js"]')) {
-  const script = typeof document !== 'undefined' ? document.createElement('script') : {};
+  const script = document.createElement('script');
   script.src = 'torn_settings.js';
-  if (typeof document !== 'undefined' && document.head) document.head.appendChild(script);
+  if (document.head) document.head.appendChild(script);
 }
 
 // Global hook for the button
@@ -5986,33 +5988,35 @@ window.openTornSettings = function() {
 };
 
 // CSS for Settings Modal
-const settingsStyles = (typeof document !== 'undefined' && document.createElement) ? document.createElement('style') : {};
-settingsStyles.innerHTML = `
-  .torn-settings-modal {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 1000;
-  }
-  .settings-content {
-    background: var(--modal-bg); color: var(--text-main);
-    border: 1px solid var(--glass-border); border-radius: var(--border-radius);
-    padding: 30px; width: 90%; max-width: 600px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    max-height: 90vh; overflow-y: auto;
-  }
-  .settings-section { margin-bottom: 20px; }
-  .widget-list { list-style: none; padding: 0; }
-  .widget-list li {
-    display: flex; align-items: center; padding: 10px;
-    border: 1px solid var(--glass-border); border-radius: 8px;
-    margin-bottom: 8px; background: var(--inner-bg); cursor: grab;
-  }
-  .drag-handle { margin-right: 10px; cursor: grab; color: var(--text-muted); }
-  .widget-name { flex-grow: 1; margin-left: 10px; }
-  .poll-override { width: 80px; background: var(--inner-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 4px 8px; border-radius: 4px; }
-`;
-if (typeof document !== 'undefined' && document.head) if (typeof document !== 'undefined' && document.head) document.head.appendChild(settingsStyles);
+if (typeof document !== 'undefined' && document.createElement) {
+  const settingsStyles = document.createElement('style');
+  settingsStyles.innerHTML = `
+    .torn-settings-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000;
+    }
+    .settings-content {
+      background: var(--modal-bg); color: var(--text-main);
+      border: 1px solid var(--glass-border); border-radius: var(--border-radius);
+      padding: 30px; width: 90%; max-width: 600px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .settings-section { margin-bottom: 20px; }
+    .widget-list { list-style: none; padding: 0; }
+    .widget-list li {
+      display: flex; align-items: center; padding: 10px;
+      border: 1px solid var(--glass-border); border-radius: 8px;
+      margin-bottom: 8px; background: var(--inner-bg); cursor: grab;
+    }
+    .drag-handle { margin-right: 10px; cursor: grab; color: var(--text-muted); }
+    .widget-name { flex-grow: 1; margin-left: 10px; }
+    .poll-override { width: 80px; background: var(--inner-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 4px 8px; border-radius: 4px; }
+  `;
+  if (document.head) document.head.appendChild(settingsStyles);
+}
 
 // Initial Render Hook for Dashboard
 window.activeTornWidgets = window.activeTornWidgets || [];
